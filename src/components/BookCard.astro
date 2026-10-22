@@ -1,0 +1,18 @@
+---
+import Icon from './Icon.astro';
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+interface Props { book: CollectionEntry<'books'> }
+const { book } = Astro.props;
+---
+<article class="book-card" data-book data-genre={book.data.genre} data-series={book.data.series} data-year={book.data.publicationDate.getUTCFullYear()}>
+  <a class="book-art" href={`/livres/${book.id}/`} aria-label={`Découvrir ${book.data.title}`}>
+    <Image src={book.data.cover} alt={book.data.coverAlt} width={400} height={600} loading="lazy" />
+    <span class="book-explore">Ouvrir le livre <span aria-hidden="true"><Icon name="arrow-up" /></span></span>
+  </a>
+  <div class="book-meta">{book.data.genre} <span aria-hidden="true">·</span> {book.data.publicationDate.getUTCFullYear()}</div>
+  <h3><a href={`/livres/${book.id}/`}>{book.data.title}</a></h3>
+  <p class="book-series">{book.data.series}{book.data.volume && ` · Tome ${book.data.volume}`}</p>
+  <p>{book.data.description}</p>
+  {book.data.demo && <span class="demo-label">Roman de démonstration</span>}
+</article>

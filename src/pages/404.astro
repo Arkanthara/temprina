@@ -1,0 +1,7 @@
+---
+import Icon from '../components/Icon.astro';
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Page introuvable" description="Ce sentier ne mène à aucune page. Retrouvez le catalogue et l’accueil du site." noindex>
+  <section class="lost-page container"><p class="eyebrow">ERREUR 404 · SENTIER OUBLIÉ</p><span class="lost-star" aria-hidden="true"><Icon name="spark" /></span><h1>Vous voici entre<br />deux <em>mondes.</em></h1><p>Cette page n’existe pas, ou son chemin a changé.<br />Reprenons le fil de l’histoire.</p><div class="lost-actions"><a class="button" href="/">Revenir à l’accueil <Icon name="arrow-up" /></a><a class="text-link" href="/catalogue/">Explorer les romans <Icon name="arrow-right" /></a></div></section>
+</Layout>

@@ -1,0 +1,51 @@
+---
+import Icon from '../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import BookCard from '../components/BookCard.astro';
+import { isVisible } from '../lib/site';
+const books = (await getCollection('books', isVisible)).sort((a,b) => b.data.publicationDate.valueOf()-a.data.publicationDate.valueOf());
+const genres = [...new Set(books.map(b => b.data.genre))].sort();
+const series = [...new Set(books.map(b => b.data.series))].sort();
+const years = [...new Set(books.map(b => b.data.publicationDate.getUTCFullYear()))].sort((a,b) => b-a);
+---
+<Layout title="Les romans — Catalogue" description="Parcourez les romans par genre, série et année. Découvrez leurs histoires et contactez l’auteur pour vous procurer un livre.">
+  <div class="page-heading container"><p class="eyebrow">LA BIBLIOTHÈQUE DES POSSIBLES</p><h1>À chaque livre,<br />un autre <em>monde.</em></h1><p>Suivez votre curiosité. La prochaine aventure se cache peut-être ici.</p></div>
+  <section class="container catalogue-section" aria-label="Catalogue des romans">
+    <form class="filters" hidden data-filters>
+      <label><span id="genre-label">Genre</span><select name="genre" aria-labelledby="genre-label"><option value="">Tous les genres</option>{genres.map(genre => <option>{genre}</option>)}</select></label>
+      <label><span id="series-label">Série</span><select name="series" aria-labelledby="series-label"><option value="">Toutes les séries</option>{series.map(value => <option>{value}</option>)}</select></label>
+      <label><span id="year-label">Année</span><select name="year" aria-labelledby="year-label"><option value="">Toutes les années</option>{years.map(year => <option>{year}</option>)}</select></label>
+      <button class="reset-button" type="reset">Réinitialiser <Icon name="reset" /></button>
+    </form>
+    <noscript><p class="notice">Tous les romans sont affichés. Activez JavaScript pour utiliser les filtres.</p></noscript>
+    <p class="result-count" role="status" data-result>{books.length} roman{books.length !== 1 ? 's' : ''} à découvrir</p>
+    <div class="books-grid">{books.map(book => <BookCard book={book} />)}</div>
+    <div class="empty-state" data-empty hidden><h2>Aucun roman sur ce chemin.</h2><p>Essayez un autre filtre ou réinitialisez votre recherche.</p></div>
+  </section>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('[data-filters]');
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-book]')];
+    const result = document.querySelector<HTMLElement>('[data-result]');
+    const empty = document.querySelector<HTMLElement>('[data-empty]');
+    if (form) {
+      form.hidden = false;
+      const keys = ['genre', 'series', 'year'] as const;
+      const update = () => {
+        const values = new FormData(form); let count = 0;
+        cards.forEach(card => { const visible = keys.every(key => !values.get(key) || card.dataset[key] === values.get(key)); card.hidden = !visible; if (visible) count++; });
+        if (result) result.textContent = `${count} roman${count !== 1 ? 's' : ''} à découvrir`;
+        if (empty) empty.hidden = count !== 0;
+        const url = new URL(location.href);
+        keys.forEach(key => { const value = String(values.get(key) || ''); value ? url.searchParams.set(key,value) : url.searchParams.delete(key); });
+        history.replaceState(null, '', url);
+      };
+      const params = new URLSearchParams(location.search);
+      keys.forEach(key => { const select = form.elements.namedItem(key) as HTMLSelectElement; const value = params.get(key); if (value && [...select.options].some(o => o.value === value)) select.value = value; });
+      form.addEventListener('change',update);
+      form.addEventListener('submit',event => event.preventDefault());
+      form.addEventListener('reset',() => setTimeout(update,0));
+      update();
+    }
+  </script>
+</Layout>

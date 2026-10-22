@@ -1,0 +1,11 @@
+---
+import Icon from '../components/Icon.astro';
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import forest from '../assets/foret-enchantee.png';
+import { site } from '../lib/site';
+---
+<Layout title="L’auteur — Derrière les mots" description="Découvrez l’univers de l’auteur et les chemins qui mènent à ses romans.">
+  <div class="page-heading container"><p class="eyebrow">DERRIÈRE LES MOTS</p><h1>L’imaginaire,<br />comme <em>horizon.</em></h1></div>
+  <section class="container author-page"><div class="author-illustration"><Image src={forest} alt="Une forêt imaginaire s’ouvre sur un passage lumineux." width={700} format="webp" /><span>Un passage vers d’autres mondes</span></div><div class="prose"><p class="eyebrow">{site.author}</p><h2>Une rencontre à venir</h2><p>La présentation de l’auteur prendra bientôt place ici : son parcours, ses inspirations et ce qui l’anime lorsqu’il écrit.</p><p>En attendant, ce site vous invite à découvrir une direction artistique et des histoires de démonstration, imaginées autour des forêts anciennes, des secrets oubliés et de la magie qui se glisse dans le quotidien.</p><blockquote>« Il suffit parfois d’une page pour trouver un chemin que l’on ne cherchait pas. »<cite>Texte de démonstration</cite></blockquote><p>Le nom, la biographie et un éventuel portrait seront ajoutés lorsque ces éléments seront disponibles.</p><a class="text-link" href="/catalogue/">Découvrir les romans <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div></section>
+</Layout>

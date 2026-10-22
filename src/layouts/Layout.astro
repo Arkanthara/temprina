@@ -1,0 +1,76 @@
+---
+import Icon from '../components/Icon.astro';
+import '@fontsource/cormorant-garamond/latin-400.css';
+import '@fontsource/cormorant-garamond/latin-500.css';
+import '@fontsource/cormorant-garamond/latin-400-italic.css';
+import '@fontsource/manrope/latin-400.css';
+import '@fontsource/manrope/latin-500.css';
+import '@fontsource/manrope/latin-600.css';
+import '../styles/global.css';
+import Emblem from '../components/Emblem.astro';
+import { site } from '../lib/site';
+interface Props { title: string; description?: string; image?: string; type?: 'website' | 'article' | 'book'; schema?: Record<string, unknown>; noindex?: boolean }
+const { title, description = site.description, image = '/images/social.jpg', type = 'website', schema, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const nav = [{ href: '/', label: 'Accueil' }, { href: '/catalogue/', label: 'Les romans' }, { href: '/auteur/', label: 'L’auteur' }, { href: '/blog/', label: 'Au coin du feu' }];
+const active = (href: string) => href === '/' ? Astro.url.pathname === '/' : Astro.url.pathname.startsWith(href) || (href === '/catalogue/' && Astro.url.pathname.startsWith('/livres/'));
+const authorSchema = { '@context': 'https://schema.org', '@type': 'Person', '@id': new URL('/auteur/#auteur', Astro.site).href, name: site.author, url: new URL('/auteur/', Astro.site).href, jobTitle: 'Auteur de romans' };
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — {site.author}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#101f1d" />
+    {(site.demo || noindex) && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content={site.author} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, Astro.site)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema || authorSchema).replace(/</g, '\\u003c')} />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    {site.demo && <div class="demo-bar">Un univers en préparation <span aria-hidden="true"><Icon name="spark" /></span> Site de démonstration · Livres et textes fictifs</div>}
+    <header class="site-header">
+      <a href="/" class="brand" aria-label={`${site.author} — Accueil`}><Emblem /><span>{site.author}<small>ROMANS & IMAGINAIRES</small></span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" hidden>Menu <span aria-hidden="true"><Icon name="menu" /></span></button>
+      <nav id="navigation" aria-label="Navigation principale">
+        {nav.map(({ href, label }) => <a href={href} aria-current={active(href) ? 'page' : undefined}>{label}</a>)}
+        <a href="/contact/" class="nav-contact" aria-current={active('/contact/') ? 'page' : undefined}>Écrivons-nous <span aria-hidden="true"><Icon name="arrow-up" /></span></a>
+      </nav>
+    </header>
+    <main id="contenu"><slot /></main>
+    <footer class="site-footer">
+      <div class="footer-top"><a href="/" class="brand"><Emblem /><span>{site.author}<small>CHAQUE LIVRE EST UN PASSAGE.</small></span></a><p>Pour celles et ceux qui croient<br />encore à la magie des histoires.</p><a class="text-link" href="/contact/">Écrivons-nous <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
+      <div class="footer-bottom"><span>© {new Date().getUTCFullYear()} · {site.author}</span><div><a href="/mentions-legales/">Mentions légales</a><a href="/confidentialite/">Confidentialité</a></div><span>Imaginé entre les pages <span class="gold" aria-hidden="true"><Icon name="spark" /></span></span></div>
+    </footer>
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const navigation = document.querySelector<HTMLElement>('#navigation');
+      if (toggle && navigation) {
+        toggle.hidden = false;
+        document.documentElement.classList.add('has-js');
+        toggle.addEventListener('click', () => toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true')));
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+            toggle.setAttribute('aria-expanded', 'false'); toggle.focus();
+          }
+        });
+        navigation.addEventListener('click', (event) => { if ((event.target as HTMLElement).closest('a')) toggle.setAttribute('aria-expanded', 'false'); });
+      }
+    </script>
+  </body>
+</html>

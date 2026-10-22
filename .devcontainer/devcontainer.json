@@ -1,0 +1,10 @@
+{
+  "name": "Temprina · Astro",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "forwardPorts": [4321],
+  "portsAttributes": { "4321": { "label": "Site Astro", "onAutoForward": "notify" } },
+  "postCreateCommand": "npm ci && npx playwright install --with-deps chromium",
+  "customizations": {
+    "vscode": { "extensions": ["astro-build.astro-vscode"] }
+  }
+}

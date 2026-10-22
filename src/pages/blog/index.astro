@@ -1,0 +1,11 @@
+---
+import Icon from '../../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { isVisible, formatDate } from '../../lib/site';
+const posts = (await getCollection('blog', isVisible)).sort((a,b) => b.data.date.valueOf()-a.data.date.valueOf());
+---
+<Layout title="Au coin du feu — Carnet de lecture" description="Commentaires de lecture, analyses et réflexions littéraires : prenez place au coin du feu.">
+  <div class="page-heading container"><p class="eyebrow">LECTURES & RÉFLEXIONS</p><h1>Prenez place<br />au coin du <em>feu.</em></h1><p>Refermer un livre n’est pas toujours la fin du voyage.<br />Parlons des histoires qui restent avec nous.</p></div>
+  <section class="container journal-list" aria-label="Articles du carnet">{posts.map((post,index) => <article class="journal-row"><span class="journal-number" aria-hidden="true">0{index+1}</span><div><p class="book-meta">{post.data.category} · <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time> · {post.data.readingMinutes} min</p><h2><a href={`/blog/${post.id}/`}>{post.data.title}</a></h2><p>{post.data.description}</p>{post.data.demo && <span class="demo-label">Article de démonstration</span>}</div><a href={`/blog/${post.id}/`} class="round-link" aria-label={`Lire ${post.data.title}`}><Icon name="arrow-up" /></a></article>)}{!posts.length && <p class="empty-state">Les premiers articles arrivent bientôt.</p>}</section>
+</Layout>

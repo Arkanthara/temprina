@@ -1,19 +1,19 @@
 # Vérifications de la première version
 
-Vérifications réalisées le 22 octobre 2026, sur Node.js 22 et Chromium via Playwright.
+Vérifications du catalogue sans filtres réalisées le 23 octobre 2026, sur Node.js 22 et Chromium via Playwright. Les contrôles de production datent du 22 octobre ; les dates des captures sont précisées ci-dessous.
 
 | Contrôle | Résultat |
 | --- | --- |
 | `npm run check` | Aucun diagnostic TypeScript/Astro |
 | `npm run build` | 13 pages HTML générées en mode démonstration |
-| Tests du build | 4 contrôles réussis : structure/SEO, liens et fragments, sitemap/robots, métadonnées livres |
-| Tests navigateur de démonstration | 12 scénarios réussis, profils ordinateur et mobile |
+| Tests du build | 6 contrôles réussis : structure/SEO, liens et fragments, sitemap/robots, métadonnées livres, logo/favicon, catalogue complet sans filtres ni script dédié |
+| Tests navigateur de démonstration | 14 scénarios réussis, profils ordinateur et mobile ; 2 scénarios de production ignorés en mode démonstration |
 | Tests avec contact configuré et mode démo désactivé | 2 scénarios réussis avec des coordonnées temporaires de test |
 | Audit automatisé d’accessibilité | Aucune violation axe WCAG A/AA détectée sur les 10 routes représentatives testées, aux deux formats |
 | Écrans étroits | Aucun débordement horizontal constaté à 320 px sur accueil, catalogue, fiche livre et contact |
 | Validation de production | Refus attendu tant que les coordonnées, la biographie et les pages légales réelles manquent |
 
-Les scénarios couvrent les filtres combinés et leur réinitialisation, l’état sans résultat, les paramètres dans l’URL, la transmission du titre vers Contact, la navigation au clavier et sans JavaScript, ainsi que les liens de partage. Le test de production est ignoré en mode démonstration et a été exécuté séparément avec sa configuration dédiée.
+Les scénarios vérifient l’affichage de tous les romans par date de publication décroissante, le compteur statique, l’absence de contrôles de filtrage et de recherche et l’absence de script propre au catalogue. Les anciens paramètres de filtre ne masquent aucun livre, avec ou sans JavaScript, et l’URL reste inchangée. Les autres contrôles couvrent la transmission du titre vers Contact, la navigation au clavier et sans JavaScript, les liens de partage et le logo fourni dans l’en-tête, le pied de page, l’accueil et le favicon. Le test de production est ignoré en mode démonstration ; les résultats du contact configuré restent ceux du 22 octobre.
 
 ## Aperçus
 
@@ -22,7 +22,7 @@ Les scénarios couvrent les filtres combinés et leur réinitialisation, l’ét
 - [Catalogue mobile](previews/catalogue-mobile.png)
 - [Fiche livre mobile](previews/fiche-livre-mobile.png)
 
-Ces captures proviennent du build local. Le dossier `dist/` livré localement reste en mode démonstration.
+La capture du catalogue mobile est actualisée le 23 octobre, après retrait des filtres. Les autres captures historiques proviennent du build local du 22 octobre, avant le remplacement du logo ; elles ne représentent pas le logo actuel. Le dossier `dist/` livré localement reste en mode démonstration.
 
 ## Limites de la vérification
 

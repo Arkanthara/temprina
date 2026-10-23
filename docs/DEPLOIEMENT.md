@@ -2,7 +2,7 @@
 
 ## En local
 
-Prérequis : Node.js 22.12 ou ultérieur dans la branche 22, npm. La CI et le DevContainer utilisent Node 22.
+Prérequis : Node.js 22.22 ou ultérieur dans la branche 22, ou Node.js 24+, npm. La CI utilise Node 22 et le DevContainer utilise Node 24.
 
 ```sh
 npm ci
@@ -20,7 +20,7 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-Sur un environnement où le répertoire de configuration utilisateur est en lecture seule, préfixer les commandes Astro avec `ASTRO_TELEMETRY_DISABLED=1`. Un build local utilise `.env`. Le script `validate:production` lit l’environnement du processus ; pour lui charger `.env` avec Node 22, utiliser `node --env-file=.env scripts/validate-production.mjs`.
+Sur un environnement où le répertoire de configuration utilisateur est en lecture seule, préfixer les commandes Astro avec `ASTRO_TELEMETRY_DISABLED=1`. Un build local utilise `.env`. Le script `validate:production` lit l’environnement du processus ; pour lui charger `.env` avec Node 22 ou 24, utiliser `node --env-file=.env scripts/validate-production.mjs`.
 
 ## GitHub et Cloudflare
 

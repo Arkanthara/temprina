@@ -1,5 +1,9 @@
 # Illustrations et typographies
 
+## Logo de l’auteur
+
+`public/images/logo.png` est le logo fourni par l’auteur. Il remplace l’emblème vectoriel de démonstration dans l’en-tête, le pied de page et le bandeau auteur de l’accueil, ainsi que l’ancien favicon. Le composant `src/components/Logo.astro` conserve son fond transparent et ses proportions carrées. Son alternative est vide lorsqu’il accompagne le nom de l’auteur ou sert de décoration.
+
 ## Forêt enchantée
 
 Source : `src/assets/foret-enchantee.png`. Créée pour ce projet avec l’outil intégré **Imagegen** ; aucun CLI/API externe utilisé. L’original a été copié dans le dépôt. Astro génère les variantes WebP nécessaires. L’image sociale `public/images/social.jpg` est un export optimisé 1200 × 630 de cette source.

@@ -12,7 +12,7 @@ npm run dev
 
 Le site est disponible à `http://localhost:4321`.
 
-Pages : accueil, catalogue filtrable, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
+Pages : accueil, catalogue de romans, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
 
 ```sh
 npm run check
@@ -29,5 +29,9 @@ npm run test:e2e
 - [Vérifications et aperçus](docs/VERIFICATION.md)
 
 Les configurations sensibles passent par les secrets de l’environnement GitHub `production`. Les variables publiques sont documentées dans `.env.example`. Le mode démo désactive l’indexation. Sans adresse configurée, le contact affiche son indisponibilité ; une fois l’adresse renseignée, il prépare un e-mail dans la messagerie du visiteur.
+
+Le catalogue affiche tous les romans publiés, du plus récent au plus ancien, avec ou sans JavaScript. Les filtres et la recherche textuelle sont des évolutions possibles ; les champs genre, série et date de publication sont conservés dans les contenus pour permettre leur ajout ultérieur.
+
+Le logo de l’auteur (`public/images/logo.png`) est utilisé dans l’en-tête, le pied de page, l’accueil et comme favicon.
 
 Les intégrations newsletter, bibliothèque et achat ne sont pas implémentées dans cette version.

@@ -4,6 +4,8 @@
 
 Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PUBLIC_AUTHOR_NAME`, l’adresse dans `PUBLIC_CONTACT_EMAIL` et l’origine canonique dans `PUBLIC_SITE_URL`. Les variables `PUBLIC_*` deviennent publiques dans le site statique : elles ne doivent jamais contenir de secrets. Reconstruire après chaque changement.
 
+Le logo de l’auteur est fourni dans `public/images/logo.png`. Pour le changer, remplacer ce fichier en conservant une image carrée et transparente ; adapter les dimensions intrinsèques de `src/components/Logo.astro` si nécessaire. Ce composant est utilisé dans l’en-tête, le pied de page et l’accueil ; le même fichier sert de favicon.
+
 Remplacer la présentation de `src/pages/auteur.astro`. Les pages de mentions légales et de confidentialité sont des textes préparatoires à compléter selon l’identité et la situation réelles, puis à faire valider. Aucun parcours ni portrait personnel n’a été inventé.
 
 ## Ajouter un roman
@@ -27,11 +29,19 @@ demo: false
 Le résumé complet, en **Markdown**, commence ici.
 ```
 
-La fiche apparaît à `/livres/un-nouveau-roman/`. Le catalogue, ses filtres, les données structurées et le sitemap se mettent à jour au build. Sur l’accueil, les romans `featured: true` passent en premier, puis les plus récents, avec un maximum de trois.
+La fiche apparaît à `/livres/un-nouveau-roman/`. Le catalogue, les données structurées et le sitemap se mettent à jour au build. Sur l’accueil, les romans `featured: true` passent en premier, puis les plus récents, avec un maximum de trois.
 
-Pour une série, indiquer le même libellé `series` sur ses tomes et ajouter `volume: 1`. L’année du filtre est calculée depuis `publicationDate`. Le nom de fichier sert d’identifiant : le conserver après publication, ou prévoir une redirection Cloudflare en cas de changement.
+Pour une série, indiquer le même libellé `series` sur ses tomes et ajouter `volume: 1`. La date `publicationDate` détermine l’ordre du catalogue, du plus récent au plus ancien. Le nom de fichier sert d’identifiant : le conserver après publication, ou prévoir une redirection Cloudflare en cas de changement.
 
 Champs réservés facultatifs : `publisher`, `isbn`, `formats` (liste) et `purchaseLinks` (liste d’objets `label`, `url`). Ils n’ajoutent pas de bouton d’achat ; `publisher` et `isbn`, lorsqu’ils existent, enrichissent déjà le JSON-LD. Les interfaces correspondantes restent à décider pour la suite.
+
+## Catalogue et filtres éventuels
+
+Le catalogue affiche tous les romans visibles, triés par date de publication décroissante. Il ne propose ni filtres ni recherche textuelle et fonctionne sans JavaScript. Les anciens paramètres d’URL (`genre`, `series`, `year`) sont sans effet sur les livres affichés.
+
+Les champs `genre`, `series` et `publicationDate` restent dans le schéma des livres et dans leurs fichiers Markdown. Ils servent aux informations affichées et permettront d’ajouter des filtres ultérieurement sans migrer les contenus. Aucun composant de filtrage ni code de filtrage désactivé n’est conservé.
+
+Si cette évolution est retenue, les options pourront être déduites des romans visibles. Il faudra alors ajouter les contrôles accessibles, la logique de sélection, l’état sans résultat et leurs tests, puis documenter le comportement des URL. Aucun réglage n’est nécessaire aujourd’hui pour l’ajout d’un livre.
 
 ## Ajouter un article
 

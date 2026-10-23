@@ -18,21 +18,25 @@ test('pages render without horizontal overflow, missing images or accessibility 
   expect(errors).toEqual([]);
 });
 
-test('catalogue combines filters, handles empty results, persists URL and resets', async ({ page }) => {
+test('catalogue displays all books in publication order without filter controls', async ({ page }) => {
   await page.goto('/catalogue/');
+  const books = page.locator('[data-book]:visible');
+  await expect(books).toHaveCount(3);
+  await expect(books.locator('h3')).toHaveText(['Les Veilleurs de Lune', 'Le Chant des Sylves', 'La Dernière Braise']);
+  await expect(page.locator('.result-count')).toHaveText('3 romans à découvrir');
+  await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
+  await expect(page.locator('form, [data-filter-notice]')).toHaveCount(0);
+});
+
+test('legacy filter parameters do not hide books or change the URL', async ({ page }) => {
+  const path = '/catalogue/?genre=Fantasy&series=inconnue&year=2026&source=partage#contenu';
+  await page.goto(path);
   await expect(page.locator('[data-book]:visible')).toHaveCount(3);
-  await page.getByLabel('Genre',{exact:true}).selectOption('Conte fantastique');
-  await expect(page.locator('[data-book]:visible')).toHaveCount(1);
-  await expect(page).toHaveURL(/genre=Conte/);
+  await expect(page.locator('.result-count')).toHaveText('3 romans à découvrir');
+  await expect(page).toHaveURL(`http://127.0.0.1:4321${path}`);
   await page.reload();
-  await expect(page.locator('[data-book]:visible')).toHaveCount(1);
-  await page.getByLabel('Année',{exact:true}).selectOption('2026');
-  await expect(page.locator('[data-book]:visible')).toHaveCount(0);
-  await expect(page.locator('[data-empty]')).toBeVisible();
-  await page.getByRole('button',{name:'Réinitialiser'}).click();
   await expect(page.locator('[data-book]:visible')).toHaveCount(3);
-  await page.getByLabel('Série',{exact:true}).selectOption('Les Chroniques d’Aëlor');
-  await expect(page.locator('[data-book]:visible')).toHaveCount(2);
 });
 
 test('book contact preserves title and explicitly states contact is not configured', async ({ page }) => {
@@ -68,10 +72,11 @@ test('share fallback gives the canonical URL and email share link', async ({ pag
 test('reading and navigation work without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled:false, viewport:{width:390,height:844} });
   const page = await context.newPage();
-  await page.goto('http://127.0.0.1:4321/catalogue/');
+  await page.goto('http://127.0.0.1:4321/catalogue/?genre=Fantasy&year=2026');
   await expect(page.getByRole('navigation').getByRole('link',{name:'Les romans'})).toBeVisible();
-  await expect(page.locator('[data-book]')).toHaveCount(3);
-  await expect(page.locator('[data-filters]')).toBeHidden();
+  await expect(page.locator('[data-book]:visible')).toHaveCount(3);
+  await expect(page.locator('form, [data-filter-notice]')).toHaveCount(0);
+  await expect(page.locator('.result-count')).toHaveText('3 romans à découvrir');
   await page.getByRole('heading',{name:'Le Chant des Sylves'}).getByRole('link').click();
   await expect(page.locator('h1')).toHaveText('Le Chant des Sylves');
   await context.close();

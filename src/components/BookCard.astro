@@ -5,7 +5,7 @@ import type { CollectionEntry } from 'astro:content';
 interface Props { book: CollectionEntry<'books'> }
 const { book } = Astro.props;
 ---
-<article class="book-card" data-book data-genre={book.data.genre} data-series={book.data.series} data-year={book.data.publicationDate.getUTCFullYear()}>
+<article class="book-card" data-book>
   <a class="book-art" href={`/livres/${book.id}/`} aria-label={`Découvrir ${book.data.title}`}>
     <Image src={book.data.cover} alt={book.data.coverAlt} width={400} height={600} loading="lazy" />
     <span class="book-explore">Ouvrir le livre <span aria-hidden="true"><Icon name="arrow-up" /></span></span>

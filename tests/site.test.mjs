@@ -77,3 +77,34 @@ test('demo book metadata includes a raster image for social sharing', async () =
     assert.ok($('a[href^="/contact/?livre="]').length);
   }
 });
+
+test('author logo is used in the header, footer, homepage and favicon', async () => {
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    for (const container of ['.site-header', '.site-footer']) {
+      const logo = $(`${container} .brand img`);
+      assert.equal(logo.attr('src'), '/images/logo.png', file);
+      assert.equal(logo.attr('alt'), '', file);
+      assert.equal(logo.attr('width'), logo.attr('height'), file);
+    }
+    assert.equal($('link[rel="icon"]').attr('href'), '/images/logo.png', file);
+    assert.equal($('link[rel="icon"]').attr('type'), 'image/png', file);
+  }
+  const $ = load(await readFile(join(root, 'index.html'), 'utf8'));
+  assert.equal($('.ornament img').attr('src'), '/images/logo.png');
+  assert.deepEqual(await readFile(join(root, 'images/logo.png')), await readFile('public/images/logo.png'));
+});
+
+test('catalogue lists every published book without filtering controls or catalogue scripts', async () => {
+  const $ = load(await readFile(join(root, 'catalogue/index.html'), 'utf8'));
+  assert.equal($('main form, main select, main input, [data-filters], [data-filter-notice]').length, 0);
+  assert.equal($('main script').length, 0);
+  const bookTitles = $('[data-book] h3').toArray().map(heading => $(heading).text());
+  const publishedTitles = await Promise.all(htmlFiles.filter(file => file.includes('/livres/')).map(async file => {
+    const page = load(await readFile(file, 'utf8'));
+    return page('h1').text();
+  }));
+  assert.deepEqual(bookTitles.toSorted(), publishedTitles.toSorted());
+  assert.equal($('.result-count').text(), `${bookTitles.length} roman${bookTitles.length > 1 ? 's' : ''} à découvrir`);
+  assert.equal($('.empty-state').length, bookTitles.length ? 0 : 1);
+});

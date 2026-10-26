@@ -9,15 +9,19 @@ export async function getStaticPaths() { return (await getCollection('books', is
 const { book } = Astro.props;
 const { Content } = await render(book);
 const cover = await getImage({ src: book.data.cover, width: 600, format: 'jpg' });
-const schema = { '@context': 'https://schema.org', '@type': 'Book', name: book.data.title, description: book.data.description, author: { '@type': 'Person', name: site.author, '@id': new URL('/auteur/#auteur', Astro.site).href }, datePublished: book.data.publicationDate.toISOString().slice(0,10), inLanguage: 'fr', genre: book.data.genre, image: new URL(cover.src, Astro.site).href, url: new URL(Astro.url.pathname, Astro.site).href, ...(book.data.isbn && { isbn: book.data.isbn }), ...(book.data.publisher && { publisher: { '@type': 'Organization', name: book.data.publisher } }) };
+const eyebrow = [book.data.genre, book.data.series, book.data.volume && `Tome ${book.data.volume}`].filter(Boolean).join(' · ');
+const description = book.data.description || `Découvrez ${book.data.title}, un roman de ${site.author}, publié le ${formatDate(book.data.publicationDate)}.`;
+const hasContent = Boolean(book.body?.trim());
+const schema = { '@context': 'https://schema.org', '@type': 'Book', name: book.data.title, ...(book.data.description && { description: book.data.description }), author: { '@type': 'Person', name: site.author, '@id': new URL('/auteur/#auteur', Astro.site).href }, datePublished: book.data.publicationDate.toISOString().slice(0,10), inLanguage: 'fr', ...(book.data.genre && { genre: book.data.genre }), image: new URL(cover.src, Astro.site).href, url: new URL(Astro.url.pathname, Astro.site).href, ...(book.data.isbn && { isbn: book.data.isbn }), ...(book.data.publisher && { publisher: { '@type': 'Organization', name: book.data.publisher } }) };
 ---
-<Layout title={book.data.title} description={book.data.description} image={cover.src} type="book" schema={schema}>
+<Layout title={book.data.title} description={description} image={cover.src} type="book" schema={schema}>
   <div class="container book-detail">
     <a href="/catalogue/" class="back-link"><Icon name="arrow-left" /> Tous les romans</a>
-    <div class="book-detail-grid"><div class="detail-cover"><Image src={book.data.cover} alt={book.data.coverAlt} width={600} height={900} loading="eager" />{book.data.demo && <p class="demo-label">Couverture et roman de démonstration</p>}</div>
-      <div class="book-info"><p class="eyebrow">{book.data.genre} · {book.data.series}{book.data.volume && ` · Tome ${book.data.volume}`}</p><h1>{book.data.title}</h1>{book.data.subtitle && <p class="book-subtitle">{book.data.subtitle}</p>}<p class="byline">Un roman de {site.author}</p>
-        <div class="prose"><Content /></div>
-        <dl class="book-facts"><div><dt>Publication</dt><dd><time datetime={book.data.publicationDate.toISOString()}>{formatDate(book.data.publicationDate)}</time></dd></div><div><dt>Genre</dt><dd>{book.data.genre}</dd></div><div><dt>Série</dt><dd>{book.data.series}</dd></div></dl>
+    <div class="book-detail-grid"><div class="detail-cover"><Image src={book.data.cover} alt={book.data.coverAlt || `Couverture de ${book.data.title}`} width={600} height={900} loading="eager" />{book.data.demo && <p class="demo-label">Couverture et roman de démonstration</p>}</div>
+      <div class="book-info">{eyebrow && <p class="eyebrow">{eyebrow}</p>}<h1>{book.data.title}</h1>{book.data.subtitle && <p class="book-subtitle">{book.data.subtitle}</p>}<p class="byline">Un roman de {site.author}</p>
+        {book.data.description && <p class="book-description">{book.data.description}</p>}
+        {hasContent && <div class="prose"><Content /></div>}
+        <dl class="book-facts"><div><dt>Publication</dt><dd><time datetime={book.data.publicationDate.toISOString()}>{formatDate(book.data.publicationDate)}</time></dd></div>{book.data.genre && <div><dt>Genre</dt><dd>{book.data.genre}</dd></div>}{book.data.series && <div><dt>Série</dt><dd>{book.data.series}</dd></div>}{book.data.volume && <div><dt>Tome</dt><dd>{book.data.volume}</dd></div>}</dl>
         <div class="purchase-note"><h2>Cette histoire vous appelle ?</h2><p>Contactez directement l’auteur pour connaître les disponibilités et vous procurer ce livre.</p><a class="button" href={`/contact/?livre=${encodeURIComponent(book.data.title)}`}>Contacter l’auteur pour ce livre <span aria-hidden="true"><Icon name="arrow-up" /></span></a>{book.data.demo && <p class="demo-label">Exemple fictif · Ce livre n’est pas disponible à l’achat.</p>}</div>
         <Share title={book.data.title} />
       </div>

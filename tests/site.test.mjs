@@ -108,3 +108,64 @@ test('catalogue lists every published book without filtering controls or catalog
   assert.equal($('.result-count').text(), `${bookTitles.length} roman${bookTitles.length > 1 ? 's' : ''} à découvrir`);
   assert.equal($('.empty-state').length, bookTitles.length ? 0 : 1);
 });
+
+
+test('minimal book renders only supplied fields and retains accessible covers and SEO', async () => {
+  const source = await readFile('src/content/books/la-derniere-braise.md', 'utf8');
+  assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover']);
+  const $ = load(await readFile(join(root, 'livres/la-derniere-braise/index.html'), 'utf8'));
+  assert.equal($('h1').text(), 'La Dernière Braise');
+  assert.equal($('.book-info > .eyebrow, .book-subtitle, .book-description, .book-info .prose').length, 0);
+  assert.deepEqual($('.book-facts dt').toArray().map(el => $(el).text()), ['Publication']);
+  assert.equal($('.detail-cover img').attr('alt'), 'Couverture de La Dernière Braise');
+  assert.match($('meta[name="description"]').attr('content'), /La Dernière Braise/);
+  const schema = JSON.parse($('script[type="application/ld+json"]').text());
+  assert.equal('description' in schema, false);
+  assert.equal('genre' in schema, false);
+  for (const path of ['catalogue/index.html', 'index.html']) {
+    const page = load(await readFile(join(root, path), 'utf8'));
+    const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === 'La Dernière Braise');
+    // The homepage deliberately shows at most three books.
+    if (path.startsWith('catalogue')) assert.equal(card.length, 1);
+    if (!card.length) continue;
+    assert.equal(card.find('.book-meta').text().trim(), '2024');
+    assert.equal(card.find('.book-subtitle, .book-series, .book-description').length, 0);
+    assert.equal(card.find('img').attr('alt'), 'Couverture de La Dernière Braise');
+  }
+});
+
+test('complete book renders optional fields on the homepage, catalogue and detail page', async () => {
+  const description = 'Au cœur d’une forêt qui perd sa mémoire, une jeune cartographe entend un chant que personne ne devrait plus connaître.';
+  for (const path of ['index.html', 'catalogue/index.html']) {
+    const $ = load(await readFile(join(root, path), 'utf8'));
+    const card = $('[data-book]').filter((_, el) => $(el).find('h3').text() === 'Le Chant des Sylves');
+    assert.equal(card.length, 1);
+    assert.equal(card.find('.book-subtitle').text(), 'Lorsque la forêt se souvient.');
+    assert.equal(card.find('.book-series').text(), 'Les Chroniques d’Aëlor · Tome 1');
+    assert.equal(card.find('.book-description').text(), description);
+    assert.match(card.find('img').attr('alt'), /arbre d’or/);
+  }
+  const $ = load(await readFile(join(root, 'livres/le-chant-des-sylves/index.html'), 'utf8'));
+  assert.equal($('.book-info > .eyebrow').text(), 'Fantasy · Les Chroniques d’Aëlor · Tome 1');
+  assert.equal($('.book-subtitle').text(), 'Lorsque la forêt se souvient.');
+  assert.equal($('.book-description').text(), description);
+  assert.ok($('.book-info .prose').text().trim());
+  assert.deepEqual($('.book-facts dt').toArray().map(el => $(el).text()), ['Publication', 'Genre', 'Série', 'Tome']);
+  const schema = JSON.parse($('script[type="application/ld+json"]').text());
+  assert.equal(schema.description, description);
+  assert.equal(schema.genre, 'Fantasy');
+  assert.equal(schema.publisher.name, 'Éditions des Sylves (fictives)');
+  assert.equal(schema.isbn, '9780000000002');
+});
+
+test('optional metadata never leaves empty elements, separators or cover alternatives', async () => {
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    for (const element of $('.book-series, .book-subtitle, .book-description, .book-info > .eyebrow, .book-facts dd, .book-meta').toArray()) {
+      const value = $(element).text().trim();
+      assert.ok(value, file);
+      assert.doesNotMatch(value, /^(?:·|undefined|null)|(?:·|undefined|null)$|·\s*·/, file);
+    }
+    for (const cover of $('.book-art img, .detail-cover img').toArray()) assert.ok($(cover).attr('alt')?.trim(), file);
+  }
+});

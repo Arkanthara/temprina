@@ -9,7 +9,16 @@ publicationDate: 2025-09-18
 cover: ../../assets/chant-des-sylves.png
 coverAlt: Couverture de démonstration du Chant des Sylves, arbre d’or sur fond vert forêt.
 featured: true
+draft: false
 demo: true
+publisher: Éditions des Sylves (fictives)
+isbn: "9780000000002"
+formats:
+  - Broché
+  - Numérique
+purchaseLinks:
+  - label: Librairie de démonstration
+    url: https://example.com/le-chant-des-sylves/
 ---
 Dans la forêt d’Aëlor, les arbres portent les souvenirs des hommes. Mais depuis trois nuits, leurs feuilles tombent sans bruit, et les villages oublient jusqu’à leur propre nom.
 

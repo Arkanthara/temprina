@@ -19,7 +19,7 @@ Illustrations et couvertures optimisées par Astro en WebP ; le logo fourni est 
 
 Les identifiants de livres correspondent aux noms de fichiers et doivent rester stables. Ils pourront être référencés par une bibliothèque d’exemplaires, des emprunts ou des commandes. Les champs bibliographiques facultatifs existent, mais aucun achat, inscription, compte, emprunt ou newsletter n’est implémenté.
 
-Les filtres et la recherche textuelle sont reportés à une évolution éventuelle. Les champs `genre`, `series` et `publicationDate` des collections sont conservés pour permettre leur ajout sans migration des contenus. Les options de futurs filtres pourront être dérivées des livres visibles ; leur interface, leur logique et leurs tests seront ajoutés lorsque cette évolution sera demandée. Aucun formulaire ou script de filtrage désactivé ni index de recherche n’est conservé dans la version actuelle.
+Les filtres et la recherche textuelle sont reportés à une évolution éventuelle. Les champs facultatifs `genre` et `series` et la date obligatoire `publicationDate` des livres sont conservés pour permettre leur ajout sans migration des contenus. Les options de futurs filtres pourront être dérivées des livres visibles ; leur interface, leur logique et leurs tests seront ajoutés lorsque cette évolution sera demandée. Aucun formulaire ou script de filtrage désactivé ni index de recherche n’est conservé dans la version actuelle.
 
 La suite devra définir séparément :
 

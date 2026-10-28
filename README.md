@@ -2,7 +2,7 @@
 
 Première version d’un site français de romans, avec un univers féérique et elfique. **Astro + TypeScript**, génération statique pour **Cloudflare Pages**, dépôt GitHub et DevContainer.
 
-Le nom de l’auteur reste à renseigner. Les romans de démonstration, leurs couvertures et deux articles sont des exemples fictifs clairement signalés. Aucune vente directe. La mise en production attend une validation manuelle ; aucun déploiement n’a été réalisé.
+Le nom de l’auteur reste à renseigner. Les romans de démonstration, leurs couvertures et deux articles sont des exemples fictifs clairement signalés. Aucune vente directe. La méthode de déploiement recommandée est la connexion GitHub à Cloudflare Pages : chaque mise à jour de `master` publie le site. Aucun déploiement n’a été réalisé depuis cet environnement.
 
 ```sh
 npm ci
@@ -24,11 +24,11 @@ npm run test:e2e
 
 - [Architecture et évolutions prévues](docs/ARCHITECTURE.md)
 - [Ajouter et modifier les contenus](docs/CONTENUS.md)
-- [Configuration, GitHub Actions et déploiement Cloudflare](docs/DEPLOIEMENT.md)
+- [Déployer simplement sur Cloudflare avec GitHub (interface en anglais)](docs/DEPLOIEMENT.md)
 - [Crédits des illustrations](docs/ILLUSTRATIONS.md)
 - [Vérifications et aperçus](docs/VERIFICATION.md)
 
-Les configurations sensibles passent par les secrets de l’environnement GitHub `production`. Les variables publiques sont documentées dans `.env.example`. Le mode démo désactive l’indexation. Sans adresse configurée, le contact affiche son indisponibilité ; une fois l’adresse renseignée, il prépare un e-mail dans la messagerie du visiteur.
+Pour la connexion Git native, les variables de build se renseignent dans Cloudflare Pages ; aucun jeton API à gérer dans GitHub. Les variables publiques sont documentées dans `.env.example`. Le mode démo désactive l’indexation. Sans adresse configurée, le contact affiche son indisponibilité ; une fois l’adresse renseignée, il prépare un e-mail dans la messagerie du visiteur.
 
 Pour un livre, seuls `title`, `publicationDate` et `cover` sont obligatoires. Le rendu s’adapte aux champs renseignés ; la démo inclut un livre minimal et un livre complet (voir [la gestion des contenus](docs/CONTENUS.md)).
 

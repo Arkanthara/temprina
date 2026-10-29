@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import BookCard from '../components/BookCard.astro';
+import { isVisible } from '../lib/site';
+const books = (await getCollection('books', isVisible)).sort((a,b) => b.data.publicationDate.valueOf()-a.data.publicationDate.valueOf());
+---
+<Layout title="Les romans — Catalogue" description="Parcourez tous les romans de l’auteur, découvrez leurs histoires et contactez-le pour vous procurer un livre.">
+  <div class="page-heading container"><p class="eyebrow">LA BIBLIOTHÈQUE DES POSSIBLES</p><h1>À chaque livre,<br />un autre <em>monde.</em></h1><p>Suivez votre curiosité. La prochaine aventure se cache peut-être ici.</p></div>
+  <section class="container catalogue-section" aria-label="Catalogue des romans">
+    <p class="result-count">{books.length} roman{books.length > 1 ? 's' : ''} à découvrir</p>
+    <div class="books-grid">{books.map(book => <BookCard book={book} />)}</div>
+    {!books.length && <div class="empty-state"><h2>Les histoires prennent forme.</h2><p>Les premiers romans seront dévoilés prochainement.</p></div>}
+  </section>
+</Layout>

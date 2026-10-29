@@ -1,0 +1,14 @@
+---
+import Icon from '../../components/Icon.astro';
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Share from '../../components/Share.astro';
+import { isVisible, formatDate, site } from '../../lib/site';
+export async function getStaticPaths() { return (await getCollection('blog', isVisible)).map(post => ({ params: { id: post.id }, props: { post } })); }
+const { post } = Astro.props;
+const { Content } = await render(post);
+const schema = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.data.title, description: post.data.description, datePublished: post.data.date.toISOString(), author: { '@type': 'Person', name: site.author, url: new URL('/auteur/', Astro.site).href }, mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href, image: new URL('/images/social.jpg', Astro.site).href, inLanguage: 'fr' };
+---
+<Layout title={post.data.title} description={post.data.description} type="article" schema={schema}>
+  <article class="article-page container"><a href="/blog/" class="back-link"><Icon name="arrow-left" /> Au coin du feu</a><header><p class="eyebrow">{post.data.category}</p><h1>{post.data.title}</h1><p class="byline"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time> · {post.data.readingMinutes} min de lecture</p>{post.data.demo && <p class="notice">Article de démonstration : ce texte illustre le futur carnet de lecture et n’est pas attribué à l’auteur.</p>}</header><div class="prose"><Content /></div><Share title={post.data.title} /></article>
+</Layout>

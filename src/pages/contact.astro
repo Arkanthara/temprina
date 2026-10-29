@@ -1,0 +1,33 @@
+---
+import Icon from '../components/Icon.astro';
+import Layout from '../layouts/Layout.astro';
+import { site } from '../lib/site';
+---
+<Layout title="Contact — Écrivons-nous" description="Contactez l’auteur pour vous procurer un roman, poser une question ou partager vos impressions de lecture.">
+  <div class="page-heading container"><p class="eyebrow">D’UNE PLUME À L’AUTRE</p><h1>Et si l’on<br />s’écrivait <em>?</em></h1><p>Pour un livre, une rencontre, ou simplement quelques mots.</p></div>
+  <section class="container contact-page"><div class="prose"><h2>Le début d’un échange</h2><p>Vous souhaitez vous procurer un roman ? Précisez son titre dans votre message. L’auteur pourra vous renseigner sur les formats, la disponibilité et les modalités d’achat.</p><p>Aucune commande ni aucun paiement ne sont effectués sur ce site.</p><div class="contact-detail"><span class="eyebrow">CORRESPONDANCE</span>{site.email ? <a href={`mailto:${site.email}`}>{site.email}</a> : <p>Les coordonnées de l’auteur seront communiquées prochainement.</p>}</div><p class="subtle">Vos échanges par e-mail restent en dehors de ce site. <a href="/confidentialite/">En savoir plus sur la confidentialité.</a></p></div>
+  <div class="contact-panel"><h2>Un mot pour l’auteur</h2><p data-selected-book hidden></p>
+    {site.email ? <><form data-contact data-email={site.email} hidden><label for="subject">Objet</label><input id="subject" name="subject" required maxlength="180" value="À propos de vos romans" /><label for="message">Votre message</label><textarea id="message" name="message" rows="7" required maxlength="5000" placeholder="Bonjour, je souhaiterais…"></textarea><p class="subtle">Le bouton ouvre votre application de messagerie. Votre message n’est pas envoyé automatiquement.</p><button class="button" type="submit">Préparer mon e-mail <span aria-hidden="true"><Icon name="arrow-up" /></span></button><p role="status" data-contact-status></p></form><noscript><p>Pour écrire à l’auteur, utilisez le lien e-mail affiché sur cette page.</p></noscript></> : <div class="contact-pending"><span aria-hidden="true"><Icon name="spark" /></span><h3>La correspondance ouvrira bientôt.</h3><p>L’adresse de contact n’a pas encore été renseignée. Aucun message ne peut être envoyé pour le moment.</p><a href="/catalogue/" class="text-link">En attendant, explorer les romans <Icon name="arrow-up" /></a></div>}
+  </div></section>
+  <script>
+    const book = new URLSearchParams(location.search).get('livre')?.slice(0,150);
+    const selected = document.querySelector<HTMLElement>('[data-selected-book]');
+    const subject = document.querySelector<HTMLInputElement>('#subject');
+    const message = document.querySelector<HTMLTextAreaElement>('#message');
+    if (book) {
+      if (selected) { selected.hidden = false; selected.textContent = `Votre demande concerne « ${book} ».`; }
+      if (subject) subject.value = `À propos du livre : ${book}`;
+      if (message) message.value = `Bonjour,\n\nJe souhaiterais en savoir plus sur la disponibilité du livre « ${book} » et les modalités pour me le procurer.\n\nMerci !`;
+    }
+    const form = document.querySelector<HTMLFormElement>('[data-contact]');
+    if (form) form.hidden = false;
+    form?.addEventListener('submit',event => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const values = new FormData(form);
+      location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(String(values.get('subject')))}&body=${encodeURIComponent(String(values.get('message')))}`;
+      const status = document.querySelector<HTMLElement>('[data-contact-status]');
+      if (status) status.textContent = 'Votre application de messagerie devrait s’ouvrir. Vous pouvez aussi utiliser l’adresse e-mail affichée sur cette page.';
+    });
+  </script>
+</Layout>

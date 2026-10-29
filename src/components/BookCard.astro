@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro';
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+interface Props { book: CollectionEntry<'books'> }
+const { book } = Astro.props;
+const seriesLabel = [book.data.series, book.data.volume && `Tome ${book.data.volume}`].filter(Boolean).join(' · ');
+---
+<article class="book-card" data-book>
+  <a class="book-art" href={`/livres/${book.id}/`} aria-label={`Découvrir ${book.data.title}`}>
+    <Image src={book.data.cover} alt={book.data.coverAlt || `Couverture de ${book.data.title}`} width={400} height={600} loading="lazy" />
+    <span class="book-explore">Ouvrir le livre <span aria-hidden="true"><Icon name="arrow-up" /></span></span>
+  </a>
+  <div class="book-meta">{book.data.genre && <>{book.data.genre} <span aria-hidden="true">·</span></>} <time datetime={book.data.publicationDate.toISOString().slice(0, 10)}>{book.data.publicationDate.getUTCFullYear()}</time></div>
+  <h3><a href={`/livres/${book.id}/`}>{book.data.title}</a></h3>
+  {book.data.subtitle && <p class="book-subtitle">{book.data.subtitle}</p>}
+  {seriesLabel && <p class="book-series">{seriesLabel}</p>}
+  {book.data.description && <p class="book-description">{book.data.description}</p>}
+  {book.data.demo && <span class="demo-label">Roman de démonstration</span>}
+</article>

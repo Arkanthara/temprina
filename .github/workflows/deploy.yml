@@ -1,0 +1,54 @@
+name: Déploiement approuvé
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Après revue de cette révision, saisir DEPLOYER pour autoriser sa publication.'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  production:
+    if: github.ref == 'refs/heads/master' && inputs.confirmation == 'DEPLOYER'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+    env:
+      ASTRO_TELEMETRY_DISABLED: '1'
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      PUBLIC_AUTHOR_NAME: ${{ vars.PUBLIC_AUTHOR_NAME }}
+      PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+      PUBLIC_DEMO_MODE: 'false'
+      PUBLIC_CONTENT_APPROVED: ${{ vars.PUBLIC_CONTENT_APPROVED }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:production
+      - run: npm run check
+      - run: npm run build
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Vérifier les pages de production
+        run: npx playwright test tests/browser/production.spec.ts
+      - name: Déployer les fichiers contrôlés
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_PROJECT_NAME"
+          npx wrangler pages deploy dist --project-name="$CLOUDFLARE_PROJECT_NAME" --branch=master --commit-hash="$GITHUB_SHA"

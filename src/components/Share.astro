@@ -1,0 +1,36 @@
+---
+import Icon from './Icon.astro';
+interface Props { title: string }
+const { title } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+---
+<div class="share-block">
+  <span class="eyebrow">Une histoire à partager</span>
+  <div class="share-actions">
+    <button class="small-button" data-share data-title={title} data-url={url} hidden>Partager <Icon name="arrow-up" /></button>
+    <button class="small-button" data-copy data-url={url} hidden>Copier le lien</button>
+    <a class="small-button" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" aria-label="Partager sur Facebook (nouvel onglet)">Facebook <Icon name="arrow-up" /></a>
+    <a class="small-button" href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`}>Par e-mail <Icon name="arrow-up" /></a>
+  </div>
+  <p class="share-status" role="status"></p>
+  <details><summary>Adresse de cette page</summary><input class="share-url" aria-label="Lien de partage" readonly value={url} /></details>
+</div>
+<script>
+  const status = document.querySelector<HTMLElement>('.share-status');
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const share = document.querySelector<HTMLButtonElement>('[data-share]');
+  if (copy && navigator.clipboard) {
+    copy.hidden = false;
+    copy.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(copy.dataset.url!); if (status) status.textContent = 'Le lien a été copié.'; }
+      catch { if (status) status.textContent = 'Copiez l’adresse dans « Adresse de cette page » ci-dessous.'; }
+    });
+  }
+  if (share && navigator.share) {
+    share.hidden = false;
+    share.addEventListener('click', async () => {
+      try { await navigator.share({ title: share.dataset.title, url: share.dataset.url }); }
+      catch (error) { if ((error as Error).name !== 'AbortError' && status) status.textContent = 'Vous pouvez copier le lien ou le partager par e-mail.'; }
+    });
+  }
+</script>

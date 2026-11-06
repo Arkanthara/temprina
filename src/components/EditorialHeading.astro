@@ -1,0 +1,5 @@
+---
+interface Props { lines: string[]; accent?: string }
+const { lines, accent } = Astro.props;
+---
+{lines.map((line, index) => <>{index > 0 && <br />}{line}</>)}{accent && <> <em>{accent}</em></>}

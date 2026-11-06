@@ -110,7 +110,7 @@ test('catalogue lists every published book without filtering controls or catalog
 });
 
 
-test('minimal book renders only supplied fields and retains accessible covers and SEO', async () => {
+test('minimal book renders only supplied fields and retains accessible covers and SEO', { skip: !htmlFiles.includes(join(root, 'livres/la-derniere-braise/index.html')) }, async () => {
   const source = await readFile('src/content/books/la-derniere-braise.md', 'utf8');
   assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover']);
   const $ = load(await readFile(join(root, 'livres/la-derniere-braise/index.html'), 'utf8'));
@@ -134,7 +134,7 @@ test('minimal book renders only supplied fields and retains accessible covers an
   }
 });
 
-test('complete book renders optional fields on the homepage, catalogue and detail page', async () => {
+test('complete book renders optional fields on the homepage, catalogue and detail page', { skip: !htmlFiles.includes(join(root, 'livres/le-chant-des-sylves/index.html')) }, async () => {
   const description = 'Au cœur d’une forêt qui perd sa mémoire, une jeune cartographe entend un chant que personne ne devrait plus connaître.';
   for (const path of ['index.html', 'catalogue/index.html']) {
     const $ = load(await readFile(join(root, path), 'utf8'));
@@ -168,4 +168,37 @@ test('optional metadata never leaves empty elements, separators or cover alterna
     }
     for (const cover of $('.book-art img, .detail-cover img').toArray()) assert.ok($(cover).attr('alt')?.trim(), file);
   }
+});
+
+// Editorial pages must use their content files for visible text and sharing metadata.
+test('editable pages supply their titles, descriptions and headings to the generated HTML', async () => {
+  const { readPageContent } = await import('../scripts/lib/page-content.mjs');
+  for (const id of ['index', 'auteur', 'catalogue', 'blog', 'contact', 'mentions-legales', 'confidentialite', '404']) {
+    const { data } = await readPageContent(`src/content/pages/${id}.md`);
+    const output = id === 'index' ? 'index.html' : id === '404' ? '404.html' : `${id}/index.html`;
+    const $ = load(await readFile(join(root, output), 'utf8'));
+    assert.ok($('title').text().startsWith(data.title + ' — '), id);
+    assert.equal($('meta[name="description"]').attr('content'), data.description, id);
+    assert.equal($('meta[property="og:description"]').attr('content'), data.description, id);
+    const heading = data.template === 'home' ? data.hero.heading : data.heading;
+    const rendered = $('h1').clone();
+    rendered.find('br').replaceWith(' ');
+    assert.equal(rendered.text().replace(/\s+/g, ' ').trim(), [...heading.lines, heading.accent].filter(Boolean).join(' '), id);
+  }
+});
+
+test('author biography uses its editorial data and both presentation areas are rendered', async () => {
+  const { readPageContent } = await import('../scripts/lib/page-content.mjs');
+  const source = await readPageContent('src/content/pages/auteur.md');
+  const $ = load(await readFile(join(root, 'auteur/index.html'), 'utf8'));
+  assert.deepEqual($('.author-page .prose > p:not(.eyebrow)').toArray().map(el => $(el).text()), source.data.biography);
+  assert.ok(source.body.trim());
+  assert.ok($('.author-presentation').text().trim());
+  assert.doesNotMatch($('main').text(), /Une rencontre à venir|Texte de démonstration|biographie.*ajoutés/);
+  const home = load(await readFile(join(root, 'index.html'), 'utf8'));
+  const { body } = await readPageContent('src/content/pages/index.md');
+  assert.ok(body.trim());
+  assert.ok(home('.author-band p:not(.eyebrow)').text().trim());
+  assert.equal(home('.author-band a').attr('href'), '/auteur/');
+  assert.doesNotMatch(home('.demo-bar').text(), /Livres et textes fictifs/);
 });

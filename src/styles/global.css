@@ -7,3 +7,8 @@
 
 .icon{display:inline-block;vertical-align:-.12em;flex-shrink:0}.journal-symbol .icon{width:70px;height:90px;stroke-width:.7}.contact-strip>.icon{width:45px;height:45px;color:var(--gold)}.round-link .icon{width:19px;height:19px}.lost-star .icon{width:100px;height:100px}
 @media(max-width:600px){.journal-symbol .icon{width:48px;height:60px}.contact-strip>.icon{width:32px;height:32px}}
+
+.editorial-lines{white-space:pre-line}
+.author-presentation{max-width:830px;padding-bottom:90px;overflow-wrap:anywhere}
+.author-presentation h2:first-child{margin-top:0}
+@media(max-width:600px){.author-presentation{padding-bottom:55px}}

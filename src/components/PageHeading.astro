@@ -1,0 +1,6 @@
+---
+import EditorialHeading from './EditorialHeading.astro';
+interface Props { eyebrow: string; heading: { lines: string[]; accent?: string }; lead?: string }
+const { eyebrow, heading, lead } = Astro.props;
+---
+<div class="page-heading container"><p class="eyebrow">{eyebrow}</p><h1><EditorialHeading {...heading} /></h1>{lead && <p class="editorial-lines">{lead}</p>}</div>

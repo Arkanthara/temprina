@@ -13,7 +13,11 @@ test('pages render without horizontal overflow, missing images or accessibility 
     await expect(page.locator('h1')).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),route).toBe(true);
-    expect(await page.locator('img').evaluateAll(images => images.every(img => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0)),route).toBe(true);
+    // Off-screen covers are lazy-loaded: bring each into view before checking it.
+    for (const image of await page.locator('img').all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect.poll(() => image.evaluate(img => (img as HTMLImageElement).naturalWidth), { message: route }).toBeGreaterThan(0);
+    }
     const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     expect(accessibility.violations,route).toEqual([]);
   }
@@ -110,4 +114,31 @@ test('minimal and complete books adapt their cards and detail pages to available
   await expect(page.locator('.book-description')).toBeVisible();
   await expect(page.locator('.book-info .prose')).toBeVisible();
   await expect(page.locator('.book-facts dt')).toHaveText(['Publication', 'Genre', 'Série', 'Tome']);
+});
+
+test('author biography and full presentation are readable from the homepage', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.hero h1')).toBeVisible();
+  await expect(page.locator('.author-band p:not(.eyebrow)').first()).toBeVisible();
+  await page.locator('.author-band a').click();
+  await expect(page.locator('#biographie')).toBeVisible();
+  await expect(page.locator('.author-page .prose > p:not(.eyebrow)').first()).toBeVisible();
+  const lastParagraph = page.locator('.author-presentation p').last();
+  await lastParagraph.scrollIntoViewIfNeeded();
+  await expect(lastParagraph).toBeVisible();
+});
+
+test('author editorial content remains available without JavaScript at 320 pixels', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4321/auteur/');
+    await expect(page.locator('.author-page .prose > p:not(.eyebrow)').first()).toBeVisible();
+    await expect(page.locator('.author-presentation p').last()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator('.author-page a[href="/catalogue/"]').click();
+    await expect(page).toHaveURL(/\/catalogue\/$/);
+  } finally {
+    await context.close();
+  }
 });

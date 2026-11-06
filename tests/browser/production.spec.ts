@@ -15,4 +15,9 @@ test('production pages and configured email contact work', async ({ page }) => {
   await expect(page.getByLabel('Votre message',{exact:true})).toHaveValue(/Un roman/);
   await expect(page.locator('.contact-detail a')).toHaveAttribute('href',`mailto:${process.env.PUBLIC_CONTACT_EMAIL}`);
   await expect(page.getByRole('button',{name:'Préparer mon e-mail'})).toBeVisible();
+  const literalTitle = 'Une lecture $& <lumineuse>';
+  await page.goto(`/contact/?livre=${encodeURIComponent(literalTitle)}`);
+  await expect(page.getByLabel('Objet', { exact: true })).toHaveValue(`À propos du livre : ${literalTitle}`);
+  await expect(page.locator('[data-selected-book]')).toHaveText(`Votre demande concerne « ${literalTitle} ».`);
+  await expect(page.locator('[data-selected-book] lumineuse')).toHaveCount(0);
 });

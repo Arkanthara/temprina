@@ -1,8 +1,8 @@
 # Temprina · Site d’auteur
 
-Première version d’un site français de romans, avec un univers féérique et elfique. **Astro + TypeScript**, génération statique pour **Cloudflare Pages**, dépôt GitHub et DevContainer.
+Site français de romans, avec un univers féérique et elfique. **Astro + TypeScript**, génération statique pour **Cloudflare Pages**, dépôt GitHub et DevContainer.
 
-Le nom de l’auteur reste à renseigner. Les romans de démonstration, leurs couvertures et deux articles sont des exemples fictifs clairement signalés. Aucune vente directe. La méthode de déploiement recommandée est la connexion GitHub à Cloudflare Pages : chaque mise à jour de `master` publie le site. Aucun déploiement n’a été réalisé depuis cet environnement.
+La présentation et la biographie de l’autrice sont intégrées depuis `docs/Site Temprina.docx`, avec un accueil autour de « J’ai choisi la lumière ». Le nom public de l’autrice reste à renseigner. Les romans de démonstration, leurs couvertures et deux articles sont des exemples fictifs clairement signalés. Aucune vente directe. La méthode de déploiement recommandée est la connexion GitHub à Cloudflare Pages : chaque mise à jour de `master` publie le site. Aucun déploiement n’a été réalisé depuis cet environnement.
 
 ```sh
 npm ci
@@ -12,12 +12,15 @@ npm run dev
 
 Le site est disponible à `http://localhost:4321`.
 
+Les textes des pages se modifient dans **`src/content/pages/*.md`**, sans modifier les gabarits Astro : titres, introductions, boutons, présentation, biographie, contact et pages légales. Voir [le guide d’édition](docs/CONTENUS.md#modifier-une-page-sans-toucher-au-code) pour modifier un fichier depuis GitHub ou en local. Les champs sont validés au build.
+
 Pages : accueil, catalogue de romans, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
 
 ```sh
 npm run check
 npm run build
 npm test
+npm run test:editing
 npx playwright install --with-deps chromium
 npm run test:e2e
 ```

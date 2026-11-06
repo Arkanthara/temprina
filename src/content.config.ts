@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { pageSchema } from './lib/page-schema';
 
 const books = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './src/content/books' }),
@@ -35,4 +36,8 @@ const blog = defineCollection({
     demo: z.boolean().default(true),
   }),
 });
-export const collections = { books, blog };
+const pages = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/pages' }),
+  schema: pageSchema,
+});
+export const collections = { books, blog, pages };

@@ -14,7 +14,7 @@ const description = book.data.description || `Découvrez ${book.data.title}, un 
 const hasContent = Boolean(book.body?.trim());
 const schema = { '@context': 'https://schema.org', '@type': 'Book', name: book.data.title, ...(book.data.description && { description: book.data.description }), author: { '@type': 'Person', name: site.author, '@id': new URL('/auteur/#auteur', Astro.site).href }, datePublished: book.data.publicationDate.toISOString().slice(0,10), inLanguage: 'fr', ...(book.data.genre && { genre: book.data.genre }), image: new URL(cover.src, Astro.site).href, url: new URL(Astro.url.pathname, Astro.site).href, ...(book.data.isbn && { isbn: book.data.isbn }), ...(book.data.publisher && { publisher: { '@type': 'Organization', name: book.data.publisher } }) };
 ---
-<Layout title={book.data.title} description={description} image={cover.src} type="book" schema={schema}>
+<Layout title={[book.data.title, book.data.subtitle || (book.data.volume && `Tome ${book.data.volume}`)].filter(Boolean).join(' — ')} description={description} image={cover.src} type="book" schema={schema}>
   <div class="container book-detail">
     <a href="/catalogue/" class="back-link"><Icon name="arrow-left" /> Tous les romans</a>
     <div class="book-detail-grid"><div class="detail-cover"><Image src={book.data.cover} alt={book.data.coverAlt || `Couverture de ${book.data.title}`} width={600} height={900} loading="eager" />{book.data.demo && <p class="demo-label">Couverture et roman de démonstration</p>}</div>

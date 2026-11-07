@@ -2,12 +2,31 @@
 import { render, type CollectionEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import EditorialHeading from './EditorialHeading.astro';
+import { getLegalInformation } from '../lib/legal';
+import { formatDate } from '../lib/site';
 interface Props { page: CollectionEntry<'pages'> }
 const { page } = Astro.props;
 if (page.data.template !== 'legal') throw new Error('Un modèle legal est requis.');
 const { data } = page;
+const legal = await getLegalInformation(Astro.site?.href);
+const sections = data.informationSections
+  .filter(section => !section.showWhen || legal.fields[section.showWhen]?.value)
+  .map(section => ({ ...section, items: section.items.filter(item => !item.optional || legal.fields[item.field]?.value) }))
+  .filter(section => section.items.length);
 const { Content } = await render(page);
 ---
 <Layout title={data.title} description={data.description}>
-  <div class="container legal-page"><p class="eyebrow">{data.eyebrow}</p><h1><EditorialHeading {...data.heading} /></h1>{data.notice && <div class="notice">{data.notice}</div>}<div class="prose"><Content /></div></div>
+  <div class="container legal-page">
+    <p class="eyebrow">{data.eyebrow}</p>
+    <h1><EditorialHeading {...data.heading} /></h1>
+    <p class="legal-updated">{data.updatedLabel} : <time datetime={legal.updatedOn}>{formatDate(new Date(`${legal.updatedOn}T00:00:00Z`))}</time></p>
+    {data.notice && <div class="notice">{data.notice}</div>}
+    <div class="prose">
+      <div class="legal-information">{sections.map(section => <section><h2>{section.title}</h2><dl class="legal-facts">{section.items.map(item => {
+        const field = legal.fields[item.field];
+        return <div><dt>{item.label}</dt><dd>{field?.value ? (field.href ? <a href={field.href}>{field.value}</a> : field.value) : <span class="legal-pending">{data.pendingValueLabel}</span>}</dd></div>;
+      })}</dl></section>)}</div>
+      <Content />
+    </div>
+  </div>
 </Layout>

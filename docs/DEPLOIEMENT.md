@@ -1,5 +1,11 @@
 # Configuration et déploiement
 
+## Déploiement actuellement déclaré
+
+Le propriétaire confirme le 6 novembre 2026 un site sur **https://donnet.pages.dev**, avec **Cloudflare Pages gratuit**, déployé avec les réglages par défaut et sans service supplémentaire activé. Renseigner `PUBLIC_SITE_URL=https://donnet.pages.dev` dans les variables du projet Pages ; cette origine est aussi celle par défaut dans le dépôt. Le projet Cloudflare peut avoir un nom différent du dépôt `temprina`. Les procédures Workers ci-dessous restent des alternatives et ne décrivent pas le service actuellement déclaré.
+
+Les mentions légales et la confidentialité se complètent via `src/content/legal/site.yaml` et leurs fichiers Markdown : voir [les informations et documents utiles](INFORMATIONS-LEGALES.md).
+
 ## Si le formulaire affiche Deploy command et Preview command
 
 Ce formulaire correspond à **Workers Builds**. Il peut aussi héberger ce site Astro statique en utilisant le fichier `wrangler.jsonc` fourni à la racine. Il n’est pas nécessaire de revenir à Pages.
@@ -114,7 +120,7 @@ Pour un domaine personnel, ouvrir le projet Pages, puis **Custom domains > Set u
 
 Quand le domaine fonctionne, définir `PUBLIC_SITE_URL` sur son origine HTTPS, sans chemin, puis reconstruire le site.
 
-La présentation et la biographie sont intégrées dans `src/content/pages/auteur.md`. Les pages légales restent préparatoires : compléter `src/content/pages/mentions-legales.md` et `confidentialite.md`, retirer leurs champs `notice` et passer `approved: true` après validation. Ajouter les livres et articles réels avec `demo: false`. Dans les variables Cloudflare **Production**, définir le vrai nom et l’adresse de contact, `PUBLIC_DEMO_MODE=false` et `PUBLIC_CONTENT_APPROVED=true` après relecture. Les contenus marqués `demo: true` disparaissent quand le mode démo est désactivé.
+La présentation et la biographie sont intégrées dans `src/content/pages/auteur.md`. Les pages légales restent préparatoires : compléter les informations communes de `src/content/legal/site.yaml` (voir [les informations à réunir](INFORMATIONS-LEGALES.md)), puis `src/content/pages/mentions-legales.md` et `confidentialite.md`, retirer leurs champs `notice` et passer `approved: true` après validation. Ajouter les livres réels sans champ `demo` (ils sont hors démonstration par défaut) et les articles réels avec `demo: false`. Dans les variables Cloudflare **Production**, définir le vrai nom et l’adresse de contact, `PUBLIC_DEMO_MODE=false` et `PUBLIC_CONTENT_APPROVED=true` après relecture. Les contenus marqués `demo: true` disparaissent quand le mode démo est désactivé.
 
 Pour conserver le contrôle de préparation de la production avec la connexion Git, remplacer alors **Build command** par :
 
@@ -122,7 +128,7 @@ Pour conserver le contrôle de préparation de la production avec la connexion G
 npm run validate:production && npm run build
 ```
 
-Ce contrôle refuse les coordonnées manquantes et les textes préparatoires encore détectés. La commande simple `npm run build` ne lance pas cette validation. Si les branches d’aperçu restent en mode démo, réserver la validation à `master`, avec cette commande de build :
+Ce contrôle refuse les coordonnées manquantes, les pages non approuvées et les informations communes incomplètes ou invalides dans `src/content/legal/site.yaml`. Le nom du développeur est facultatif ; son URL doit utiliser HTTP(S). La commande simple `npm run build` ne lance pas cette validation. Si les branches d’aperçu restent en mode démo, réserver la validation à `master`, avec cette commande de build :
 
 ```sh
 if [ "$CF_PAGES_BRANCH" = "master" ]; then npm run validate:production; fi && npm run build
@@ -131,7 +137,7 @@ if [ "$CF_PAGES_BRANCH" = "master" ]; then npm run validate:production; fi && np
 ## Avant la publication de la version définitive
 
 - Renseigner les coordonnées, relire les textes auteur intégrés et compléter les pages légales dans `src/content/pages/` (`approved: true`, sans `notice`).
-- Ajouter les vrais romans et articles, avec `demo: false`, puis relire le rendu.
+- Ajouter les vrais romans sans champ `demo` et les articles avec `demo: false`, puis relire le rendu.
 - Confirmer les droits sur les couvertures et les crédits.
 - Vérifier le domaine, la messagerie sur un appareil réel et les aperçus sociaux.
 - Exécuter la validation et les tests ; examiner la révision avant de la fusionner vers `master`.

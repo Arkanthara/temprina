@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { load } from 'cheerio';
+import { parse } from 'yaml';
 
 const root = resolve('dist');
 async function walk(dir) {
@@ -12,6 +13,19 @@ async function walk(dir) {
 const files = await walk(root);
 const htmlFiles = files.filter(file => file.endsWith('.html'));
 const exists = async path => { try { return (await stat(path)).isFile(); } catch { return false; } };
+
+test('every page displays the configured footer tagline below the author name', async () => {
+  const { footerTagline } = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    const tagline = $('.site-footer .brand > span > small');
+    assert.equal(tagline.length, 1, file);
+    assert.equal(tagline.text(), footerTagline.trim(), file);
+    const author = tagline.parent().clone();
+    author.find('small').remove();
+    assert.equal(author.text(), $('meta[property="og:site_name"]').attr('content'), file);
+  }
+});
 
 test('all pages have French language, accessible structure and SEO metadata', async () => {
   assert.ok(htmlFiles.length >= 8);
@@ -112,7 +126,7 @@ test('catalogue lists every published book without filtering controls or catalog
 
 test('minimal book renders only supplied fields and retains accessible covers and SEO', { skip: !htmlFiles.includes(join(root, 'livres/la-derniere-braise/index.html')) }, async () => {
   const source = await readFile('src/content/books/la-derniere-braise.md', 'utf8');
-  assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover']);
+  assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover', 'demo']);
   const $ = load(await readFile(join(root, 'livres/la-derniere-braise/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'La Dernière Braise');
   assert.equal($('.book-info > .eyebrow, .book-subtitle, .book-description, .book-info .prose').length, 0);
@@ -122,6 +136,8 @@ test('minimal book renders only supplied fields and retains accessible covers an
   const schema = JSON.parse($('script[type="application/ld+json"]').text());
   assert.equal('description' in schema, false);
   assert.equal('genre' in schema, false);
+  assert.equal('hasPart' in schema, false);
+  assert.equal($('.book-followed-by, .book-second-story').length, 0);
   for (const path of ['catalogue/index.html', 'index.html']) {
     const page = load(await readFile(join(root, path), 'utf8'));
     const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === 'La Dernière Braise');
@@ -158,10 +174,45 @@ test('complete book renders optional fields on the homepage, catalogue and detai
   assert.equal(schema.isbn, '9780000000002');
 });
 
+test('a volume with two stories displays their titles and separate summaries', async () => {
+  const { readPageContent } = await import('../scripts/lib/page-content.mjs');
+  const { data, body } = await readPageContent('src/content/books/les-prisonniers-du-tram.md');
+  assert.equal(data.subtitle, undefined);
+  assert.equal(data.followedBy.title, 'Menace Ombre et Lumière');
+  const $ = load(await readFile(join(root, 'livres/les-prisonniers-du-tram/index.html'), 'utf8'));
+  assert.equal($('h1').text(), data.title);
+  assert.equal($('.book-followed-by em').text(), 'suivi de');
+  assert.equal($('.book-followed-by span').text(), data.followedBy.title);
+  assert.equal($('.book-subtitle').length, 0);
+  assert.equal($('.book-info > .prose h2').text(), data.title);
+  assert.equal($('.book-info > .prose p').text(), body.trim().replaceAll("'", '’'));
+  assert.equal($('.book-second-story h2').text(), data.followedBy.title);
+  assert.equal($('.book-second-story .prose').text(), data.followedBy.summary);
+  assert.equal($('.book-second-story .book-description').length, 0);
+  assert.equal($('.book-second-story').attr('aria-labelledby'), $('.book-second-story h2').attr('id'));
+  for (const selector of ['title', 'meta[property="og:title"]', 'meta[name="twitter:title"]']) {
+    const element = $(selector);
+    const text = element.attr('content') || element.text();
+    assert.ok(text.includes(`suivi de ${data.followedBy.title}`));
+    assert.doesNotMatch(text, /<\/?i/);
+  }
+  const schema = JSON.parse($('script[type="application/ld+json"]').text());
+  assert.equal(schema.name, data.title);
+  assert.deepEqual(schema.hasPart, { '@type': 'CreativeWork', name: data.followedBy.title, abstract: data.followedBy.summary });
+  const catalogue = load(await readFile(join(root, 'catalogue/index.html'), 'utf8'));
+  const card = catalogue('[data-book]').filter((_, el) => catalogue(el).find('h3').text() === data.title);
+  assert.equal(card.find('.book-followed-by span').text(), data.followedBy.title);
+  assert.equal(card.find('.book-second-story').length, 0);
+  assert.ok(!card.text().includes(data.followedBy.summary));
+  assert.equal($('a[href^="/contact/?livre="]').attr('href'), `/contact/?livre=${encodeURIComponent(data.title)}`);
+  const emailShare = new URL($('.share-actions a[href^="mailto:"]').attr('href'));
+  assert.ok(emailShare.searchParams.get('subject').includes(`suivi de ${data.followedBy.title}`));
+});
+
 test('optional metadata never leaves empty elements, separators or cover alternatives', async () => {
   for (const file of htmlFiles) {
     const $ = load(await readFile(file, 'utf8'));
-    for (const element of $('.book-series, .book-subtitle, .book-description, .book-info > .eyebrow, .book-facts dd, .book-meta').toArray()) {
+    for (const element of $('.book-series, .book-subtitle, .book-followed-by, .book-description, .book-info > .eyebrow, .book-facts dd, .book-meta').toArray()) {
       const value = $(element).text().trim();
       assert.ok(value, file);
       assert.doesNotMatch(value, /^(?:·|undefined|null)|(?:·|undefined|null)$|·\s*·/, file);
@@ -201,4 +252,29 @@ test('author biography uses its editorial data and both presentation areas are r
   assert.ok(home('.author-band p:not(.eyebrow)').text().trim());
   assert.equal(home('.author-band a').attr('href'), '/auteur/');
   assert.doesNotMatch(home('.demo-bar').text(), /Livres et textes fictifs/);
+});
+
+test('common legal information and optional developer credit are rendered consistently', async () => {
+  const { parse } = await import('yaml');
+  const data = parse(await readFile('src/content/legal/site.yaml', 'utf8'));
+  const { readPageContent } = await import('../scripts/lib/page-content.mjs');
+  for (const id of ['mentions-legales', 'confidentialite']) {
+    const $ = load(await readFile(join(root, `${id}/index.html`), 'utf8'));
+    const { data: page } = await readPageContent(`src/content/pages/${id}.md`);
+    assert.equal($('.legal-updated time').attr('datetime'), data.updatedOn);
+    assert.equal($('.notice').length, page.notice ? 1 : 0);
+    const effectiveData = {
+      ...data,
+      privacy: { ...data.privacy, controllerName: data.privacy.controllerName || data.publisher.name },
+    };
+    const sections = page.informationSections.filter(section => !section.showWhen || section.showWhen.split('.').reduce((value, key) => value[key], effectiveData));
+    assert.equal($('.legal-information > section').length, sections.length);
+    assert.ok($('.legal-facts dd').toArray().every(el => $(el).text().trim()), 'No empty public facts');
+    if (data.publisher.name) assert.ok($('.legal-facts').text().includes(data.publisher.name));
+  }
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    assert.equal($('.developer-credit').length, data.developer.showInFooter && data.developer.name ? 1 : 0, file);
+    if ($('.developer-credit').length) assert.ok($('.developer-credit').text().includes(data.developer.name), file);
+  }
 });

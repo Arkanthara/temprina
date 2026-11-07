@@ -1,16 +1,17 @@
 ---
 template: author
-title: L’auteur — J’ai choisi la lumière
+title: L’auteur — Tout ici-bas est ombre et lumière. J'ai choisi la lumière.
 description: "Découvrez la présentation et la biographie de l’autrice : des romans
   lumineux et un parcours entre écriture, philosophie et enseignement."
 eyebrow: DERRIÈRE LES MOTS
 heading:
   lines:
+    - Tout ici-bas est ombre et lumière.
     - J’ai choisi
   accent: la lumière.
 imageAlt: Une forêt imaginaire s’ouvre sur un passage lumineux.
 imageCaption: Un passage vers d’autres mondes
-biographyTitle: Biographie de l’auteur
+biographyTitle: Écrire est ma deuxième langue maternelle.
 biography:
   - Écrire est ma deuxième langue maternelle. Depuis toute petite, je suis fascinée par
     les histoires, et dès que j’ai su écrire, j’ai mis en mots les miennes propres. Je
@@ -22,7 +23,7 @@ biography:
     histoires, finalement…
 linkLabel: Découvrir les romans
 ---
-## Présentation de l’auteur
+## Le véritable équilibre
 
 Socialement parlant, on s’entend pour considérer les contes de fées comme bien gentils, mais totalement irréalistes, et les histoires positives, lumineuses et heureuses comme des contes de fées. L’homme sensé et rationnel, lui, sait que tout n’est pas rose en ce bas monde et le souligne. Sauf que s’il insiste trop, il n’est pas réaliste, mais pessimiste.
 

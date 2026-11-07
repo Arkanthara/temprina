@@ -12,3 +12,15 @@
 .author-presentation{max-width:830px;padding-bottom:90px;overflow-wrap:anywhere}
 .author-presentation h2:first-child{margin-top:0}
 @media(max-width:600px){.author-presentation{padding-bottom:55px}}
+
+.legal-updated{font-size:12px;margin-bottom:24px}
+.legal-facts{margin:0 0 30px}
+.legal-facts>div{display:grid;grid-template-columns:minmax(140px,1fr) minmax(0,2fr);gap:12px 24px;padding:12px 0;border-bottom:1px solid var(--line)}
+.legal-facts dt{color:var(--ink);font-size:13px}
+.legal-facts dd{margin:0;white-space:pre-line;overflow-wrap:anywhere}
+.legal-pending{font-style:italic}
+.developer-credit{font-size:11px;text-align:right;margin:20px 0 0;color:var(--muted);overflow-wrap:anywhere}
+.developer-credit a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:600px){.legal-facts>div{grid-template-columns:1fr;gap:4px}.developer-credit{text-align:left}}
+
+.book-followed-by{font-family:var(--serif);font-size:24px;line-height:1.4;color:var(--gold);overflow-wrap:anywhere}.book-followed-by em{font-size:.8em}.book-second-story{margin-block:30px;padding-top:26px;border-top:1px solid var(--line);overflow-wrap:anywhere}.book-second-story h2{font-size:35px;color:var(--ink)}

@@ -1,4 +1,5 @@
 import { z } from 'astro/zod';
+import { legalFieldNames } from './legal-schema.mjs';
 
 const text = z.string().trim().min(1);
 const heading = z.object({ lines: z.array(text).min(1), accent: text.optional() });
@@ -39,6 +40,14 @@ export const pageSchema = z.discriminatedUnion('template', [
       selectedBook: withToken('{book}'), bookSubject: withToken('{book}'), bookMessage: withToken('{book}'),
     }),
   }),
-  z.object({ ...page, template: z.literal('legal'), notice: text.optional(), approved: z.boolean().default(false) }),
+  z.object({
+    ...page, template: z.literal('legal'), notice: text.optional(), approved: z.boolean().default(false),
+    updatedLabel: text, pendingValueLabel: text,
+    informationSections: z.array(z.object({
+      title: text,
+      showWhen: z.enum(legalFieldNames).optional(),
+      items: z.array(z.object({ label: text, field: z.enum(legalFieldNames), optional: z.boolean().default(false) })).min(1),
+    })).min(1),
+  }),
   z.object({ ...page, template: z.literal('error'), lead: text, homeLabel: text, catalogueLabel: text }),
 ]);

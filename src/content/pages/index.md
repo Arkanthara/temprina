@@ -1,37 +1,35 @@
 ---
 template: home
-title: Des histoires qui choisissent la lumière
-description: Des romans lumineux, des amitiés généreuses et des histoires pour retrouver
-  espoir et courage. Découvrez l’univers de l’autrice.
+title: L'émerveillement est la porte de l'aventure.
+description: Toute chose ordinaire peut devenir extraordinaire. Il suffit de regarder avec de nouveaux yeux.
 hero:
-  eyebrow: ROMANS & MONDES IMAGINAIRES
+  eyebrow: ROMANS & IMAGINAIRES
   heading:
     lines:
-      - Des histoires
-      - qui choisissent
-    accent: la lumière.
+      - L'émerveillement
+      - est la porte de
+    accent: l'aventure.
   description: |-
-    De l’ombre à la lumière, des histoires pour lever la tête
-    et trouver de l’espoir à travers les difficultés.
+    Toute chose ordinaire peut devenir extraordinaire. Il suffit de regarder avec de nouveaux yeux.
   primaryLabel: Explorer les romans
   secondaryLabel: Rencontrer l’auteur
-  caption: L’IMAGINAIRE EST UN LIEU OÙ L’ON SE RETROUVE.
+  caption: L’IMAGINAIRE PERMET DE RECONSIDERER LE REEL.
   scrollLabel: DÉFILER
   scrollAccessibleLabel: Découvrir les romans plus bas
 books:
-  eyebrow: DES PORTES VERS L’AILLEURS
+  eyebrow: DES PORTES A OUVRIR
   heading:
     lines:
-      - Choisissez votre
-    accent: voyage.
+      - Un livre, une
+    accent: rencontre...
   linkLabel: Tout le catalogue
   empty: Les premiers romans seront dévoilés prochainement.
 author:
   eyebrow: DERRIÈRE LES MOTS
   heading:
     lines:
-      - J’ai choisi
-    accent: la lumière.
+      - Il était
+    accent: une fois...
   linkLabel: À la rencontre de l’auteur
 journal:
   eyebrow: LE CARNET DE LECTURE
@@ -49,4 +47,4 @@ contact:
   description: Un livre vous appelle ? Une question, un mot à partager ?
   linkLabel: Écrivons-nous
 ---
-C’est pourquoi mes livres sont avant tout lumineux. Comme un jour de printemps, ils peuvent comporter des bourrasques, des glacis, des frimas, des averses, mais ils se dirigent toujours vers la lumière. Parce que je ne peux pas m’empêcher de la voir, même terrassée par la peine, et parce que j’aimerais que la lecture de mes livres soit un délassement motivant dans une vie déjà trop triste.
+Le début de toutes les histoires. De la mienne aussi.

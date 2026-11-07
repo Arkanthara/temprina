@@ -3,7 +3,7 @@ import { readdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 
 const bookCount = readdirSync('dist/livres', { withFileTypes: true }).filter(entry => entry.isDirectory()).length;
-const routes = ['/', '/catalogue/', '/livres/le-chant-des-sylves/', '/livres/la-derniere-braise/', '/auteur/', '/blog/', '/blog/quand-la-foret-devient-personnage/', '/contact/', '/mentions-legales/', '/confidentialite/', '/404/'];
+const routes = ['/', '/catalogue/', '/livres/le-chant-des-sylves/', '/livres/la-derniere-braise/', '/livres/les-prisonniers-du-tram/', '/auteur/', '/blog/', '/blog/quand-la-foret-devient-personnage/', '/contact/', '/mentions-legales/', '/confidentialite/', '/404/'];
 
 test('pages render without horizontal overflow, missing images or accessibility violations', async ({ page }) => {
   const errors: string[] = [];
@@ -114,6 +114,24 @@ test('minimal and complete books adapt their cards and detail pages to available
   await expect(page.locator('.book-description')).toBeVisible();
   await expect(page.locator('.book-info .prose')).toBeVisible();
   await expect(page.locator('.book-facts dt')).toHaveText(['Publication', 'Genre', 'Série', 'Tome']);
+});
+
+test('both stories in one book remain readable without JavaScript at 320 pixels', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4321/catalogue/');
+    const card = page.locator('[data-book]').filter({ has: page.getByRole('heading', { name: 'Les Prisonniers du Tram', exact: true }) });
+    await expect(card.locator('.book-followed-by')).toHaveText('suivi de Menace Ombre et Lumière');
+    await card.getByRole('heading').getByRole('link').click();
+    await expect(page.locator('h1')).toHaveText('Les Prisonniers du Tram');
+    await expect(page.locator('.book-followed-by')).toHaveText('suivi de Menace Ombre et Lumière');
+    await expect(page.locator('.book-info > .prose')).toContainText('Quoi de plus banal qu’un tram ?');
+    await expect(page.getByRole('region', { name: 'Menace Ombre et Lumière' })).toContainText('outils numériques');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  } finally {
+    await context.close();
+  }
 });
 
 test('author biography and full presentation are readable from the homepage', async ({ page }) => {

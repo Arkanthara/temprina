@@ -131,6 +131,44 @@ Pour une série, indiquer le même libellé `series` sur ses tomes et ajouter `v
 
 Champs réservés facultatifs : `publisher`, `isbn`, `formats` (liste) et `purchaseLinks` (liste d’objets `label`, `url`). Ils n’ajoutent pas de bouton d’achat ; `publisher` et `isbn`, lorsqu’ils existent, enrichissent déjà le JSON-LD. Les interfaces correspondantes restent à décider pour la suite.
 
+### Deux histoires dans un même livre (« suivi de »)
+
+Ajouter un bloc facultatif `followedBy` dans le YAML du livre. Il remplace la mention « suivi de » autrefois saisie dans `subtitle` ; un véritable sous-titre peut toujours être conservé en parallèle. Exemple pour `src/content/books/les-prisonniers-du-tram.md` (conserver les autres champs du fichier) :
+
+```yaml
+title: "Les Prisonniers du Tram"
+description: "Deux histoires à donner le frisson, dans un monde qui paraît familier..."
+followedBy:
+  title: "Menace Ombre et Lumière"
+  summary: "Tout comme les fascinants outils numériques qui accompagnent nos vies..."
+```
+
+Le bloc `followedBy` accepte :
+
+| Champ | Usage |
+| --- | --- |
+| `title` | Titre obligatoire et non vide de la deuxième histoire. |
+| `description` | Accroche facultative, limitée à 300 caractères. |
+| `summary` | Résumé facultatif, sans limite de 300 caractères ; plusieurs paragraphes sont possibles. |
+
+Pour ajouter une accroche et développer le résumé, utiliser par exemple :
+
+```yaml
+followedBy:
+  title: "Titre de la deuxième histoire"
+  description: "Une courte accroche à rédiger."
+  summary: |-
+    Premier paragraphe du résumé de cette deuxième histoire.
+
+    Deuxième paragraphe du résumé.
+```
+
+Ces textes YAML sont du **texte brut** : ne pas ajouter de balises `<i>` ni de Markdown. Le site met automatiquement « suivi de » en italique ; les lignes vides de `summary` séparent les paragraphes. Les espaces de bord sont retirés ; une accroche ou un résumé vide n’affiche aucun élément.
+
+Les cartes de l’accueil (si le livre y est sélectionné) et du catalogue affichent « suivi de [titre] ». La fiche présente cette mention sous le titre et l’éventuel sous-titre ; le corps Markdown reste le résumé de la **première histoire**, précédé de son titre lorsqu’il existe une seconde histoire. Une section distincte porte le titre de la deuxième histoire et affiche son accroche et/ou son résumé. Si seul `followedBy.title` est renseigné, la mention suffit et aucune section vide n’est créée. La `description` principale reste la présentation globale du livre et alimente ses métadonnées.
+
+Le titre de l’onglet et du partage inclut « suivi de [titre] ». Le JSON-LD conserve un seul `Book` et décrit la deuxième histoire via `hasPart` ; l’accroche devient `description` et le résumé `abstract` lorsqu’ils existent. Les deux histoires partagent la même couverture, date, URL et lien de contact. Ne pas créer de deuxième fichier livre pour cette histoire. Supprimer tout le bloc `followedBy` pour revenir à un livre à une seule histoire.
+
 ## Catalogue et filtres éventuels
 
 Le catalogue affiche tous les romans visibles, triés par date de publication décroissante. Il ne propose ni filtres ni recherche textuelle et fonctionne sans JavaScript. Les anciens paramètres d’URL (`genre`, `series`, `year`) sont sans effet sur les livres affichés.

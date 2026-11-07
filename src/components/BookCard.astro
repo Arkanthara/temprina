@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import BookFollowUp from './BookFollowUp.astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 interface Props { book: CollectionEntry<'books'> }
@@ -14,6 +15,7 @@ const seriesLabel = [book.data.series, book.data.volume && `Tome ${book.data.vol
   <div class="book-meta">{book.data.genre && <>{book.data.genre} <span aria-hidden="true">·</span></>} <time datetime={book.data.publicationDate.toISOString().slice(0, 10)}>{book.data.publicationDate.getUTCFullYear()}</time></div>
   <h3><a href={`/livres/${book.id}/`}>{book.data.title}</a></h3>
   {book.data.subtitle && <p class="book-subtitle">{book.data.subtitle}</p>}
+  {book.data.followedBy && <BookFollowUp title={book.data.followedBy.title} />}
   {seriesLabel && <p class="book-series">{seriesLabel}</p>}
   {book.data.description && <p class="book-description">{book.data.description}</p>}
   {book.data.demo && <span class="demo-label">Roman de démonstration</span>}

@@ -29,6 +29,8 @@ Les pages légales portent un indicateur `approved`, faux par défaut, et une no
 
 Les titres SEO des livres incluent désormais leur sous-titre (ou le tome) lorsqu’il existe, afin de distinguer notamment les trois « Le Signe du Sang » sans changer leurs titres visibles ni leurs URL.
 
+Un livre peut contenir une deuxième histoire avec le bloc facultatif `followedBy` : titre non vide obligatoire, accroche `description` (300 caractères maximum) et résumé `summary` facultatifs. `BookFollowUp.astro` partage la mention « suivi de » entre les cartes et la fiche. Le résumé principal reste le corps Markdown ; la deuxième histoire possède sa propre section lorsqu’un texte est renseigné. Ses champs YAML sont échappés comme texte brut, avec les paragraphes du résumé séparés par des lignes vides. Les titres SEO et de partage incluent la mention, et le JSON-LD du livre décrit l’histoire via `hasPart`. Une seule route et un seul contact sont conservés pour le volume.
+
 ## Évolutions préparées, non développées
 
 Les identifiants de livres correspondent aux noms de fichiers et doivent rester stables. Ils pourront être référencés par une bibliothèque d’exemplaires, des emprunts ou des commandes. Les champs bibliographiques facultatifs existent, mais aucun achat, inscription, compte, emprunt ou newsletter n’est implémenté.

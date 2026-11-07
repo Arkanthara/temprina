@@ -1,5 +1,19 @@
 # Vérifications du site
 
+## Deux histoires dans un livre — 7 novembre 2026
+
+La fiche **Les Prisonniers du Tram** utilise désormais `followedBy` pour présenter **Menace Ombre et Lumière**, avec la mention « suivi de » sur les cartes et la fiche, et un résumé séparé. Vérifications réalisées sur Node.js 22.23.1 :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `npm run check` | Aucun diagnostic TypeScript/Astro |
+| `npm run build` | 22 pages HTML en mode démonstration |
+| `npm test` | 20 contrôles réussis, dont la séparation des histoires, les titres de partage, le JSON-LD et la conservation du contact pour un seul livre |
+| `npm run test:editing` | Réussi : modification de la seconde histoire dans une copie temporaire, rendu sur l’accueil et le catalogue, coexistence avec un sous-titre, accroche et résumé en plusieurs paragraphes, échappement HTML, champs vides masqués, rejet d’un titre absent/vide et d’une accroche de plus de 300 caractères |
+| Playwright ciblé : `both stories` et `pages render without` | 4 scénarios réussis sur les projets ordinateur/mobile ; lecture à 320 px sans JavaScript ; aucune violation axe ni débordement sur les 12 routes auditées, dont la nouvelle fiche |
+
+La suite navigateur complète et le build hors démonstration n’ont pas été relancés pour cette évolution. Les captures ci-dessous restent celles des vérifications précédentes.
+
 ## Phrase du pied de page — 7 novembre 2026
 
 La phrase sous le nom de l’auteur est désormais lue depuis `footerTagline` dans `src/content/settings/site.yaml`. Vérifications réalisées sur Node.js 22.23.1 :

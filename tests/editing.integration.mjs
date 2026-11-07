@@ -9,7 +9,7 @@ import { load } from 'cheerio';
 import { readPageContent } from '../scripts/lib/page-content.mjs';
 
 // Work in a disposable copy: no source edit, secret or build artifact in the checkout is touched.
-test('editing Markdown/YAML changes rendered pages and invalid content fails the build', { timeout: 120000 }, async () => {
+test('editing Markdown/YAML changes rendered pages and invalid content fails the build', { timeout: 180000 }, async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'temprina-editing-'));
   const build = () => spawnSync(process.execPath, [resolve('node_modules/astro/bin/astro.mjs'), 'build'], {
     cwd: fixture, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024,
@@ -50,6 +50,18 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     const privacy = await readPageContent(join(fixture, 'src/content/pages/confidentialite.md'));
     privacy.body = '## Une politique personnalisée\n\nUn texte **confidentiel modifié**.';
     await save('confidentialite', privacy);
+    const bookPath = join(fixture, 'src/content/books/les-prisonniers-du-tram.md');
+    const book = await readPageContent(bookPath);
+    const saveBook = () => writeFile(bookPath, `---\n${stringify(book.data)}---\n${book.body}\n`);
+    book.data.featured = true;
+    book.data.publicationDate = '2099-01-01';
+    book.data.subtitle = 'Un sous-titre conservé';
+    book.data.followedBy = {
+      title: '  Une menace <em>nouvelle</em> & lumière  ',
+      description: '  Une accroche <script>littérale</script>.  ',
+      summary: '  Premier paragraphe <strong>littéral</strong>.\n\nDeuxième paragraphe & conclusion.  ',
+    };
+    await saveBook();
     const result = build();
     assert.equal(result.status, 0, result.stdout + result.stderr);
     const outputs = await readdir(join(fixture, 'dist'), { recursive: true });
@@ -59,6 +71,25 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
       assert.equal(page('.site-footer .brand small em').length, 0, 'Tagline must remain literal text');
     }
     const $ = await html('index.html');
+    for (const output of ['index.html', 'catalogue/index.html']) {
+      const page = await html(output);
+      const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === book.data.title);
+      assert.equal(card.length, 1, output);
+      assert.equal(card.find('.book-followed-by span').text(), book.data.followedBy.title.trim());
+      assert.equal(card.find('.book-subtitle').text(), book.data.subtitle);
+      assert.equal(card.find('.book-followed-by span em').length, 0);
+      assert.ok(!card.text().includes('Deuxième paragraphe'));
+    }
+    const story = await html('livres/les-prisonniers-du-tram/index.html');
+    assert.equal(story('.book-second-story h2').text(), book.data.followedBy.title.trim());
+    assert.equal(story('.book-second-story .book-description').text(), book.data.followedBy.description.trim());
+    assert.deepEqual(story('.book-second-story .prose p').toArray().map(el => story(el).text()), book.data.followedBy.summary.trim().split('\n\n'));
+    assert.equal(story('.book-second-story em, .book-second-story script, .book-second-story strong').length, 0);
+    assert.ok(story('meta[property="og:title"]').attr('content').includes(`suivi de ${book.data.followedBy.title.trim()}`));
+    const bookSchema = JSON.parse(story('script[type="application/ld+json"]').text());
+    assert.equal(bookSchema.hasPart.name, book.data.followedBy.title.trim());
+    assert.equal(bookSchema.hasPart.description, book.data.followedBy.description.trim());
+    assert.equal(bookSchema.hasPart.abstract, book.data.followedBy.summary.trim());
     assert.ok($('title').text().startsWith('Un accueil modifié — '));
     assert.equal($('meta[property="og:description"]').attr('content'), home.data.description);
     assert.equal($('h1 em').text(), '<lumière>');
@@ -101,6 +132,24 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
       assert.equal(invalidTagline.signal, null);
       assert.equal(invalidTagline.error, undefined);
       assert.match(invalidTagline.stdout + invalidTagline.stderr, /footerTagline/);
+    }
+    await writeFile(settingsPath, stringify(settings));
+    book.data.followedBy = { title: '  Un second récit  ', description: '   ', summary: '   ' };
+    await saveBook();
+    const titleOnly = build();
+    assert.equal(titleOnly.status, 0, titleOnly.stdout + titleOnly.stderr);
+    const minimalStory = await html('livres/les-prisonniers-du-tram/index.html');
+    assert.equal(minimalStory('.book-followed-by span').text(), 'Un second récit');
+    assert.equal(minimalStory('.book-second-story').length, 0);
+    assert.deepEqual(JSON.parse(minimalStory('script[type="application/ld+json"]').text()).hasPart, { '@type': 'CreativeWork', name: 'Un second récit' });
+    for (const followedBy of [{}, { title: '   ' }, { title: 'Un récit', description: 'a'.repeat(301) }]) {
+      book.data.followedBy = followedBy;
+      await saveBook();
+      const invalidBook = build();
+      assert.notEqual(invalidBook.status, 0, 'A missing/blank title or overlong description must fail the build');
+      assert.equal(invalidBook.signal, null);
+      assert.equal(invalidBook.error, undefined);
+      assert.match(invalidBook.stdout + invalidBook.stderr, /followedBy/);
     }
   } finally {
     await rm(fixture, { recursive: true, force: true });

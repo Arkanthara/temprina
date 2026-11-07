@@ -10,6 +10,11 @@ const books = defineCollection({
   schema: ({ image }) => z.object({
     title: z.string(),
     subtitle: z.string().trim().optional(),
+    followedBy: z.object({
+      title: z.string().trim().min(1),
+      description: z.string().trim().max(300).optional(),
+      summary: z.string().trim().optional(),
+    }).optional(),
     description: z.string().trim().max(300).optional(),
     genre: z.string().trim().optional(),
     series: z.string().trim().optional(),

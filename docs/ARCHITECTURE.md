@@ -3,6 +3,7 @@
 Le site utilise Astro en génération statique et TypeScript strict. Chaque route produit du HTML dans `dist/`, compatible avec Cloudflare Pages. Aucun serveur applicatif, base de données, compte visiteur ou paiement dans cette version.
 
 - `src/content/pages/` : textes des huit pages éditoriales, en-têtes YAML et corps Markdown ; schéma par modèle dans `src/lib/page-schema.ts`, chargement typé avec `src/lib/pages.ts`.
+- `src/content/legal/site.yaml` : informations communes aux deux pages légales et crédit développeur facultatif ; collection `legal`, schéma partagé avec la validation de publication dans `src/lib/legal-schema.mjs`, résolution des contacts dans `src/lib/legal.ts`.
 - `src/content/books/` et `src/content/blog/` : fichiers Markdown, validés par les schémas de `src/content.config.ts`.
 - `src/pages/` : gabarits et routes consommant les contenus éditoriaux, fiches livres et articles générés avec `getStaticPaths()`.
 - `src/layouts/Layout.astro` : navigation, pied de page, métadonnées, canonical, JSON-LD.
@@ -23,7 +24,7 @@ La collection `pages` utilise une union discriminée par `template` : `home`, `a
 
 La page auteur présente la biographie à côté de l’illustration existante, puis la présentation complète dans une colonne de lecture. Le texte est issu du document fourni ; l’accueil en reprend un extrait. Ces contenus restent visibles hors mode démo. Les livres et articles conservent leurs règles `demo`/`draft`. La bannière de démonstration précise que certains livres et articles sont fictifs.
 
-Les pages légales portent un indicateur `approved`, faux par défaut, et une notice facultative. Le contrôle de production exige `approved: true`, aucun avis provisoire et un corps non vide, en plus des variables publiques déjà requises. Il contrôle aussi une présentation et une biographie non vides. La validation de ces indicateurs reste humaine.
+Les pages légales portent un indicateur `approved`, faux par défaut, et une notice facultative. Le contrôle de production exige `approved: true`, aucun avis provisoire et un corps non vide, en plus des variables publiques déjà requises. Il contrôle aussi une présentation et une biographie non vides. La validation de ces indicateurs reste humaine. Le contrôle vérifie aussi le schéma et la complétude de `src/content/legal/site.yaml`. Les liens de prestataires/développeur doivent utiliser HTTP(S). Le responsable reprend l’éditeur si non précisé, les contacts reprennent l’adresse publique configurée. Les pages affichent les faits avec des listes de définitions, une date de mise à jour et des champs à compléter. Le crédit développeur est masqué sans nom et peut être affiché sur toutes les pages via `developer.showInFooter`. Les titres et libellés des groupes restent éditables dans les fichiers Markdown.
 
 Les titres SEO des livres incluent désormais leur sous-titre (ou le tome) lorsqu’il existe, afin de distinguer notamment les trois « Le Signe du Sang » sans changer leurs titres visibles ni leurs URL.
 

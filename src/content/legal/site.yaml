@@ -1,0 +1,44 @@
+# Informations PUBLIQUES, partagées par les deux pages légales.
+# Garder les clés ; remplir les chaînes vides puis relire les deux pages.
+# Guide et documents à réunir : docs/INFORMATIONS-LEGALES.md
+updatedOn: "2026-11-06"
+
+publisher:
+  name: ""                     # Identité de l’éditeur, distincte du pseudonyme d’auteur si nécessaire.
+  status: "Autrice à son compte" # Indiqué par le propriétaire du site.
+  address: ""                  # Adresse publique de correspondance appropriée.
+  country: ""                  # Pays d’établissement, pour vérifier le cadre applicable.
+  email: ""                    # Vide : reprend PUBLIC_CONTACT_EMAIL si configuré.
+  publicationDirector: ""      # Facultatif selon la situation.
+  registration: ""             # Facultatif : identifiant de l’entreprise, si pertinent.
+
+developer:
+  name: "Michel Jean Joseph Donnet" # Nom indiqué dans LICENSE, confirmé comme développeur.
+  role: "Conception et développement"
+  url: "https://github.com/Arkanthara"                      # Facultatif, URL HTTP(S) complète.
+  showInFooter: false          # true : affiche aussi le crédit sur toutes les pages.
+
+hosting:
+  # Coordonnées publiques Cloudflare vérifiées le 6 novembre 2026.
+  # Confirmer l’entité contractuelle et le service réellement utilisés par le compte.
+  name: "Cloudflare, Inc."
+  address: "101 Townsend Street, San Francisco, CA 94107, États-Unis"
+  service: "Cloudflare Pages — offre gratuite" # Déploiement par défaut confirmé par le propriétaire.
+  url: "https://www.cloudflare.com/"
+  privacyUrl: "https://www.cloudflare.com/privacypolicy/"
+  dpaUrl: "https://www.cloudflare.com/cloudflare-customer-dpa/"
+
+privacy:
+  controllerName: ""           # Vide : reprend publisher.name.
+  contactEmail: ""             # Vide : reprend publisher.email puis PUBLIC_CONTACT_EMAIL.
+  applicableLaw: ""            # À confirmer selon l’établissement et le public visé.
+  processingBasis: ""          # Justification des traitements réellement effectués.
+  emailProvider: ""            # Prestataire de messagerie et destinataires des échanges.
+  contactRetention: ""         # Durée/critères de conservation des e-mails et pièces jointes.
+  hostingRetention: ""         # Durées/critères des journaux et données techniques, selon les services.
+  processingCountries: ""      # Pays de traitement réellement concernés.
+  transferSafeguards: ""       # Garanties des éventuels transferts, ou absence de transfert confirmée.
+  hostingCookies: ""           # Cookies techniques constatés, finalités et durées ; ou absence vérifiée.
+  audienceMeasurement: "Aucun outil de mesure d’audience supplémentaire n’est activé pour ce site." # Confirmé par le propriétaire.
+  authorityName: ""            # Autorité compétente après confirmation du cadre applicable.
+  authorityUrl: ""             # Site officiel de cette autorité.

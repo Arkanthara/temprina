@@ -4,7 +4,7 @@ import { cp, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 import { load } from 'cheerio';
 import { readPageContent } from '../scripts/lib/page-content.mjs';
 
@@ -34,6 +34,18 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     const contact = await readPageContent(join(fixture, 'src/content/pages/contact.md'));
     contact.data.form.selectedBook = 'Votre lecture : {book}';
     await save('contact', contact);
+    const legalPath = join(fixture, 'src/content/legal/site.yaml');
+    const legal = parse(await readFile(legalPath, 'utf8'));
+    legal.publisher.name = 'Éditrice <fiction> & plume';
+    legal.publisher.email = 'editor@example.org';
+    legal.developer = { name: 'Studio <création> & associés', role: 'Développement du site', url: 'https://example.org/studio/', showInFooter: true };
+    await writeFile(legalPath, stringify(legal));
+    const mentions = await readPageContent(join(fixture, 'src/content/pages/mentions-legales.md'));
+    mentions.body = '## Crédits personnalisés\n\nUn texte **légal modifié**.';
+    await save('mentions-legales', mentions);
+    const privacy = await readPageContent(join(fixture, 'src/content/pages/confidentialite.md'));
+    privacy.body = '## Une politique personnalisée\n\nUn texte **confidentiel modifié**.';
+    await save('confidentialite', privacy);
     const result = build();
     assert.equal(result.status, 0, result.stdout + result.stderr);
     const $ = await html('index.html');
@@ -49,6 +61,20 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     assert.equal(bio('.author-presentation strong').text(), 'modifiée');
     const email = await html('contact/index.html');
     assert.equal(email('[data-selected-book]').attr('data-template'), 'Votre lecture : {book}');
+    const legalPage = await html('mentions-legales/index.html');
+    assert.ok(legalPage('.legal-facts').text().includes(legal.developer.name));
+    assert.equal(legalPage('.legal-facts création, .legal-facts fiction').length, 0);
+    assert.equal(legalPage('.prose strong').text(), 'légal modifié');
+    assert.equal(legalPage('.legal-updated time').attr('datetime'), legal.updatedOn);
+    const privacyPage = await html('confidentialite/index.html');
+    assert.ok(privacyPage('.legal-facts').text().includes(legal.publisher.name), 'Controller defaults to publisher');
+    assert.equal(privacyPage('.legal-facts a[href="mailto:editor@example.org"]').length, 1);
+    assert.equal(privacyPage('.prose strong').text(), 'confidentiel modifié');
+    for (const page of [$, legalPage, privacyPage, email, bio]) {
+      assert.equal(page('.developer-credit a').text(), legal.developer.name);
+      assert.equal(page('.developer-credit a').attr('href'), legal.developer.url);
+      assert.equal(page('.developer-credit création').length, 0);
+    }
     delete home.data.hero.primaryLabel;
     await save('index', home);
     const invalid = build();

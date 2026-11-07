@@ -9,6 +9,8 @@ import '@fontsource/manrope/latin-600.css';
 import '../styles/global.css';
 import Logo from '../components/Logo.astro';
 import { site } from '../lib/site';
+import { getLegalInformation } from '../lib/legal';
+const { developer } = await getLegalInformation();
 interface Props { title: string; description?: string; image?: string; type?: 'website' | 'article' | 'book'; schema?: Record<string, unknown>; noindex?: boolean }
 const { title, description = site.description, image = '/images/social.jpg', type = 'website', schema, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -56,6 +58,7 @@ const authorSchema = { '@context': 'https://schema.org', '@type': 'Person', '@id
     <footer class="site-footer">
       <div class="footer-top"><a href="/" class="brand"><Logo /><span>{site.author}<small>CHAQUE LIVRE EST UN PASSAGE.</small></span></a><p>Pour celles et ceux qui croient<br />encore à la magie des histoires.</p><a class="text-link" href="/contact/">Écrivons-nous <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
       <div class="footer-bottom"><span>© {new Date().getUTCFullYear()} · {site.author}</span><div><a href="/mentions-legales/">Mentions légales</a><a href="/confidentialite/">Confidentialité</a></div><span>Imaginé entre les pages <span class="gold" aria-hidden="true"><Icon name="spark" /></span></span></div>
+      {developer.showInFooter && developer.name && <p class="developer-credit">{developer.role} · {developer.url ? <a href={developer.url}>{developer.name}</a> : <span>{developer.name}</span>}</p>}
     </footer>
     <script>
       const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');

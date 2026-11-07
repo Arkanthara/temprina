@@ -1,7 +1,9 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
+import { parse } from 'yaml';
 import { pageSchema } from './lib/page-schema';
+import { legalSchema } from './lib/legal-schema.mjs';
 
 const books = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './src/content/books' }),
@@ -40,4 +42,9 @@ const pages = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/pages' }),
   schema: pageSchema,
 });
-export const collections = { books, blog, pages };
+const legal = defineCollection({
+  // Use the same YAML parser as the publication checker, including for dates.
+  loader: file('./src/content/legal/site.yaml', { parser: source => ({ site: parse(source) }) }),
+  schema: legalSchema,
+});
+export const collections = { books, blog, pages, legal };

@@ -142,3 +142,18 @@ test('author editorial content remains available without JavaScript at 320 pixel
     await context.close();
   }
 });
+
+test('legal and privacy pages are accessible from the footer and usable at 320 pixels', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4321/');
+    await page.locator('.site-footer').getByRole('link', { name: 'Mentions légales', exact: true }).click();
+    await expect(page.locator('.legal-facts').first()).toBeVisible();
+    await expect(page.locator('.legal-updated time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator('.site-footer').getByRole('link', { name: 'Confidentialité', exact: true }).click();
+    await expect(page.locator('.legal-facts').first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  } finally { await context.close(); }
+});

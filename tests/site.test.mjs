@@ -202,3 +202,28 @@ test('author biography uses its editorial data and both presentation areas are r
   assert.equal(home('.author-band a').attr('href'), '/auteur/');
   assert.doesNotMatch(home('.demo-bar').text(), /Livres et textes fictifs/);
 });
+
+test('common legal information and optional developer credit are rendered consistently', async () => {
+  const { parse } = await import('yaml');
+  const data = parse(await readFile('src/content/legal/site.yaml', 'utf8'));
+  const { readPageContent } = await import('../scripts/lib/page-content.mjs');
+  for (const id of ['mentions-legales', 'confidentialite']) {
+    const $ = load(await readFile(join(root, `${id}/index.html`), 'utf8'));
+    const { data: page } = await readPageContent(`src/content/pages/${id}.md`);
+    assert.equal($('.legal-updated time').attr('datetime'), data.updatedOn);
+    assert.equal($('.notice').length, page.notice ? 1 : 0);
+    const effectiveData = {
+      ...data,
+      privacy: { ...data.privacy, controllerName: data.privacy.controllerName || data.publisher.name },
+    };
+    const sections = page.informationSections.filter(section => !section.showWhen || section.showWhen.split('.').reduce((value, key) => value[key], effectiveData));
+    assert.equal($('.legal-information > section').length, sections.length);
+    assert.ok($('.legal-facts dd').toArray().every(el => $(el).text().trim()), 'No empty public facts');
+    if (data.publisher.name) assert.ok($('.legal-facts').text().includes(data.publisher.name));
+  }
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    assert.equal($('.developer-credit').length, data.developer.showInFooter && data.developer.name ? 1 : 0, file);
+    if ($('.developer-credit').length) assert.ok($('.developer-credit').text().includes(data.developer.name), file);
+  }
+});

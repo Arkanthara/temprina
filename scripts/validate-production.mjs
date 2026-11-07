@@ -1,8 +1,11 @@
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { readFile } from 'node:fs/promises';
+import { parse } from 'yaml';
+import { legalSchema, missingLegalFields } from '../src/lib/legal-schema.mjs';
 import { readPageContent } from './lib/page-content.mjs';
 
-export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages' } = {}) {
+export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages', legalPath = 'src/content/legal/site.yaml' } = {}) {
   const issues = [];
   try {
     const url = new URL(env.PUBLIC_SITE_URL || '');
@@ -29,6 +32,17 @@ export async function validateProduction({ env = process.env, contentRoot = 'src
     } catch {
       issues.push(`Le contenu src/content/pages/${id}.md est manquant ou illisible.`);
     }
+  }
+  try {
+    const result = legalSchema.safeParse(parse(await readFile(legalPath, 'utf8')));
+    if (!result.success) {
+      issues.push(`Corriger ${legalPath} : ${result.error.issues.map(issue => `${issue.path.join('.')} : ${issue.message}`).join('; ')}`);
+    } else {
+      const missing = missingLegalFields(result.data, env.PUBLIC_CONTACT_EMAIL);
+      if (missing.length) issues.push(`Compléter ${legalPath} : ${missing.join(', ')}.`);
+    }
+  } catch {
+    issues.push(`Le fichier ${legalPath} est manquant ou illisible.`);
   }
   return issues;
 }

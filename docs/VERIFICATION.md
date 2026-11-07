@@ -1,28 +1,36 @@
 # Vérifications du site
 
-Vérifications de l’édition des pages réalisées le **6 novembre 2026**, sur **Node.js 22.23.1** et **Chromium via Playwright**. Le build local final est en mode démonstration.
+Vérifications de l’édition des pages et des informations légales réalisées le **6 novembre 2026**, sur **Node.js 22.23.1** et **Chromium via Playwright**. Le build local final est en mode démonstration.
 
 | Contrôle | Résultat |
 | --- | --- |
 | `npm run check` | Aucun diagnostic TypeScript/Astro |
 | `npm run build` | 22 pages HTML en mode démonstration ; 12 hors démonstration avec les contenus actuels |
-| `npm test` | 14 contrôles : 11 sur le build et 3 sur la lecture/validation des contenus ; tous réussis en démo |
+| `npm test` | 18 contrôles : 12 sur le build, 3 sur la lecture/validation des contenus et 3 sur les informations légales ; tous réussis en démo |
 | Tests du build hors démo | Réussis ; les 2 contrôles des livres fictifs minimal/complet sont ignorés lorsque leurs routes sont absentes |
 | `npm run test:editing` | Réussi : édition dans une copie temporaire, rendu des nouveaux textes et rejet du champ `hero.primaryLabel` manquant |
-| Tests navigateur de démonstration | 20 scénarios réussis sur ordinateur et mobile ; 2 scénarios de production ignorés |
+| Tests navigateur de démonstration | 22 scénarios réussis sur ordinateur et mobile ; 2 scénarios de production ignorés |
 | Tests navigateur hors démo avec contact configuré | 2 scénarios réussis, avec des coordonnées temporaires de test |
 | Accessibilité automatisée | Aucune violation axe WCAG A/AA détectée sur les 11 routes représentatives, aux deux formats |
 | Écrans étroits | Aucun débordement sur les routes auditées ; lecture auteur et navigation sans JavaScript vérifiées à 320 px |
 | Comparaison au document Word fourni | Les 6 paragraphes de présentation et les 2 paragraphes de biographie sont conservés intégralement dans le HTML auteur |
-| Validation de production | Refus attendu : identité, domaine, adresse et validation des pages légales restent à renseigner ; la biographie intégrée est reconnue |
+| Validation de production | Refus attendu : identité et contact de l’autrice, environnement, informations de traitement et validation des pages légales restent à renseigner ; la biographie intégrée est reconnue |
 
 ## Édition et publication
 
-Les huit fichiers de `src/content/pages/` alimentent les métadonnées et les titres visibles de leurs routes. Les tests contrôlent cette correspondance. Le test d’intégration édite l’accueil, la biographie, la présentation et un message de contact dans une copie temporaire sans `.env`, puis reconstruit le site. Il vérifie notamment les nouveaux titres et métadonnées, le Markdown en gras, l’échappement des chaînes YAML et le diagnostic du champ requis supprimé. La CI **Build et tests** exécute ce scénario en plus des vérifications existantes.
+Les huit fichiers de `src/content/pages/` alimentent les métadonnées et les titres visibles de leurs routes. Les tests contrôlent cette correspondance. Le test d’intégration édite l’accueil, la biographie, la présentation, un message de contact, les deux textes légaux et les crédits du développeur dans une copie temporaire sans `.env`, puis reconstruit le site. Il vérifie notamment les nouveaux titres et métadonnées, le Markdown en gras, l’échappement des chaînes YAML et le diagnostic du champ requis supprimé. La CI **Build et tests** exécute ce scénario en plus des vérifications existantes.
 
-Les contrôles de production lisent les contenus Markdown : ils exigent une présentation et une biographie renseignées, ainsi que des pages légales avec `approved: true`, un corps non vide et aucune notice provisoire. Des tests couvrent les indicateurs non validés, les fichiers absents ou illisibles et les variables manquantes. Ils utilisent des fichiers temporaires afin de permettre de compléter les véritables pages légales sans modifier les tests.
+Les contrôles de production lisent les contenus Markdown : ils exigent une présentation et une biographie renseignées, ainsi que des pages légales avec `approved: true`, un corps non vide et aucune notice provisoire. Les informations communes de `src/content/legal/site.yaml` doivent également être complètes et valides. Des tests couvrent les indicateurs non validés, les fichiers absents ou illisibles et les variables manquantes. Ils utilisent des fichiers temporaires afin de permettre de compléter les véritables pages légales sans modifier les tests.
 
 Les scénarios navigateur couvrent le passage de l’accueil à la biographie, la lecture de la présentation jusqu’au dernier paragraphe et la navigation sans JavaScript. Ils s’appuient sur la structure éditoriale plutôt que sur un titre ou un nombre de paragraphes imposés, pour permettre les prochaines modifications de contenu. Les scénarios de contact configuré vérifient aussi qu’un titre de livre contenant `$&` et des caractères HTML reste du texte littéral dans le message prérempli.
+
+## Pages légales et développeur
+
+Le schéma des informations communes est partagé entre le build Astro et le contrôle de publication ; leur lecture utilise le même parseur YAML, notamment pour les dates. Le test d’édition contrôle le changement des textes Markdown des deux pages, les valeurs communes, la reprise de l’identité de l’éditeur comme responsable du traitement, le contact par e-mail, la date et le crédit développeur sur plusieurs routes. Les noms contenant des caractères HTML restent du texte ; les URL non HTTP(S) sont refusées. L’activation d’un crédit sans nom est refusée. Les faits manquants ou marqués « À confirmer » restent bloquants même si les deux pages portent `approved: true`.
+
+Les tests navigateur suivent les liens du pied de page vers les mentions légales et la confidentialité sans JavaScript, à 320 px. Les deux pages font aussi partie de l’audit axe aux formats ordinateur/mobile.
+
+Les valeurs confirmées par le propriétaire sont reprises : **Michel Jean Joseph Donnet** depuis `LICENSE`, l’autrice à son compte, **Cloudflare Pages gratuit** sans service supplémentaire configuré, et l’origine **https://donnet.pages.dev**. Les faits inconnus restent visibles comme informations à compléter.
 
 ## Régressions conservées
 
@@ -47,5 +55,7 @@ Captures historiques conservées :
 ## Limites
 
 Les formats mobiles sont simulés sous Chromium ; aucun appareil physique, Safari ou Firefox n’a été utilisé. L’audit automatisé ne remplace pas une revue avec lecteur d’écran. Le contact ouvre la messagerie du visiteur : aucun e-mail réel n’a été envoyé. Le domaine, les aperçus sociaux et la messagerie réelle restent à vérifier avec les coordonnées définitives.
+
+L’ouverture du site public déclaré via l’outil web n’a pas abouti ; une requête HTTP depuis cet environnement a reçu une réponse 403. Les cookies et les réglages effectifs de ce déploiement n’ont donc pas été audités. Cela ne permet pas de conclure à une indisponibilité pour les visiteurs.
 
 Les workflows GitHub Actions et le DevContainer n’ont pas été exécutés sur leurs plateformes distantes. Aucun push GitHub ni déploiement Cloudflare n’a été effectué. Les tests hors démo utilisent des valeurs temporaires et ne constituent pas une validation des informations légales.

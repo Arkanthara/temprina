@@ -107,7 +107,6 @@ cover: ../../assets/un-nouveau-roman.jpg
 coverAlt: "Couverture de Un nouveau roman : description visuelle concise."
 featured: true
 draft: false
-demo: false
 publisher: "Nom de l’éditeur"
 isbn: "9780000000002"
 formats: ["Broché", "Numérique"]
@@ -124,7 +123,7 @@ Les cartes de l’accueil et du catalogue affichent le sous-titre, la série, le
 
 Sans `coverAlt` ou avec une valeur vide, le texte alternatif devient « Couverture de [titre] ». Sans description, les métadonnées SEO et de partage utilisent une phrase construite avec le titre, le nom de l’auteur et la date ; le JSON-LD omet la description et le genre absents.
 
-La démonstration comprend **La Dernière Braise**, avec exactement les trois champs requis et sans corps Markdown, et **Le Chant des Sylves**, avec tous les champs du schéma renseignés. Le premier hérite notamment de `demo: true`, `draft: false` et `featured: false`.
+L’exemple minimal hérite de `demo: false`, `draft: false` et `featured: false` : le livre apparaît sans avoir à préciser `demo: false`. Les romans fictifs doivent être marqués explicitement `demo: true`, comme **Le Chant des Sylves** et **La Dernière Braise**. Ce dernier reste un exemple de livre minimal, avec ce seul indicateur ajouté aux trois champs requis.
 
 La fiche apparaît à `/livres/un-nouveau-roman/`. Le catalogue, les données structurées et le sitemap se mettent à jour au build. Sur l’accueil, les romans `featured: true` passent en premier, puis les plus récents, avec un maximum de trois.
 
@@ -166,7 +165,8 @@ Les articles sont triés du plus récent au plus ancien. La date sert au classem
 
 ## Démonstration et brouillons
 
-- `demo: true` est la valeur par défaut : écrire explicitement `demo: false` pour un contenu réel.
+- Pour les livres, `demo: false` est la valeur par défaut : aucun champ `demo` n’est nécessaire pour un livre réel. Réserver `demo: true` aux romans fictifs.
+- Pour les articles, `demo: true` reste la valeur par défaut : écrire explicitement `demo: false` pour un article réel.
 - `draft: true` exclut le contenu de toutes les pages et de ses routes.
 - `PUBLIC_DEMO_MODE=true` rend les contenus fictifs visibles et désactive l’indexation.
 - `PUBLIC_DEMO_MODE=false` exclut tous les contenus fictifs, même si les fichiers restent dans le dépôt.

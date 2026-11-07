@@ -120,7 +120,7 @@ Pour un domaine personnel, ouvrir le projet Pages, puis **Custom domains > Set u
 
 Quand le domaine fonctionne, définir `PUBLIC_SITE_URL` sur son origine HTTPS, sans chemin, puis reconstruire le site.
 
-La présentation et la biographie sont intégrées dans `src/content/pages/auteur.md`. Les pages légales restent préparatoires : compléter les informations communes de `src/content/legal/site.yaml` (voir [les informations à réunir](INFORMATIONS-LEGALES.md)), puis `src/content/pages/mentions-legales.md` et `confidentialite.md`, retirer leurs champs `notice` et passer `approved: true` après validation. Ajouter les livres et articles réels avec `demo: false`. Dans les variables Cloudflare **Production**, définir le vrai nom et l’adresse de contact, `PUBLIC_DEMO_MODE=false` et `PUBLIC_CONTENT_APPROVED=true` après relecture. Les contenus marqués `demo: true` disparaissent quand le mode démo est désactivé.
+La présentation et la biographie sont intégrées dans `src/content/pages/auteur.md`. Les pages légales restent préparatoires : compléter les informations communes de `src/content/legal/site.yaml` (voir [les informations à réunir](INFORMATIONS-LEGALES.md)), puis `src/content/pages/mentions-legales.md` et `confidentialite.md`, retirer leurs champs `notice` et passer `approved: true` après validation. Ajouter les livres réels sans champ `demo` (ils sont hors démonstration par défaut) et les articles réels avec `demo: false`. Dans les variables Cloudflare **Production**, définir le vrai nom et l’adresse de contact, `PUBLIC_DEMO_MODE=false` et `PUBLIC_CONTENT_APPROVED=true` après relecture. Les contenus marqués `demo: true` disparaissent quand le mode démo est désactivé.
 
 Pour conserver le contrôle de préparation de la production avec la connexion Git, remplacer alors **Build command** par :
 
@@ -137,7 +137,7 @@ if [ "$CF_PAGES_BRANCH" = "master" ]; then npm run validate:production; fi && np
 ## Avant la publication de la version définitive
 
 - Renseigner les coordonnées, relire les textes auteur intégrés et compléter les pages légales dans `src/content/pages/` (`approved: true`, sans `notice`).
-- Ajouter les vrais romans et articles, avec `demo: false`, puis relire le rendu.
+- Ajouter les vrais romans sans champ `demo` et les articles avec `demo: false`, puis relire le rendu.
 - Confirmer les droits sur les couvertures et les crédits.
 - Vérifier le domaine, la messagerie sur un appareil réel et les aperçus sociaux.
 - Exécuter la validation et les tests ; examiner la révision avant de la fusionner vers `master`.

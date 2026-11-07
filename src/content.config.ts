@@ -19,7 +19,7 @@ const books = defineCollection({
     coverAlt: z.string().trim().optional(),
     featured: z.boolean().default(false),
     draft: z.boolean().default(false),
-    demo: z.boolean().default(true),
+    demo: z.boolean().default(false),
     publisher: z.string().optional(),
     isbn: z.string().optional(),
     formats: z.array(z.string()).optional(),

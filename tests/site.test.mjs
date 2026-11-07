@@ -126,7 +126,7 @@ test('catalogue lists every published book without filtering controls or catalog
 
 test('minimal book renders only supplied fields and retains accessible covers and SEO', { skip: !htmlFiles.includes(join(root, 'livres/la-derniere-braise/index.html')) }, async () => {
   const source = await readFile('src/content/books/la-derniere-braise.md', 'utf8');
-  assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover']);
+  assert.deepEqual(source.split('---')[1].trim().split('\n').map(line => line.split(':')[0]), ['title', 'publicationDate', 'cover', 'demo']);
   const $ = load(await readFile(join(root, 'livres/la-derniere-braise/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'La Dernière Braise');
   assert.equal($('.book-info > .eyebrow, .book-subtitle, .book-description, .book-info .prose').length, 0);

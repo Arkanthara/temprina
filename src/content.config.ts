@@ -47,4 +47,8 @@ const legal = defineCollection({
   loader: file('./src/content/legal/site.yaml', { parser: source => ({ site: parse(source) }) }),
   schema: legalSchema,
 });
-export const collections = { books, blog, pages, legal };
+const settings = defineCollection({
+  loader: file('./src/content/settings/site.yaml', { parser: source => ({ site: parse(source) }) }),
+  schema: z.object({ footerTagline: z.string().trim().min(1) }),
+});
+export const collections = { books, blog, pages, legal, settings };

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
@@ -20,6 +20,10 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
   try {
     for (const name of ['src', 'public', 'package.json', 'astro.config.mjs', 'tsconfig.json']) await cp(name, join(fixture, name), { recursive: true });
     await symlink(resolve('node_modules'), join(fixture, 'node_modules'), 'dir');
+    const settingsPath = join(fixture, 'src/content/settings/site.yaml');
+    const settings = parse(await readFile(settingsPath, 'utf8'));
+    settings.footerTagline = '  Des histoires & des <em>passages</em> : à partager.  ';
+    await writeFile(settingsPath, stringify(settings));
     const home = await readPageContent(join(fixture, 'src/content/pages/index.md'));
     home.data.title = 'Un accueil modifié';
     home.data.description = 'Une nouvelle description à partager.';
@@ -48,6 +52,12 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     await save('confidentialite', privacy);
     const result = build();
     assert.equal(result.status, 0, result.stdout + result.stderr);
+    const outputs = await readdir(join(fixture, 'dist'), { recursive: true });
+    for (const output of outputs.filter(path => path.endsWith('.html'))) {
+      const page = await html(output);
+      assert.equal(page('.site-footer .brand small').text(), settings.footerTagline.trim(), output);
+      assert.equal(page('.site-footer .brand small em').length, 0, 'Tagline must remain literal text');
+    }
     const $ = await html('index.html');
     assert.ok($('title').text().startsWith('Un accueil modifié — '));
     assert.equal($('meta[property="og:description"]').attr('content'), home.data.description);
@@ -82,6 +92,16 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     assert.equal(invalid.signal, null, 'The invalid build must exit normally with a validation failure');
     assert.equal(invalid.error, undefined);
     assert.match(invalid.stdout + invalid.stderr, /primaryLabel/);
+    home.data.hero.primaryLabel = 'Parcourir mes livres';
+    await save('index', home);
+    for (const invalidSettings of [{}, { footerTagline: '   ' }]) {
+      await writeFile(settingsPath, stringify(invalidSettings));
+      const invalidTagline = build();
+      assert.notEqual(invalidTagline.status, 0, 'Missing or blank tagline must fail the build');
+      assert.equal(invalidTagline.signal, null);
+      assert.equal(invalidTagline.error, undefined);
+      assert.match(invalidTagline.stdout + invalidTagline.stderr, /footerTagline/);
+    }
   } finally {
     await rm(fixture, { recursive: true, force: true });
   }

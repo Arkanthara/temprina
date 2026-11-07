@@ -6,6 +6,20 @@ Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PU
 
 Le logo de l’auteur est fourni dans `public/images/logo.png`. Pour le changer, remplacer ce fichier en conservant une image carrée et transparente ; adapter les dimensions intrinsèques de `src/components/Logo.astro` si nécessaire. Ce composant est utilisé dans l’en-tête, le pied de page et l’accueil ; le même fichier sert de favicon.
 
+## Modifier la phrase sous le nom de l’auteur
+
+Ouvrir **`src/content/settings/site.yaml`** dans un éditeur ou sur GitHub (icône crayon), puis remplacer uniquement le texte entre guillemets :
+
+```yaml
+footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
+```
+
+Par exemple : `footerTagline: "Des histoires pour ouvrir d’autres mondes."`. Ce réglage remplace la phrase sous le nom de l’auteur dans le **pied de page de toutes les pages**, y compris les livres, les articles et la page 404. Le nom reste configuré avec `PUBLIC_AUTHOR_NAME` ; la mention « ROMANS & IMAGINAIRES » de l’en-tête reste dans le gabarit.
+
+Conserver le nom du champ `footerTagline` et une chaîne non vide : un champ absent, vide ou composé uniquement d’espaces fait échouer le build. Les espaces au début et à la fin sont retirés. Le contenu est du texte brut : HTML et Markdown ne sont pas interprétés. Garder les guillemets, notamment pour les caractères `: ` ou `#`, et privilégier une phrase courte.
+
+Enregistrer le fichier puis vérifier avec `npm run check`, `npm run build`, `npm test` et `npm run test:editing`. En local, `npm run dev` permet de relire le résultat. Avec la connexion GitHub → Cloudflare Pages configurée, la fusion dans `master` reconstruit et publie le site ; aucune nouvelle variable Cloudflare n’est nécessaire.
+
 ## Modifier une page sans toucher au code
 
 Les textes des pages sont dans **`src/content/pages/`**. Ils peuvent être modifiés dans un éditeur de texte, ou directement sur GitHub : ouvrir le fichier, cliquer sur le crayon, modifier et enregistrer sur la branche de travail. Les tests de la pull request vérifient le résultat avant fusion. En local, `npm run dev` affiche les changements pendant la rédaction ; après publication, un nouveau build est nécessaire. Avec la connexion GitHub → Cloudflare Pages configurée, fusionner dans `master` déclenche ce build.
@@ -58,7 +72,7 @@ La présentation intégrale suit dans le corps Markdown. La présentation et les
 
 Les champs de compteur du catalogue conservent **`{count}`**. Le lien de lecture du blog conserve **`{title}`**. Dans Contact, `selectedBook`, `bookSubject` et `bookMessage` conservent **`{book}`**, remplacé par le titre du livre sélectionné. Les labels accessibles et les textes sans JavaScript font partie des réglages. L’adresse e-mail se configure toujours avec `PUBLIC_CONTACT_EMAIL`, pas dans ce fichier.
 
-Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. L’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro`, les styles dans `src/styles/global.css`, les images dans `src/assets/`.
+Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. La structure de l’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro` ; la phrase du pied de page vient de `src/content/settings/site.yaml`. Les styles sont dans `src/styles/global.css`, les images dans `src/assets/`.
 
 Les informations communes des deux pages légales (éditeur, développeur, hébergeur, conservation et destinataires) se modifient dans **`src/content/legal/site.yaml`**. Renseigner `developer.name`, son éventuel `url`, puis `showInFooter: true` pour afficher aussi les crédits sur toutes les pages. Les textes et libellés restent dans les deux fichiers Markdown ; les champs vides sont signalés au rendu. Voir [le guide des informations légales](INFORMATIONS-LEGALES.md) pour les exemples et les informations Cloudflare à réunir.
 

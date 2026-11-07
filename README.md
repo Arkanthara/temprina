@@ -14,6 +14,8 @@ Le site est disponible à `http://localhost:4321`.
 
 Les textes des pages se modifient dans **`src/content/pages/*.md`**, sans modifier les gabarits Astro : titres, introductions, boutons, présentation, biographie, contact et pages légales. Voir [le guide d’édition](docs/CONTENUS.md#modifier-une-page-sans-toucher-au-code) pour modifier un fichier depuis GitHub ou en local. Les champs sont validés au build.
 
+La phrase « CHAQUE LIVRE EST UN PASSAGE. » sous le nom de l’auteur dans le pied de page se personnalise avec `footerTagline` dans **`src/content/settings/site.yaml`**. Voir [l’exemple d’édition](docs/CONTENUS.md#modifier-la-phrase-sous-le-nom-de-lauteur).
+
 Pages : accueil, catalogue de romans, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
 
 ```sh

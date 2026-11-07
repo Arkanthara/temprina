@@ -1,5 +1,20 @@
 # Vérifications du site
 
+## Phrase du pied de page — 7 novembre 2026
+
+La phrase sous le nom de l’auteur est désormais lue depuis `footerTagline` dans `src/content/settings/site.yaml`. Vérifications réalisées sur Node.js 22.23.1 :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `npm run check` | Aucun diagnostic TypeScript/Astro |
+| `npm run build` | 22 pages HTML en mode démonstration |
+| `npm test` | Réussi, avec un nouveau contrôle de la phrase configurée sous le nom de l’auteur sur toutes les pages générées |
+| `npm run test:editing` | Réussi : modification du YAML dans une copie temporaire, rendu sur toutes les pages, suppression des espaces de bord, caractères HTML affichés comme texte et rejet de `footerTagline` absent ou composé uniquement d’espaces |
+
+Les tests navigateur n’ont pas été relancés pour cette modification de contenu partagé. Les résultats et captures ci-dessous datent de la vérification précédente.
+
+## Vérification précédente — 6 novembre 2026
+
 Vérifications de l’édition des pages et des informations légales réalisées le **6 novembre 2026**, sur **Node.js 22.23.1** et **Chromium via Playwright**. Le build local final est en mode démonstration.
 
 | Contrôle | Résultat |

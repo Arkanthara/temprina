@@ -3,6 +3,7 @@
 Le site utilise Astro en génération statique et TypeScript strict. Chaque route produit du HTML dans `dist/`, compatible avec Cloudflare Pages. Aucun serveur applicatif, base de données, compte visiteur ou paiement dans cette version.
 
 - `src/content/pages/` : textes des huit pages éditoriales, en-têtes YAML et corps Markdown ; schéma par modèle dans `src/lib/page-schema.ts`, chargement typé avec `src/lib/pages.ts`.
+- `src/content/settings/site.yaml` : phrase `footerTagline` sous le nom de l’auteur dans le pied de page ; collection `settings`, chaîne obligatoire non vide validée dans `src/content.config.ts`, consommée par le layout commun sur toutes les routes.
 - `src/content/legal/site.yaml` : informations communes aux deux pages légales et crédit développeur facultatif ; collection `legal`, schéma partagé avec la validation de publication dans `src/lib/legal-schema.mjs`, résolution des contacts dans `src/lib/legal.ts`.
 - `src/content/books/` et `src/content/blog/` : fichiers Markdown, validés par les schémas de `src/content.config.ts`.
 - `src/pages/` : gabarits et routes consommant les contenus éditoriaux, fiches livres et articles générés avec `getStaticPaths()`.

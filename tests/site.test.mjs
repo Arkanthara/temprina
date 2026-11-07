@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { load } from 'cheerio';
+import { parse } from 'yaml';
 
 const root = resolve('dist');
 async function walk(dir) {
@@ -12,6 +13,19 @@ async function walk(dir) {
 const files = await walk(root);
 const htmlFiles = files.filter(file => file.endsWith('.html'));
 const exists = async path => { try { return (await stat(path)).isFile(); } catch { return false; } };
+
+test('every page displays the configured footer tagline below the author name', async () => {
+  const { footerTagline } = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+  for (const file of htmlFiles) {
+    const $ = load(await readFile(file, 'utf8'));
+    const tagline = $('.site-footer .brand > span > small');
+    assert.equal(tagline.length, 1, file);
+    assert.equal(tagline.text(), footerTagline.trim(), file);
+    const author = tagline.parent().clone();
+    author.find('small').remove();
+    assert.equal(author.text(), $('meta[property="og:site_name"]').attr('content'), file);
+  }
+});
 
 test('all pages have French language, accessible structure and SEO metadata', async () => {
   assert.ok(htmlFiles.length >= 8);

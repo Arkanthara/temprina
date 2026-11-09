@@ -6,6 +6,20 @@ Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PU
 
 Le logo de l’auteur est fourni dans `public/images/logo.png`. Pour le changer, remplacer ce fichier en conservant une image carrée et transparente ; adapter les dimensions intrinsèques de `src/components/Logo.astro` si nécessaire. Ce composant est utilisé dans l’en-tête, le pied de page et l’accueil ; le même fichier sert de favicon.
 
+## Modifier la phrase sous le nom de l’auteur
+
+Ouvrir **`src/content/settings/site.yaml`** dans un éditeur ou sur GitHub (icône crayon), puis remplacer uniquement le texte entre guillemets :
+
+```yaml
+footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
+```
+
+Par exemple : `footerTagline: "Des histoires pour ouvrir d’autres mondes."`. Ce réglage remplace la phrase sous le nom de l’auteur dans le **pied de page de toutes les pages**, y compris les livres, les articles et la page 404. Le nom reste configuré avec `PUBLIC_AUTHOR_NAME` ; la mention « ROMANS & IMAGINAIRES » de l’en-tête reste dans le gabarit.
+
+Conserver le nom du champ `footerTagline` et une chaîne non vide : un champ absent, vide ou composé uniquement d’espaces fait échouer le build. Les espaces au début et à la fin sont retirés. Le contenu est du texte brut : HTML et Markdown ne sont pas interprétés. Garder les guillemets, notamment pour les caractères `: ` ou `#`, et privilégier une phrase courte.
+
+Enregistrer le fichier puis vérifier avec `npm run check`, `npm run build`, `npm test` et `npm run test:editing`. En local, `npm run dev` permet de relire le résultat. Avec la connexion GitHub → Cloudflare Pages configurée, la fusion dans `master` reconstruit et publie le site ; aucune nouvelle variable Cloudflare n’est nécessaire.
+
 ## Modifier une page sans toucher au code
 
 Les textes des pages sont dans **`src/content/pages/`**. Ils peuvent être modifiés dans un éditeur de texte, ou directement sur GitHub : ouvrir le fichier, cliquer sur le crayon, modifier et enregistrer sur la branche de travail. Les tests de la pull request vérifient le résultat avant fusion. En local, `npm run dev` affiche les changements pendant la rédaction ; après publication, un nouveau build est nécessaire. Avec la connexion GitHub → Cloudflare Pages configurée, fusionner dans `master` déclenche ce build.
@@ -58,9 +72,11 @@ La présentation intégrale suit dans le corps Markdown. La présentation et les
 
 Les champs de compteur du catalogue conservent **`{count}`**. Le lien de lecture du blog conserve **`{title}`**. Dans Contact, `selectedBook`, `bookSubject` et `bookMessage` conservent **`{book}`**, remplacé par le titre du livre sélectionné. Les labels accessibles et les textes sans JavaScript font partie des réglages. L’adresse e-mail se configure toujours avec `PUBLIC_CONTACT_EMAIL`, pas dans ce fichier.
 
-Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. L’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro`, les styles dans `src/styles/global.css`, les images dans `src/assets/`.
+Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. La structure de l’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro` ; la phrase du pied de page vient de `src/content/settings/site.yaml`. Les styles sont dans `src/styles/global.css`, les images dans `src/assets/`.
 
-Les deux pages légales restent préparatoires. Après relecture de leurs textes définitifs, retirer le champ `notice` et passer `approved: true` dans chacune. `npm run validate:production` vérifie ces fichiers, la présence de la présentation et de la biographie ainsi que les variables de production. `PUBLIC_CONTENT_APPROVED=true` reste nécessaire. Ces indicateurs enregistrent une validation humaine ; ils ne constituent pas une validation juridique automatisée.
+Les informations communes des deux pages légales (éditeur, développeur, hébergeur, conservation et destinataires) se modifient dans **`src/content/legal/site.yaml`**. Renseigner `developer.name`, son éventuel `url`, puis `showInFooter: true` pour afficher aussi les crédits sur toutes les pages. Les textes et libellés restent dans les deux fichiers Markdown ; les champs vides sont signalés au rendu. Voir [le guide des informations légales](INFORMATIONS-LEGALES.md) pour les exemples et les informations Cloudflare à réunir.
+
+Les deux pages légales restent préparatoires. Après relecture de leurs textes définitifs, retirer le champ `notice` et passer `approved: true` dans chacune. `npm run validate:production` vérifie aussi le schéma et les champs de complétude de `src/content/legal/site.yaml`, puis ces fichiers, la présence de la présentation et de la biographie ainsi que les variables de production. `PUBLIC_CONTENT_APPROVED=true` reste nécessaire. Ces indicateurs enregistrent une validation humaine ; ils ne constituent pas une validation juridique automatisée.
 
 ## Ajouter un roman
 
@@ -91,7 +107,6 @@ cover: ../../assets/un-nouveau-roman.jpg
 coverAlt: "Couverture de Un nouveau roman : description visuelle concise."
 featured: true
 draft: false
-demo: false
 publisher: "Nom de l’éditeur"
 isbn: "9780000000002"
 formats: ["Broché", "Numérique"]
@@ -108,13 +123,51 @@ Les cartes de l’accueil et du catalogue affichent le sous-titre, la série, le
 
 Sans `coverAlt` ou avec une valeur vide, le texte alternatif devient « Couverture de [titre] ». Sans description, les métadonnées SEO et de partage utilisent une phrase construite avec le titre, le nom de l’auteur et la date ; le JSON-LD omet la description et le genre absents.
 
-La démonstration comprend **La Dernière Braise**, avec exactement les trois champs requis et sans corps Markdown, et **Le Chant des Sylves**, avec tous les champs du schéma renseignés. Le premier hérite notamment de `demo: true`, `draft: false` et `featured: false`.
+L’exemple minimal hérite de `demo: false`, `draft: false` et `featured: false` : le livre apparaît sans avoir à préciser `demo: false`. Les romans fictifs doivent être marqués explicitement `demo: true`, comme **Le Chant des Sylves** et **La Dernière Braise**. Ce dernier reste un exemple de livre minimal, avec ce seul indicateur ajouté aux trois champs requis.
 
 La fiche apparaît à `/livres/un-nouveau-roman/`. Le catalogue, les données structurées et le sitemap se mettent à jour au build. Sur l’accueil, les romans `featured: true` passent en premier, puis les plus récents, avec un maximum de trois.
 
 Pour une série, indiquer le même libellé `series` sur ses tomes et ajouter `volume: 1`. La date `publicationDate` détermine l’ordre du catalogue, du plus récent au plus ancien. Le nom de fichier sert d’identifiant : le conserver après publication, ou prévoir une redirection Cloudflare en cas de changement.
 
 Champs réservés facultatifs : `publisher`, `isbn`, `formats` (liste) et `purchaseLinks` (liste d’objets `label`, `url`). Ils n’ajoutent pas de bouton d’achat ; `publisher` et `isbn`, lorsqu’ils existent, enrichissent déjà le JSON-LD. Les interfaces correspondantes restent à décider pour la suite.
+
+### Deux histoires dans un même livre (« suivi de »)
+
+Ajouter un bloc facultatif `followedBy` dans le YAML du livre. Il remplace la mention « suivi de » autrefois saisie dans `subtitle` ; un véritable sous-titre peut toujours être conservé en parallèle. Exemple pour `src/content/books/les-prisonniers-du-tram.md` (conserver les autres champs du fichier) :
+
+```yaml
+title: "Les Prisonniers du Tram"
+description: "Deux histoires à donner le frisson, dans un monde qui paraît familier..."
+followedBy:
+  title: "Menace Ombre et Lumière"
+  summary: "Tout comme les fascinants outils numériques qui accompagnent nos vies..."
+```
+
+Le bloc `followedBy` accepte :
+
+| Champ | Usage |
+| --- | --- |
+| `title` | Titre obligatoire et non vide de la deuxième histoire. |
+| `description` | Accroche facultative, limitée à 300 caractères. |
+| `summary` | Résumé facultatif, sans limite de 300 caractères ; plusieurs paragraphes sont possibles. |
+
+Pour ajouter une accroche et développer le résumé, utiliser par exemple :
+
+```yaml
+followedBy:
+  title: "Titre de la deuxième histoire"
+  description: "Une courte accroche à rédiger."
+  summary: |-
+    Premier paragraphe du résumé de cette deuxième histoire.
+
+    Deuxième paragraphe du résumé.
+```
+
+Ces textes YAML sont du **texte brut** : ne pas ajouter de balises `<i>` ni de Markdown. Le site met automatiquement « suivi de » en italique ; les lignes vides de `summary` séparent les paragraphes. Les espaces de bord sont retirés ; une accroche ou un résumé vide n’affiche aucun élément.
+
+Les cartes de l’accueil (si le livre y est sélectionné) et du catalogue affichent « suivi de [titre] ». La fiche présente cette mention sous le titre et l’éventuel sous-titre ; le corps Markdown reste le résumé de la **première histoire**, précédé de son titre lorsqu’il existe une seconde histoire. Une section distincte porte le titre de la deuxième histoire et affiche son accroche et/ou son résumé. Si seul `followedBy.title` est renseigné, la mention suffit et aucune section vide n’est créée. La `description` principale reste la présentation globale du livre et alimente ses métadonnées.
+
+Le titre de l’onglet et du partage inclut « suivi de [titre] ». Le JSON-LD conserve un seul `Book` et décrit la deuxième histoire via `hasPart` ; l’accroche devient `description` et le résumé `abstract` lorsqu’ils existent. Les deux histoires partagent la même couverture, date, URL et lien de contact. Ne pas créer de deuxième fichier livre pour cette histoire. Supprimer tout le bloc `followedBy` pour revenir à un livre à une seule histoire.
 
 ## Catalogue et filtres éventuels
 
@@ -150,7 +203,8 @@ Les articles sont triés du plus récent au plus ancien. La date sert au classem
 
 ## Démonstration et brouillons
 
-- `demo: true` est la valeur par défaut : écrire explicitement `demo: false` pour un contenu réel.
+- Pour les livres, `demo: false` est la valeur par défaut : aucun champ `demo` n’est nécessaire pour un livre réel. Réserver `demo: true` aux romans fictifs.
+- Pour les articles, `demo: true` reste la valeur par défaut : écrire explicitement `demo: false` pour un article réel.
 - `draft: true` exclut le contenu de toutes les pages et de ses routes.
 - `PUBLIC_DEMO_MODE=true` rend les contenus fictifs visibles et désactive l’indexation.
 - `PUBLIC_DEMO_MODE=false` exclut tous les contenus fictifs, même si les fichiers restent dans le dépôt.
@@ -160,4 +214,4 @@ Les articles sont triés du plus récent au plus ancien. La date sert au classem
 
 `npm run check && npm run build && npm test` vérifie schémas, types, génération, liens, métadonnées et validation de publication. `npm run test:editing` modifie les contenus dans une copie temporaire isolée, reconstruit le site et contrôle le rendu ainsi que le refus des champs obligatoires manquants. Ce test ne change ni les fichiers ni le build de votre espace de travail ; il est aussi exécuté en CI. `npm run dev` permet de relire les contenus. Les tests du build et du navigateur couvrent les exemples minimal et complet, le texte alternatif de secours et les éléments conditionnels. Le nombre attendu de livres dans le navigateur est déduit du build, pour inclure les ajouts de contenu. Adapter les assertions si les exemples de démonstration sont volontairement modifiés.
 
-Les boutons de partage utilisent l’origine `PUBLIC_SITE_URL`. En local, `example.com` est un placeholder : les aperçus sur les réseaux ne pourront être vérifiés qu’après configuration d’une vraie URL accessible.
+Les boutons de partage utilisent l’origine `PUBLIC_SITE_URL`. L’origine par défaut est `https://donnet.pages.dev`, confirmée par le propriétaire. `PUBLIC_SITE_URL` permet de la remplacer. Les aperçus sur les réseaux restent à vérifier sur le déploiement effectivement accessible.

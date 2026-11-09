@@ -7,7 +7,6 @@ volume: 1
 publicationDate: 2020-07-20
 cover: ../../assets/le-cygne-de-hautdel.png
 coverAlt: ""
-demo: false
 ---
 Un travail passionnant, des études intéressantes: l'avenir de Clarisse est aussi doré que ce début d'automne. Et voilà que surgit au détour du chemin un château du 16ème siècle, beau comme une aquarelle.
 

@@ -4,8 +4,8 @@ import Layout from '../layouts/Layout.astro';
 import EditorialHeading from './EditorialHeading.astro';
 import { getLegalInformation } from '../lib/legal';
 import { formatDate } from '../lib/site';
-interface Props { page: CollectionEntry<'pages'> }
-const { page } = Astro.props;
+interface Props { page: CollectionEntry<'pages'>; universe?: 'author' | 'atelier' }
+const { page, universe = 'author' } = Astro.props;
 if (page.data.template !== 'legal') throw new Error('Un modèle legal est requis.');
 const { data } = page;
 const legal = await getLegalInformation(Astro.site?.href);
@@ -15,7 +15,7 @@ const sections = data.informationSections
   .filter(section => section.items.length);
 const { Content } = await render(page);
 ---
-<Layout title={data.title} description={data.description}>
+<Layout title={data.title} description={data.description} universe={universe}>
   <div class="container legal-page">
     <p class="eyebrow">{data.eyebrow}</p>
     <h1><EditorialHeading {...data.heading} /></h1>

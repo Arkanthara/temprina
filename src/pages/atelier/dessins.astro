@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CreationCard from '../../components/CreationCard.astro';
+import AtelierInvitation from '../../components/AtelierInvitation.astro';
+import { getCreations } from '../../lib/atelier';
+const creations = await getCreations('dessin');
+---
+<Layout title="Dessins et illustrations poétiques" description="Découvrez la galerie de dessins de la créatrice : botanique, poésie et mondes imaginaires. Contactez l’atelier pour parler d’une illustration personnalisée." universe="atelier">
+  <header class="atelier-page-heading container"><p class="eyebrow">LA GALERIE DE PAPIER</p><h1>Des histoires au bout<br /><em>du crayon.</em></h1><p>La même sensibilité, sur une autre matière. Des fleurs imaginées, des éclats de lune et des personnages échappés des contes.</p><span class="heading-flower" aria-hidden="true"><img src="/images/atelier-logo.svg" width="140" height="140" alt="" /></span></header>
+  <section class="container atelier-gallery" aria-label="Les dessins de la créatrice">
+    <div class="gallery-intro"><p>{creations.length} illustration{creations.length > 1 ? 's' : ''} à découvrir</p><span>LE PAPIER A AUSSI SES CONTES</span></div>
+    {creations.length ? <div class="creations-grid">{creations.map(creation => <CreationCard creation={creation} />)}</div> : <p class="empty-state">Les premiers dessins seront exposés ici prochainement. Un dessin en tête ? Écrivez à la créatrice.</p>}
+    {creations.some(creation => creation.data.demo) && <p class="gallery-note">Illustrations de démonstration créées pour présenter la galerie. Elles ne sont pas des œuvres de la créatrice.</p>}
+  </section>
+  <AtelierInvitation project="dessin" />
+</Layout>

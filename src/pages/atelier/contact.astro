@@ -1,0 +1,77 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { getAtelier, getCreations } from '../../lib/atelier';
+const atelier = await getAtelier();
+const creations = await getCreations();
+---
+<Layout title="Parlons de votre projet couture ou dessin" description="Une création couture personnelle ou un dessin imaginé pour vous ? Racontez votre envie à la créatrice et préparons un premier échange." universe="atelier">
+  <header class="atelier-page-heading container"><p class="eyebrow">LE DÉBUT D’UNE BELLE HISTOIRE</p><h1>Et si l’on créait<br /><em>quelque chose ensemble ?</em></h1><p>Une idée très précise ou une envie encore un peu floue : quelques mots suffisent pour commencer.</p></header>
+  <section class="container atelier-contact">
+    <div class="atelier-contact-aside"><img src="/images/atelier-logo.svg" width="110" height="110" alt="" /><h2>Tout commence<br /><em>par un échange.</em></h2><p>Décrivez votre projet, ce qui vous inspire et, si vous en avez une, la date qui compte pour vous. La créatrice pourra ensuite discuter avec vous des possibilités et établir un devis.</p><div class="atelier-contact-types"><p><Icon name="spark" /> Couture & pièce personnalisée</p><p><Icon name="moon" /> Dessin & illustration sur demande</p></div>{atelier.email ? <a class="atelier-email" href={`mailto:${atelier.email}`}>{atelier.email}</a> : <p class="contact-setup-note">Les coordonnées de l’atelier seront communiquées prochainement. Vous pouvez déjà préparer et copier votre demande.</p>}<p class="subtle">Votre texte reste dans cette page jusqu’à sa copie ou à l’ouverture de votre messagerie. Aucun message n’est envoyé par le site. <a href="/atelier/confidentialite/">Confidentialité</a></p></div>
+    <div class="atelier-contact-form"><p class="eyebrow">RACONTEZ-MOI VOTRE ENVIE</p><h2>Votre premier fil.</h2>
+      <form data-atelier-contact data-email={atelier.email}>
+        <div class="form-row"><div><label for="project-name">Votre nom <span>(obligatoire)</span></label><input id="project-name" name="name" autocomplete="name" maxlength="100" required placeholder="Comment vous appelez-vous ?" /></div><div><label for="project-email">Votre e-mail <span>(obligatoire)</span></label><input id="project-email" name="email" type="email" autocomplete="email" maxlength="180" required placeholder="vous@exemple.fr" /></div></div>
+        <label for="project-type">Vous imaginez…</label><select id="project-type" name="project"><option value="couture">Une création couture</option><option value="dessin">Un dessin ou une illustration</option></select>
+        <label for="project-inspiration">Une inspiration de la galerie <span>(facultatif)</span></label><select id="project-inspiration" name="inspiration"><option value="">Une idée toute personnelle</option>{creations.map(creation => <option value={creation.data.title} data-category={creation.data.category}>{creation.data.title}</option>)}</select>
+        <label for="project-message">Votre projet <span>(obligatoire)</span></label><textarea id="project-message" name="message" rows="6" required minlength="10" maxlength="5000" placeholder="Racontez votre idée, les couleurs que vous aimez, l’occasion ou l’univers qui vous inspire…"></textarea>
+        <label for="project-date">Une date à garder en tête <span>(facultatif)</span></label><input id="project-date" name="date" type="date" />
+        <div class="contact-form-actions" data-enhanced-actions hidden>{atelier.email && <button class="button" type="submit">Préparer mon e-mail <Icon name="arrow-up" /></button>}<button class:list={['button', { 'button-outline': !!atelier.email }]} type="button" data-copy-project>Copier ma demande <Icon name="arrow-right" /></button></div>
+        <p class="subtle" data-enhanced-hint hidden>{atelier.email ? 'Votre application de messagerie s’ouvrira avec votre demande. Vous pourrez la relire avant de l’envoyer.' : 'La copie vous permet de conserver votre texte en attendant les coordonnées de l’atelier.'}</p>
+        <p class="contact-form-status" role="status" aria-live="polite" data-project-status></p>
+        <div data-project-preview hidden><label for="project-preview">Votre demande prête à copier</label><textarea id="project-preview" readonly rows="10"></textarea></div>
+        <noscript><p class="notice">La préparation automatique nécessite JavaScript. {atelier.email ? <>Vous pouvez écrire directement à <a href={`mailto:${atelier.email}`}>{atelier.email}</a> et reprendre les informations ci-dessus dans votre message.</> : <>Les coordonnées de l’atelier seront ajoutées prochainement. Conservez votre texte dans votre application de notes.</>}</p></noscript>
+      </form>
+    </div>
+  </section>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('[data-atelier-contact]');
+    if (form) {
+      const params = new URLSearchParams(location.search);
+      const project = form.querySelector<HTMLSelectElement>('#project-type')!;
+      const inspiration = form.querySelector<HTMLSelectElement>('#project-inspiration')!;
+      const creation = params.get('creation')?.slice(0, 180);
+      const type = params.get('projet');
+      if (type === 'couture' || type === 'dessin') project.value = type;
+      const selected = Array.from(inspiration.options).find(option => option.value === creation);
+      if (selected) { inspiration.value = selected.value; project.value = selected.dataset.category || project.value; }
+      const syncInspirations = () => {
+        for (const option of inspiration.options) option.hidden = !!option.dataset.category && option.dataset.category !== project.value;
+        if (inspiration.selectedOptions[0]?.hidden) inspiration.value = '';
+      };
+      syncInspirations();
+      project.addEventListener('change', syncInspirations);
+      form.querySelectorAll<HTMLElement>('[data-enhanced-actions], [data-enhanced-hint]').forEach(element => { element.hidden = false; });
+      const status = form.querySelector<HTMLElement>('[data-project-status]')!;
+      const preview = form.querySelector<HTMLTextAreaElement>('#project-preview')!;
+      const buildMessage = () => {
+        const values = new FormData(form);
+        const label = project.value === 'dessin' ? 'Dessin / illustration' : 'Création couture';
+        const subject = `Projet ${project.value === 'dessin' ? 'dessin' : 'couture'}${inspiration.value ? ` — ${inspiration.value}` : ''}`;
+        const body = [`Bonjour,`, '', `Je souhaite échanger avec vous autour d’un projet.`, '', `Nom : ${String(values.get('name')).trim()}`, `E-mail : ${String(values.get('email')).trim()}`, `Type de projet : ${label}`, ...(inspiration.value ? [`Inspiration : ${inspiration.value}`] : []), ...(values.get('date') ? [`Date souhaitée : ${values.get('date')}`] : []), '', String(values.get('message')).trim(), '', 'Au plaisir d’en discuter avec vous.'].join('\n');
+        return { subject, body };
+      };
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!form.reportValidity() || !form.dataset.email) return;
+        const { subject, body } = buildMessage();
+        location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        status.textContent = 'Votre demande a été préparée pour votre messagerie. Vérifiez-la puis envoyez-la depuis votre application ; le site ne l’a pas envoyée.';
+      });
+      form.querySelector('[data-copy-project]')?.addEventListener('click', async () => {
+        if (!form.reportValidity()) return;
+        const { subject, body } = buildMessage();
+        const text = `${subject}\n\n${body}`;
+        preview.value = text;
+        form.querySelector<HTMLElement>('[data-project-preview]')!.hidden = false;
+        try {
+          await navigator.clipboard.writeText(text);
+          status.textContent = 'Votre demande a été copiée. Vous pouvez la conserver ou la coller dans votre messagerie. Aucun message n’a été envoyé.';
+        } catch {
+          preview.focus(); preview.select();
+          status.textContent = 'Votre demande est prête ci-dessous. Copiez le texte sélectionné pour le conserver. Aucun message n’a été envoyé.';
+        }
+      });
+    }
+  </script>
+</Layout>

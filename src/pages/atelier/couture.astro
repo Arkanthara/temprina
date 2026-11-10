@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CreationCard from '../../components/CreationCard.astro';
+import AtelierInvitation from '../../components/AtelierInvitation.astro';
+import { getCreations } from '../../lib/atelier';
+const creations = await getCreations('couture');
+---
+<Layout title="Couture féérique et créations sur mesure" description="Robes de conte, capes et broderies : découvrez le vestiaire féérique de l’atelier et échangez avec la créatrice autour d’une pièce personnalisée." universe="atelier">
+  <header class="atelier-page-heading container"><p class="eyebrow">COUTURE & INSPIRATIONS HAUTE COUTURE</p><h1>Des rêves<br /><em>à porter.</em></h1><p>Une silhouette, un mouvement, un détail brodé. Des inspirations pour celles et ceux qui aiment les vêtements avec une histoire.</p><span class="heading-flower" aria-hidden="true"><img src="/images/atelier-logo.svg" width="140" height="140" alt="" /></span></header>
+  <section class="container atelier-gallery" aria-label="Les créations couture">
+    <div class="gallery-intro"><p>{creations.length} inspiration{creations.length > 1 ? 's' : ''} à découvrir</p><span>LE FIL DE L’IMAGINAIRE</span></div>
+    {creations.length ? <div class="creations-grid">{creations.map(creation => <CreationCard creation={creation} />)}</div> : <p class="empty-state">Les premières créations seront dévoilées prochainement. Vous pouvez déjà parler de votre projet à la créatrice.</p>}
+    {creations.some(creation => creation.data.demo) && <p class="gallery-note">Ces visuels illustrent l’ambiance de l’atelier. Ce sont des exemples fictifs, à remplacer par les réalisations de la créatrice.</p>}
+  </section>
+  <AtelierInvitation />
+</Layout>

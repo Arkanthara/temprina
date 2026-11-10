@@ -1,5 +1,30 @@
 # Vérifications du site
 
+## Deux univers — 10 novembre 2026
+
+| Contrôle | Résultat |
+| --- | --- |
+| `npm run check` | 0 erreur, 0 avertissement, 0 suggestion sur 51 fichiers |
+| `npm run build` | 36 pages générées en démonstration |
+| `npm test` | Contrôles du build, des liens, des images, du contenu et des informations légales réussis |
+| `npm run test:editing` | Réussi dans une copie temporaire ; les contenus de l’autrice restent éditables à leur nouvel accueil `/romans/` |
+| `npm run test:e2e` | 32 scénarios réussis ; 2 scénarios réservés à la configuration de production ignorés |
+| Accessibilité et petits écrans | Aucune violation axe WCAG A/AA sur les routes auditées, ordinateur et mobile ; nouvelles pages également vérifiées à 1440, 390 et 320 px sans débordement |
+| Sans JavaScript | Portail, changement d’univers, galeries et fiches accessibles à 320 px ; adresse directe utilisable lorsqu’elle est configurée |
+| Contact configuré | Build temporaire avec des adresses d’essai distinctes : destinataire atelier, accents, inspiration et contenu du lien `mailto:` vérifiés dans Chromium ; aucun e-mail envoyé |
+
+Le parcours de contact vérifie la présélection d’un dessin, la copie de la demande, la remise à zéro d’une inspiration incompatible après changement de catégorie et l’ignorance de paramètres d’URL inconnus. Le contrôle des images ne tente pas de faire défiler les décorations masquées sur mobile, mais vérifie leur chargement.
+
+Le champ obligatoire `readingMinutes` manquant et la syntaxe des italiques et intertitres de « Mon autobiographie de lectrice » ont aussi été corrigés pour permettre la compilation et conserver un seul titre principal, sans réécriture du texte.
+
+Aperçus actuels :
+
+- [Portail ordinateur](previews/portail-deux-univers-ordinateur.png) · [mobile](previews/portail-deux-univers-mobile.png)
+- [Atelier ordinateur](previews/atelier-deux-univers-ordinateur.png) · [mobile](previews/atelier-deux-univers-mobile.png)
+- [Dessins ordinateur](previews/dessins-deux-univers-ordinateur.png) · [mobile](previews/dessins-deux-univers-mobile.png)
+
+Le nom de démonstration « L’Atelier des fées » a été validé. Son logo et les six inspirations sont provisoires. L’adresse réelle reste à renseigner dans `PUBLIC_ATELIER_EMAIL`. La page de mesures est spécifiée dans [le guide](ATELIER.md) et n’est pas implémentée. Les modifications sont locales ; aucun push ni déploiement du site public n’a été effectué.
+
 ## Deux histoires dans un livre — 7 novembre 2026
 
 La fiche **Les Prisonniers du Tram** utilise désormais `followedBy` pour présenter **Menace Ombre et Lumière**, avec la mention « suivi de » sur les cartes et la fiche, et un résumé séparé. Vérifications réalisées sur Node.js 22.23.1 :

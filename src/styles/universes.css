@@ -1,0 +1,331 @@
+/* The author keeps the original forest palette. Each other universe owns its tokens. */
+body[data-universe="portal"] {
+  --bg: #f7f5ee; --surface: #edeae1; --surface-light: #e7e1d5;
+  --ink: #303e32; --muted: #62695e; --gold: #7b653e; --line: #65715b30;
+  background: var(--bg); color: var(--ink); color-scheme: light;
+}
+body[data-universe="atelier"] {
+  --bg: #faf7f7; --surface: #f0e9f0; --surface-light: #e9dde9;
+  --ink: #443547; --muted: #695c69; --gold: #795878; --line: #886b882e;
+  background: var(--bg); color: var(--ink); color-scheme: light;
+}
+.universe-bar { display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 max(40px,calc((100vw - 1280px)/2)); border-bottom: 1px solid var(--line); gap: 16px; }
+.all-universes { font-size: 10px; letter-spacing: .06em; color: var(--gold); }
+.all-universes span { color: var(--muted); margin-left: 7px; }
+.universe-tabs { display: flex; gap: 4px; align-self: stretch; }
+.universe-tabs a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 10px; color: var(--muted); border-bottom: 2px solid transparent; }
+.universe-tabs .icon { width: 14px; height: 14px; }
+.universe-tabs a:hover, .universe-tabs a[data-active] { color: var(--gold); background: var(--surface); }
+.universe-tabs a[data-active] { border-color: var(--gold); }
+:is([data-universe="portal"],[data-universe="atelier"]) .site-header { background: var(--bg); min-height: 96px; }
+:is([data-universe="portal"],[data-universe="atelier"]) .site-header nav a { color: var(--muted); }
+:is([data-universe="portal"],[data-universe="atelier"]) .site-header nav a:hover,
+:is([data-universe="portal"],[data-universe="atelier"]) .site-header nav a[aria-current] { color: var(--gold); }
+:is([data-universe="portal"],[data-universe="atelier"]) .brand > span { font-size: 27px; }
+:is([data-universe="portal"],[data-universe="atelier"]) .brand img { width: 54px; height: 54px; }
+:is([data-universe="portal"],[data-universe="atelier"]) .demo-bar { background: var(--surface); color: var(--muted); }
+:is([data-universe="portal"],[data-universe="atelier"]) .site-footer { background: var(--surface); }
+:is([data-universe="portal"],[data-universe="atelier"]) .footer-bottom { color: var(--muted); }
+:is([data-universe="portal"],[data-universe="atelier"]) .text-link { border-color: var(--line); }
+:is([data-universe="portal"],[data-universe="atelier"]) .text-link:hover { color: var(--ink); border-color: var(--gold); }
+:is([data-universe="portal"],[data-universe="atelier"]) .notice { color: var(--muted); background: var(--surface); }
+:is([data-universe="portal"],[data-universe="atelier"]) .button { color: #fffaf7; gap: 25px; }
+:is([data-universe="portal"],[data-universe="atelier"]) .button:hover { background: #654363; }
+:is([data-universe="portal"],[data-universe="atelier"]) .button-outline { background: transparent; color: var(--gold); border-color: var(--line); }
+:is([data-universe="portal"],[data-universe="atelier"]) .button-outline:hover { background: var(--surface); }
+:is([data-universe="portal"],[data-universe="atelier"]) .button > .icon { width: 17px; height: 17px; }
+[data-universe="atelier"] ::selection { background: #d8c4da; color: #443547; }
+
+/* The shared entrance. */
+.portal-intro { padding-block: 63px 45px; text-align: center; position: relative; }
+.portal-intro > .eyebrow { display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 24px; }
+.portal-intro > .eyebrow span { width: 34px; height: 1px; background: #b7a57d; }
+.portal-intro h1 { font-size: clamp(52px,5.5vw,80px); line-height: 1.02; margin-bottom: 24px; }
+.portal-intro h1 em { color: #89714c; }
+.portal-lead { max-width: 490px; margin-inline: auto; font-size: 12px; line-height: 1.9; }
+.portal-spark { display: block; margin-top: 28px; color: #ab9364; font-size: 24px; }
+.universe-doors { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; scroll-margin-top: 30px; }
+.universe-door { min-width: 0; }
+.door-image { display: block; position: relative; height: 380px; overflow: hidden; isolation: isolate; background: #24372a; }
+.door-image > img { width: 100%; height: 100%; object-fit: cover; object-position: 65% center; transition: transform .8s; }
+.door-image:hover > img { transform: scale(1.035); }
+.door-image:after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,#0a1c2340,transparent 25%,#0b2114c9); z-index: 0; pointer-events: none; }
+.door-number { position: absolute; top: 22px; left: 26px; color: #fff8e8; font-size: 8px; letter-spacing: .2em; z-index: 1; text-shadow: 0 1px 6px #17241e; }
+.door-image-title { position: absolute; bottom: 34px; left: 30px; right: 75px; display: flex; align-items: center; gap: 18px; z-index: 1; }
+.door-image-title img { width: 65px; height: 65px; object-fit: contain; }
+.door-image-title > span { font-family: var(--serif); font-size: 35px; line-height: 1.08; color: #fbf5e7; }
+.door-image-title em { color: #e4cc97; }
+.door-round { position: absolute; bottom: 36px; right: 26px; width: 36px; height: 36px; border: 1px solid #f7f1d681; border-radius: 50%; display: grid; place-items: center; color: #fff5df; z-index: 1; }
+.door-copy { padding: 30px 30px 26px; }
+.door-copy > .eyebrow { font-size: 8px; margin-bottom: 12px; }
+.door-copy h2 { font-size: 41px; margin-bottom: 16px; }
+.door-copy > p:not(.eyebrow) { font-size: 12px; max-width: 380px; min-height: 64px; }
+.door-copy .text-link { font-size: 10px; gap: 22px; }
+.door-author { --ink: #efece1; --muted: #c2c9bd; --gold: #dbc18b; --line: #adc29b35; background: #14271f; color: var(--ink); }
+.door-author .text-link:hover { color: #f4e8cc; }
+.door-atelier { --ink: #503c50; --muted: #695c69; --gold: #795878; --line: #886b882e; background: #eee5ee; color: var(--ink); }
+.door-atelier .door-image:after { background: linear-gradient(180deg,#50384c25,transparent 25%,#3c283abb); }
+.door-atelier .door-image > img { object-position: 83% center; }
+.door-atelier .door-image-title img { background: #fff7efeb; border-radius: 50%; padding: 5px; }
+.door-links { display: flex; flex-wrap: wrap; gap: 18px; padding: 18px 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+.door-links a:hover { color: var(--gold); }
+.portal-closing { text-align: center; padding-block: 73px 85px; }
+.closing-ornament { display: flex; justify-content: center; align-items: center; gap: 20px; color: #aa9163; margin-bottom: 32px; font-size: 24px; }
+.closing-ornament span { width: 70px; height: 1px; background: var(--line); }
+.portal-closing .eyebrow { font-size: 8px; }
+.portal-closing h2 { font-size: 47px; }
+.portal-closing > p:not(.eyebrow) { max-width: 500px; margin: 0 auto 25px; font-size: 12px; }
+
+/* A second, independent identity: warm paper, lilac ink, pale garden light. */
+[data-universe="atelier"] .nav-contact { border-color: #bca5bc; }
+.atelier-hero { position: relative; min-height: 630px; isolation: isolate; overflow: hidden; background: #e8dce4; }
+.atelier-hero-image { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: cover; object-position: center 55%; z-index: -3; }
+.atelier-hero:before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,#f4ebefe8,#f4ebefa1 32%,#f4ebef00 66%); z-index: -2; }
+.atelier-hero-inner { padding-block: 82px 95px; }
+.atelier-hero .eyebrow { display: flex; align-items: center; gap: 12px; font-size: 8px; }
+.atelier-hero h1 { font-size: clamp(58px,5.9vw,84px); line-height: .99; margin-bottom: 27px; }
+.atelier-hero-inner > p:not(.eyebrow) { font-size: 12px; color: #584856; margin-bottom: 28px; }
+.atelier-hero-link { display: block; width: fit-content; font-size: 11px; color: #594358; margin-top: 18px; }
+.atelier-hero-link .icon { margin-left: 15px; }
+.atelier-hero-caption { position: absolute; bottom: 28px; left: max(56px,calc((100vw - 1180px)/2)); display: flex; align-items: center; gap: 13px; font-size: 8px; letter-spacing: .18em; color: #594358; }
+.atelier-hero-caption .icon { font-size: 21px; }
+.atelier-introduction { text-align: center; padding-block: 58px 40px; border-bottom: 1px solid var(--line); }
+.atelier-small-mark { display: block; width: 64px; margin: 0 auto 20px; }
+.atelier-introduction > p { font-family: var(--serif); font-size: 26px; line-height: 1.55; max-width: 760px; margin: 0 auto 22px; color: var(--ink); }
+.handwritten { font-family: var(--serif); font-size: 22px; font-style: italic; color: var(--gold); }
+.atelier-collection { padding-block: 70px 80px; }
+.creations-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 32px; }
+.creation-card { min-width: 0; }
+.creation-image { display: block; position: relative; background: #ece2e9; overflow: hidden; aspect-ratio: 3/4; }
+.creation-image > img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+.creation-image:hover > img { transform: scale(1.025); }
+.creation-open { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; background: #fbf7f1ed; border: 1px solid #79587840; display: grid; place-items: center; border-radius: 50%; color: #654663; }
+.creation-demo { position: absolute; bottom: 12px; left: 12px; max-width: calc(100% - 24px); color: #513b4f; background: #faf5f0f0; padding: 5px 9px; font-size: 8px; line-height: 1.6; }
+.creation-card > .eyebrow { margin: 22px 0 8px; font-size: 8px; letter-spacing: .13em; }
+.creation-card h3 { font-size: 33px; margin-bottom: 12px; }
+.creation-card h3 a:hover { color: var(--gold); }
+.creation-card > p:not(.eyebrow) { font-size: 11px; line-height: 1.9; max-width: 320px; margin-bottom: 0; }
+.drawing-card .creation-image { padding: 20px; background: #eee8e0; }
+.drawing-card .creation-image > img { object-fit: contain; box-shadow: 0 8px 20px #50334b14; }
+.drawing-feature { background: #eee6ee; border-block: 1px solid var(--line); }
+.drawing-feature-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; padding-block: 65px; align-items: center; }
+.drawing-feature-art { max-width: 360px; margin-inline: auto; width: 90%; transform: rotate(-4deg); }
+.drawing-feature-art img { box-shadow: 5px 12px 25px #49333f20; width: 100%; }
+.drawing-feature-art > span { display: block; margin-top: 19px; font-size: 8px; letter-spacing: .16em; text-align: center; color: var(--muted); }
+.drawing-feature h2 { font-size: 63px; margin-bottom: 25px; }
+.drawing-feature p:not(.eyebrow) { max-width: 390px; font-size: 12px; margin-bottom: 22px; }
+.atelier-process { padding-block: 80px; text-align: center; }
+.process-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); text-align: left; gap: 48px; margin-top: 45px; }
+.process-steps article { border-top: 1px solid var(--line); padding-top: 24px; }
+.process-steps article > span { font-family: var(--serif); font-size: 28px; font-style: italic; color: var(--gold); }
+.process-steps h3 { margin-top: 12px; font-size: 30px; }
+.process-steps p { font-size: 11px; }
+.atelier-invitation { text-align: center; background: #efe6ed; padding: 48px 35px 55px; margin-bottom: 80px; position: relative; border: 1px solid #b79db42b; }
+.invitation-star { display: block; color: var(--gold); font-size: 28px; margin-bottom: 16px; }
+.atelier-invitation .eyebrow { font-size: 8px; }
+.atelier-invitation h2 { font-size: 48px; }
+.atelier-invitation > p:not(.eyebrow) { font-size: 12px; max-width: 410px; margin: 0 auto 26px; }
+.atelier-page-heading { position: relative; padding-block: 65px 40px; border-bottom: 1px solid var(--line); }
+.atelier-page-heading h1 { font-size: clamp(50px,5.6vw,76px); max-width: 900px; }
+.atelier-page-heading > p:not(.eyebrow) { max-width: 555px; font-size: 12px; }
+.heading-flower { position: absolute; right: 45px; top: 86px; opacity: .65; }
+.atelier-gallery { padding-block: 25px 65px; }
+.gallery-intro { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 23px; }
+.gallery-intro p { margin-bottom: 0; font-size: 11px; }
+.gallery-intro > span { color: var(--gold); font-size: 8px; letter-spacing: .15em; }
+.gallery-note { margin: 30px 0 0; padding-top: 20px; border-top: 1px solid var(--line); max-width: 710px; font-size: 10px; }
+.creation-detail { padding-block: 30px 85px; }
+.creation-detail .back-link { display: inline-flex; gap: 12px; align-items: center; }
+.creation-detail-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 75px; }
+.creation-detail-art { background: var(--surface); padding: 20px; }
+.creation-detail-art img { width: 100%; }
+.creation-detail-art > p { font-size: 9px; margin: 15px 0 0; }
+.creation-detail-copy { padding-top: 24px; }
+.creation-detail-copy h1 { font-size: clamp(50px,5vw,68px); }
+.creation-detail-lead { font-family: var(--serif); font-size: 25px; color: var(--gold); }
+.creation-detail-copy .prose { font-size: 12px; }
+.creation-detail-copy .prose h2 { font-size: 31px; }
+.creation-detail-copy .notice { margin-top: 28px; font-size: 10px; }
+
+/* Contact is separate from the author's email and contains no measurements. */
+.atelier-contact { display: grid; grid-template-columns: .85fr 1.15fr; gap: 85px; padding-block: 50px 85px; }
+.atelier-contact-aside > img { margin-bottom: 24px; }
+.atelier-contact-aside h2 { font-size: 43px; }
+.atelier-contact-aside > p { font-size: 12px; }
+.atelier-contact-types { margin-block: 25px; border-block: 1px solid var(--line); padding-block: 20px 7px; }
+.atelier-contact-types p { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--gold); }
+.atelier-email { font-family: var(--serif); color: var(--gold); font-size: 25px; overflow-wrap: anywhere; }
+.atelier-contact-aside .subtle a { text-decoration: underline; text-underline-offset: 3px; }
+.contact-setup-note { border-left: 2px solid var(--gold); padding: 10px 0 10px 15px; background: var(--surface); }
+.atelier-contact-form { background: #f1eaf1; padding: 35px; }
+.atelier-contact-form > .eyebrow { font-size: 8px; }
+.atelier-contact-form h2 { font-size: 36px; }
+.atelier-contact-form label { display: block; font-size: 11px; color: #594358; margin: 19px 0 8px; }
+.atelier-contact-form label span { font-size: 9px; color: #695c69; }
+.atelier-contact-form :is(input,textarea,select) { cursor: text; width: 100%; background: #fbf8fb; color: #443547; border: 1px solid #a68ca755; padding: 12px; border-radius: 0; font: inherit; font-size: 11px; line-height: 1.6; }
+.atelier-contact-form select { cursor: pointer; }
+.atelier-contact-form :is(input,textarea)::placeholder { color: #7b6d7b; opacity: 1; }
+.atelier-contact-form textarea { resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.contact-form-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 25px; }
+.contact-form-actions .button { gap: 15px; padding-inline: 18px; font-size: 10px; }
+.contact-form-status { font-size: 11px; margin-top: 15px; color: #594358; }
+.atelier-contact-form .subtle { font-size: 10px !important; }
+
+@media (min-width: 1500px) {
+  .door-image { height: 415px; }
+  .atelier-hero { min-height: 690px; }
+  .atelier-hero-inner { padding-top: 105px; }
+}
+@media (max-width: 1100px) {
+  .universe-bar { padding-inline: 30px; }
+  :is([data-universe="portal"],[data-universe="atelier"]) .brand > span { font-size: 24px; }
+  .door-image { height: 330px; }
+  .door-image-title { left: 22px; gap: 12px; }
+  .door-image-title > span { font-size: 30px; }
+  .door-image-title img { width: 48px; height: 48px; }
+  .door-copy { padding-inline: 22px; }
+  .door-links { padding-inline: 22px; gap: 14px; }
+  .creations-grid { gap: 24px; }
+  .drawing-feature-inner { gap: 60px; }
+  .atelier-contact { gap: 40px; }
+  .atelier-contact-form { padding: 28px; }
+  .creation-detail-grid { gap: 45px; }
+}
+@media (max-width: 850px) {
+  .universe-bar { padding-inline: 28px; }
+  :is([data-universe="portal"],[data-universe="atelier"]) .site-header { min-height: 88px; }
+  .portal-intro { padding-block: 45px 30px; }
+  .portal-intro h1 { font-size: 62px; }
+  .universe-doors { gap: 22px; }
+  .door-image { height: 300px; }
+  .door-image-title { right: 25px; bottom: 60px; display: block; }
+  .door-image-title img { margin-bottom: 14px; }
+  .door-image-title > span { font-size: 31px; }
+  .door-round { width: 30px; height: 30px; bottom: 18px; right: 20px; }
+  .door-number { font-size: 7px; left: 20px; }
+  .door-copy { padding: 24px 20px; }
+  .door-copy h2 { font-size: 35px; }
+  .door-copy > p:not(.eyebrow) { min-height: 92px; font-size: 11px; }
+  .door-copy > .eyebrow { font-size: 7px; }
+  .door-copy .text-link { font-size: 10px; gap: 15px; }
+  .door-links { font-size: 8px; gap: 11px; padding-inline: 20px; }
+  .atelier-hero { min-height: 600px; }
+  .atelier-hero-inner { padding-block: 75px 90px; }
+  .atelier-hero:before { background: linear-gradient(90deg,#f4ebeff0,#f4ebefb3 45%,#f4ebef10); }
+  .atelier-hero-image { object-position: 60% center; }
+  .atelier-hero-caption { left: 36px; }
+  .atelier-hero h1 { font-size: 70px; }
+  .atelier-hero .eyebrow { font-size: 7px; letter-spacing: .13em; }
+  .atelier-introduction > p { font-size: 23px; }
+  .creation-card h3 { font-size: 28px; }
+  .creation-card > .eyebrow { font-size: 7px; }
+  .creation-demo { font-size: 7px; left: 8px; bottom: 8px; padding: 4px 6px; }
+  .creations-grid { gap: 18px; }
+  .drawing-feature-inner { gap: 35px; }
+  .drawing-feature h2 { font-size: 51px; }
+  .process-steps { gap: 25px; }
+  .process-steps h3 { font-size: 27px; }
+  .atelier-contact { gap: 28px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .atelier-contact-aside h2 { font-size: 36px; }
+  .atelier-contact-form { padding: 22px; }
+  .heading-flower { right: 10px; top: 70px; opacity: .3; }
+  .creation-detail-grid { gap: 28px; }
+}
+@media (max-width: 600px) {
+  .universe-bar { padding-inline: 20px; gap: 5px; }
+  .all-universes { font-size: 9px; }
+  .all-universes span { display: none; }
+  .universe-tabs { gap: 0; }
+  .universe-tabs a { padding: 11px 9px; font-size: 8px; gap: 6px; }
+  .universe-tabs .icon { width: 12px; height: 12px; }
+  :is([data-universe="portal"],[data-universe="atelier"]) .brand > span { font-size: 22px; }
+  :is([data-universe="portal"],[data-universe="atelier"]) .brand img { width: 40px; height: 40px; }
+  :is([data-universe="portal"],[data-universe="atelier"]) .site-header { min-height: 80px; }
+  [data-universe="atelier"] .site-header .brand { gap: 7px; }
+  [data-universe="atelier"] .site-header .brand > span { font-size: 21px; }
+  [data-universe="atelier"] .site-header .brand img { width: 33px; height: 33px; }
+  .portal-intro { padding-block: 38px 27px; }
+  .portal-intro > .eyebrow { font-size: 7px; gap: 10px; letter-spacing: .16em; }
+  .portal-intro > .eyebrow span { width: 22px; }
+  .portal-intro h1 { font-size: clamp(43px,10.3vw,60px); margin-bottom: 20px; }
+  .portal-lead { max-width: 320px; font-size: 11px; }
+  .portal-spark { margin-top: 18px; font-size: 20px; }
+  .universe-doors { grid-template-columns: 1fr; gap: 30px; }
+  .door-image { height: 310px; }
+  .door-image-title { display: flex; bottom: 28px; right: 62px; gap: 14px; }
+  .door-image-title img { margin: 0; width: 48px; height: 48px; }
+  .door-image-title > span { font-size: 32px; }
+  .door-round { bottom: 31px; }
+  .door-copy { padding: 26px 24px; }
+  .door-copy h2 { font-size: 38px; }
+  .door-copy > p:not(.eyebrow) { min-height: 0; max-width: 320px; font-size: 12px; margin-bottom: 21px; }
+  .door-copy > .eyebrow { font-size: 7px; }
+  .door-links { padding: 16px 24px; gap: 16px; font-size: 9px; }
+  .portal-closing { padding-block: 48px 55px; }
+  .portal-closing h2 { font-size: 38px; }
+  .portal-closing > p:not(.eyebrow) { font-size: 11px; }
+  .portal-closing .eyebrow { font-size: 7px; }
+  .atelier-hero { min-height: 665px; }
+  .atelier-hero-inner { padding-block: 54px 230px; }
+  .atelier-hero h1 { font-size: 60px; }
+  .atelier-hero .eyebrow { max-width: 300px; font-size: 7px; gap: 8px; }
+  .atelier-hero .rule { width: 20px; }
+  .atelier-hero-image { object-position: 73% center; }
+  .atelier-hero:before { background: linear-gradient(180deg,#f4ebeff5 0%,#f4ebefcf 38%,#f4ebef05 80%),linear-gradient(90deg,#f4ebef85,transparent); }
+  .atelier-hero-inner > p:not(.eyebrow) { font-size: 11px; color: #4e3d4b; }
+  .atelier-hero-caption { left: 22px; bottom: 19px; font-size: 6px; background: #f9f2ede8; padding: 5px 9px; }
+  .atelier-hero-caption .icon { font-size: 15px; }
+  .atelier-introduction { padding-block: 36px; }
+  .atelier-small-mark { width: 50px; }
+  .atelier-introduction > p { font-size: 22px; }
+  .handwritten { font-size: 20px; }
+  .atelier-collection { padding-block: 45px 50px; }
+  .creations-grid { grid-template-columns: 1fr; gap: 36px; }
+  .creation-image { aspect-ratio: 4/5; }
+  .creation-card h3 { font-size: 34px; }
+  .creation-card > p:not(.eyebrow) { font-size: 12px; }
+  .creation-card > .eyebrow { font-size: 8px; margin-top: 18px; }
+  .creation-demo { font-size: 8px; bottom: 12px; left: 12px; }
+  .drawing-feature-inner { grid-template-columns: 1fr; gap: 40px; padding-block: 42px; }
+  .drawing-feature-art { max-width: 255px; }
+  .drawing-feature h2 { font-size: 48px; }
+  .atelier-process { padding-block: 50px 35px; }
+  .atelier-process h2 { font-size: 39px; }
+  .process-steps { grid-template-columns: 1fr; gap: 18px; margin-top: 30px; }
+  .process-steps article { display: grid; grid-template-columns: 40px 1fr; gap: 5px 15px; padding-top: 18px; }
+  .process-steps h3 { margin: 3px 0 8px; font-size: 29px; }
+  .process-steps p { grid-column: 2; font-size: 12px; }
+  .atelier-invitation { padding: 35px 20px 40px; margin-bottom: 50px; }
+  .atelier-invitation h2 { font-size: 37px; }
+  .atelier-invitation .eyebrow { font-size: 7px; }
+  .atelier-invitation > p:not(.eyebrow) { font-size: 11px; }
+  .atelier-page-heading { padding-block: 42px 25px; }
+  .atelier-page-heading h1 { font-size: clamp(44px,10.5vw,59px); }
+  .atelier-page-heading > p:not(.eyebrow) { font-size: 11px; }
+  .heading-flower { display: none; }
+  .gallery-intro > span { display: none; }
+  .atelier-gallery { padding-block: 20px 40px; }
+  .creation-detail { padding-block: 25px 50px; }
+  .creation-detail-grid { grid-template-columns: 1fr; gap: 20px; }
+  .creation-detail-copy { padding-top: 10px; }
+  .creation-detail-copy h1 { font-size: 51px; }
+  .creation-detail-copy .prose { font-size: 13px; }
+  .atelier-contact { grid-template-columns: 1fr; padding-block: 30px 50px; gap: 25px; }
+  .atelier-contact-aside > img { width: 75px; height: 75px; margin-bottom: 20px; }
+  .atelier-contact-aside h2 { font-size: 38px; }
+  .atelier-contact-form { padding: 26px 20px; }
+  .atelier-contact-form label { font-size: 11px; }
+  .atelier-contact-form :is(input,textarea,select) { font-size: 12px; }
+  .contact-form-actions .button { font-size: 10px; }
+}
+@media (max-width: 360px) {
+  [data-universe="atelier"] .site-header .brand > span { font-size: 18px; }
+  [data-universe="atelier"] .site-header .brand img { width: 28px; height: 28px; }
+  .door-image-title > span { font-size: 27px; }
+  .door-image-title img { width: 38px; height: 38px; }
+  .door-copy { padding-inline: 20px; }
+  .door-links { gap: 10px; padding-inline: 20px; }
+  .atelier-hero h1 { font-size: 54px; }
+}

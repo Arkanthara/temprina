@@ -1,0 +1,20 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import { getCreations, creationContact } from '../../../lib/atelier';
+export async function getStaticPaths() {
+  return (await getCreations()).map(creation => ({ params: { id: creation.id }, props: { creation } }));
+}
+const { creation } = Astro.props;
+const { data } = creation;
+const { Content } = await render(creation);
+const isDrawing = data.category === 'dessin';
+---
+<Layout title={data.title} description={data.description} universe="atelier" noindex={data.demo}>
+  <section class="container creation-detail">
+    <a class="back-link" href={isDrawing ? '/atelier/dessins/' : '/atelier/couture/'}><Icon name="arrow-left" /> {isDrawing ? 'Retour à la galerie de dessins' : 'Retour aux créations couture'}</a>
+    <div class="creation-detail-grid"><div class:list={['creation-detail-art', { 'drawing-detail-art': isDrawing }]}><Image src={data.image} alt={data.imageAlt} width={900} format={data.image.format === 'svg' ? 'svg' : 'webp'} loading="eager" />{data.demo && <p>Inspiration de démonstration · {isDrawing ? 'Illustration fictive' : 'Visuel généré pour cette présentation'}</p>}</div><div class="creation-detail-copy"><p class="eyebrow">{data.medium}</p><h1>{data.title}</h1><p class="creation-detail-lead">{data.description}</p><div class="prose"><Content /></div>{data.demo && <p class="notice">Cet exemple présente l’univers du futur portfolio. Il ne représente pas une réalisation de la créatrice et n’est pas proposé à la vente.</p>}<a class="button" href={creationContact(data.title, data.category)}>{isDrawing ? 'Imaginons votre dessin' : 'Imaginons votre création'} <Icon name="arrow-up" /></a><p class="subtle">Une première prise de contact, sans engagement.</p></div></div>
+  </section>
+</Layout>

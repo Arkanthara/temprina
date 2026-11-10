@@ -56,4 +56,23 @@ const settings = defineCollection({
   loader: file('./src/content/settings/site.yaml', { parser: source => ({ site: parse(source) }) }),
   schema: z.object({ footerTagline: z.string().trim().min(1) }),
 });
-export const collections = { books, blog, pages, legal, settings };
+const atelier = defineCollection({
+  loader: file('./src/content/settings/atelier.yaml', { parser: source => ({ site: parse(source) }) }),
+  schema: z.object({
+    name: z.string().trim().min(1), tagline: z.string().trim().min(1),
+    description: z.string().trim().min(1).max(300),
+    introduction: z.string().trim().min(1), signature: z.string().trim().min(1),
+    demoIdentity: z.boolean().default(true),
+  }),
+});
+const creations = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/content/creations' }),
+  schema: ({ image }) => z.object({
+    title: z.string().trim().min(1), description: z.string().trim().min(1).max(300),
+    category: z.enum(['couture', 'dessin']), medium: z.string().trim().min(1),
+    image: image(), imageAlt: z.string().trim().min(1),
+    imagePosition: z.enum(['center', 'right', 'left']).default('center'),
+    order: z.number().int().default(0), demo: z.boolean().default(true), draft: z.boolean().default(false),
+  }),
+});
+export const collections = { books, blog, pages, legal, settings, atelier, creations };

@@ -7,34 +7,48 @@ import '@fontsource/manrope/latin-400.css';
 import '@fontsource/manrope/latin-500.css';
 import '@fontsource/manrope/latin-600.css';
 import '../styles/global.css';
+import '../styles/universes.css';
 import Logo from '../components/Logo.astro';
 import { site } from '../lib/site';
+import { getAtelier } from '../lib/atelier';
 import { getLegalInformation } from '../lib/legal';
 import { getEntry } from 'astro:content';
 const { developer } = await getLegalInformation();
 const settings = await getEntry('settings', 'site');
 if (!settings) throw new Error('Le fichier src/content/settings/site.yaml doit définir footerTagline.');
 const { footerTagline } = settings.data;
-interface Props { title: string; description?: string; image?: string; type?: 'website' | 'article' | 'book'; schema?: Record<string, unknown>; noindex?: boolean }
-const { title, description = site.description, image = '/images/social.jpg', type = 'website', schema, noindex = false } = Astro.props;
+interface Props { title: string; description?: string; image?: string; type?: 'website' | 'article' | 'book'; schema?: Record<string, unknown>; noindex?: boolean; universe?: 'author' | 'atelier' | 'portal' }
+const { title, description = site.description, type = 'website', schema, noindex = false, universe = 'author' } = Astro.props;
+const atelier = await getAtelier();
+const isAtelier = universe === 'atelier';
+const isPortal = universe === 'portal';
+const identity = isAtelier ? atelier.name : isPortal ? 'Temprina' : site.author;
+const home = isAtelier ? '/atelier/' : isPortal ? '/' : '/romans/';
+const image = Astro.props.image || (isAtelier ? '/images/atelier-social.jpg' : '/images/social.jpg');
+const tagline = isAtelier ? atelier.tagline : isPortal ? 'DEUX UNIVERS, UNE MÊME MAGIE' : footerTagline;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const nav = [{ href: '/', label: 'Accueil' }, { href: '/catalogue/', label: 'Les romans' }, { href: '/auteur/', label: 'L’auteur' }, { href: '/blog/', label: 'Au coin du feu' }];
-const active = (href: string) => href === '/' ? Astro.url.pathname === '/' : Astro.url.pathname.startsWith(href) || (href === '/catalogue/' && Astro.url.pathname.startsWith('/livres/'));
+const nav = isAtelier
+  ? [{ href: '/atelier/', label: 'L’atelier' }, { href: '/atelier/couture/', label: 'Couture' }, { href: '/atelier/dessins/', label: 'Dessins' }]
+  : isPortal ? [{ href: '/#univers', label: 'Les deux univers' }, { href: '/#rencontre', label: 'Une histoire de création' }]
+  : [{ href: '/romans/', label: 'Accueil' }, { href: '/catalogue/', label: 'Les romans' }, { href: '/auteur/', label: 'L’auteur' }, { href: '/blog/', label: 'Au coin du feu' }];
+const active = (href: string) => href === '/atelier/' || href === '/romans/' || href === '/' ? Astro.url.pathname === href : Astro.url.pathname.startsWith(href) || (href === '/catalogue/' && Astro.url.pathname.startsWith('/livres/'));
 const authorSchema = { '@context': 'https://schema.org', '@type': 'Person', '@id': new URL('/auteur/#auteur', Astro.site).href, name: site.author, url: new URL('/auteur/', Astro.site).href, jobTitle: 'Auteur de romans' };
+const defaultSchema = isPortal ? { '@context': 'https://schema.org', '@type': 'WebSite', name: identity, url: Astro.site?.href }
+  : isAtelier ? { '@context': 'https://schema.org', '@type': 'Organization', name: identity, url: new URL('/atelier/', Astro.site).href, description: atelier.description } : authorSchema;
 ---
 <!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} — {site.author}</title>
+    <title>{title} — {identity}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#101f1d" />
-    {(site.demo || noindex) && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content={isAtelier ? '#f7f2f7' : isPortal ? '#f7f5ee' : '#101f1d'} />
+    {(site.demo || noindex || (isAtelier && atelier.demoIdentity)) && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/images/logo.png" type="image/png" />
+    <link rel="icon" href={isAtelier ? '/images/atelier-logo.svg' : '/images/logo.png'} type={isAtelier ? 'image/svg+xml' : 'image/png'} />
     <meta property="og:locale" content="fr_FR" />
-    <meta property="og:site_name" content={site.author} />
+    <meta property="og:site_name" content={identity} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={type} />
@@ -45,23 +59,30 @@ const authorSchema = { '@context': 'https://schema.org', '@type': 'Person', '@id
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(image, Astro.site)} />
-    <script type="application/ld+json" set:html={JSON.stringify(schema || authorSchema).replace(/</g, '\\u003c')} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema || defaultSchema).replace(/</g, '\\u003c')} />
   </head>
-  <body>
+  <body data-universe={universe}>
     <a class="skip-link" href="#contenu">Aller au contenu</a>
-    {site.demo && <div class="demo-bar">Un univers en préparation <span aria-hidden="true"><Icon name="spark" /></span> Site de démonstration · Certains livres et articles sont fictifs</div>}
+    {(site.demo || (isAtelier && atelier.demoIdentity)) && <div class="demo-bar">{isAtelier ? 'L’atelier prend forme' : 'Des univers en préparation'} <span aria-hidden="true"><Icon name="spark" /></span> {isAtelier ? 'Identité et créations de démonstration' : 'Site de démonstration · Certains contenus sont fictifs'}</div>}
+    <div class="universe-bar">
+      <a class="all-universes" href="/">Temprina <span>· Les deux univers</span></a>
+      <div class="universe-tabs" role="group" aria-label="Choisir un univers">
+        <a href="/romans/" data-active={universe === 'author' ? 'true' : undefined}><Icon name="moon" /> <span>Les livres</span></a>
+        <a href="/atelier/" data-active={isAtelier ? 'true' : undefined}><Icon name="spark" /> <span>Couture & dessins</span></a>
+      </div>
+    </div>
     <header class="site-header">
-      <a href="/" class="brand" aria-label={`${site.author} — Accueil`}><Logo /><span>{site.author}<small>ROMANS & IMAGINAIRES</small></span></a>
+      <a href={home} class="brand" aria-label={`${identity} — Accueil`}>{isAtelier ? <img src="/images/atelier-logo.svg" width="80" height="80" alt="" /> : <Logo />}<span>{identity}<small>{isAtelier ? atelier.tagline : isPortal ? 'DEUX UNIVERS, UNE MÊME MAGIE' : 'ROMANS & IMAGINAIRES'}</small></span></a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" hidden>Menu <span aria-hidden="true"><Icon name="menu" /></span></button>
       <nav id="navigation" aria-label="Navigation principale">
         {nav.map(({ href, label }) => <a href={href} aria-current={active(href) ? 'page' : undefined}>{label}</a>)}
-        <a href="/contact/" class="nav-contact" aria-current={active('/contact/') ? 'page' : undefined}>Écrivons-nous <span aria-hidden="true"><Icon name="arrow-up" /></span></a>
+        {!isPortal && <a href={isAtelier ? '/atelier/contact/' : '/contact/'} class="nav-contact" aria-current={active(isAtelier ? '/atelier/contact/' : '/contact/') ? 'page' : undefined}>{isAtelier ? 'Parlons de votre projet' : 'Écrivons-nous'} <span aria-hidden="true"><Icon name="arrow-up" /></span></a>}
       </nav>
     </header>
     <main id="contenu"><slot /></main>
     <footer class="site-footer">
-      <div class="footer-top"><a href="/" class="brand"><Logo /><span>{site.author}<small>{footerTagline}</small></span></a><p>Pour celles et ceux qui croient<br />encore à la magie des histoires.</p><a class="text-link" href="/contact/">Écrivons-nous <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
-      <div class="footer-bottom"><span>© {new Date().getUTCFullYear()} · {site.author}</span><div><a href="/mentions-legales/">Mentions légales</a><a href="/confidentialite/">Confidentialité</a></div><span>Imaginé entre les pages <span class="gold" aria-hidden="true"><Icon name="spark" /></span></span></div>
+      <div class="footer-top"><a href={home} class="brand">{isAtelier ? <img src="/images/atelier-logo.svg" width="80" height="80" alt="" /> : <Logo />}<span>{identity}<small>{tagline}</small></span></a><p>{isAtelier ? <>Des étoffes, des traits de crayon,<br />et un peu de merveilleux.</> : <>Pour celles et ceux qui croient<br />encore à la magie des histoires.</>}</p><a class="text-link" href={isPortal ? '/#univers' : isAtelier ? '/atelier/contact/' : '/contact/'}>{isPortal ? 'Choisir mon univers' : isAtelier ? 'Imaginons votre création' : 'Écrivons-nous'} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
+      <div class="footer-bottom"><span>© {new Date().getUTCFullYear()} · {identity}</span><div><a href="/">Les deux univers</a><a href={isAtelier ? '/atelier/mentions-legales/' : '/mentions-legales/'}>Mentions légales</a><a href={isAtelier ? '/atelier/confidentialite/' : '/confidentialite/'}>Confidentialité</a></div><span>{isAtelier ? 'Imaginé au fil des rêves' : 'Imaginé entre les pages'} <span class="gold" aria-hidden="true"><Icon name="spark" /></span></span></div>
       {developer.showInFooter && developer.name && <p class="developer-credit">{developer.role} · {developer.url ? <a href={developer.url}>{developer.name}</a> : <span>{developer.name}</span>}</p>}
     </footer>
     <script>

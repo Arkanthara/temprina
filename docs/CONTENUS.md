@@ -1,5 +1,7 @@
 # Gestion des contenus
 
+Pour la couture et les dessins, voir [le guide de l’atelier](ATELIER.md). Son identité se personnalise dans `src/content/settings/atelier.yaml`, ses réalisations dans `src/content/creations/`, et son contact avec `PUBLIC_ATELIER_EMAIL`.
+
 ## Configuration globale
 
 Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PUBLIC_AUTHOR_NAME`, l’adresse dans `PUBLIC_CONTACT_EMAIL` et l’origine canonique dans `PUBLIC_SITE_URL`. Les variables `PUBLIC_*` deviennent publiques dans le site statique : elles ne doivent jamais contenir de secrets. Reconstruire après chaque changement.
@@ -26,7 +28,8 @@ Les textes des pages sont dans **`src/content/pages/`**. Ils peuvent être modif
 
 | Page | Fichier à modifier | Contenu |
 | --- | --- | --- |
-| Accueil `/` | `src/content/pages/index.md` | Introduction, titres de sections, boutons, états vides et extrait de présentation |
+| Portail `/` | `src/content/pages/portail.md` | Présentation et accès aux deux univers |
+| Accueil autrice `/romans/` | `src/content/pages/index.md` | Introduction, titres de sections, boutons, états vides et extrait de présentation |
 | Auteur `/auteur/` | `src/content/pages/auteur.md` | Biographie, légende de l’image et présentation intégrale |
 | Catalogue | `src/content/pages/catalogue.md` | En-tête, compteur, libellés et état vide |
 | Blog | `src/content/pages/blog.md` | En-tête, libellés et état vide du carnet |

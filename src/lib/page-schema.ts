@@ -11,6 +11,12 @@ const withToken = (token: string) => text.refine(value => value.includes(token),
 // Every template validates the fields it actually renders. A missing label fails the build.
 export const pageSchema = z.discriminatedUnion('template', [
   z.object({
+    ...page, template: z.literal('portal'), lead: text,
+    author: z.object({ title: text, description: text, linkLabel: text }),
+    atelier: z.object({ title: text, description: text, linkLabel: text }),
+    closing: z.object({ eyebrow: text, heading, description: text }),
+  }),
+  z.object({
     ...metadata, template: z.literal('home'),
     hero: z.object({ eyebrow: text, heading, description: text, primaryLabel: text, secondaryLabel: text, caption: text, scrollLabel: text, scrollAccessibleLabel: text }),
     books: section.extend({ empty: text }),

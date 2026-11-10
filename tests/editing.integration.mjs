@@ -67,11 +67,11 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     const outputs = await readdir(join(fixture, 'dist'), { recursive: true });
     for (const output of outputs.filter(path => path.endsWith('.html'))) {
       const page = await html(output);
-      assert.equal(page('.site-footer .brand small').text(), settings.footerTagline.trim(), output);
+      if (page('body').attr('data-universe') === 'author') assert.equal(page('.site-footer .brand small').text(), settings.footerTagline.trim(), output);
       assert.equal(page('.site-footer .brand small em').length, 0, 'Tagline must remain literal text');
     }
-    const $ = await html('index.html');
-    for (const output of ['index.html', 'catalogue/index.html']) {
+    const $ = await html('romans/index.html');
+    for (const output of ['romans/index.html', 'catalogue/index.html']) {
       const page = await html(output);
       const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === book.data.title);
       assert.equal(card.length, 1, output);

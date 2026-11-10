@@ -1,43 +1,48 @@
 ---
-import Icon from '../components/Icon.astro';
 import { Image } from 'astro:assets';
-import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import BookCard from '../components/BookCard.astro';
+import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
 import EditorialHeading from '../components/EditorialHeading.astro';
 import forest from '../assets/foret-enchantee.png';
-import { isVisible, formatDate } from '../lib/site';
+import atelierImage from '../assets/atelier/aurore.png';
 import { getPage } from '../lib/pages';
-const page = await getPage('index', 'home');
-const { Content } = await render(page);
-const { hero, books: library, author, journal, contact } = page.data;
-const books = (await getCollection('books', isVisible)).sort((a,b) => Number(b.data.featured)-Number(a.data.featured) || b.data.publicationDate.valueOf()-a.data.publicationDate.valueOf()).slice(0,3);
-const posts = (await getCollection('blog', isVisible)).sort((a,b) => b.data.date.valueOf()-a.data.date.valueOf()).slice(0,2);
+import { getAtelier } from '../lib/atelier';
+const { data } = await getPage('portail', 'portal');
+const atelier = await getAtelier();
 ---
-<Layout title={page.data.title} description={page.data.description}>
-  <section class="hero" aria-labelledby="hero-title">
-    <Image src={forest} alt="" widths={[640, 1024, 1536]} sizes="100vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" class="hero-image" />
-    <div class="hero-content">
-      <p class="eyebrow"><span class="rule"></span> {hero.eyebrow}</p>
-      <h1 id="hero-title"><EditorialHeading {...hero.heading} /></h1>
-      <p class="hero-description editorial-lines">{hero.description}</p>
-      <a href="/catalogue/" class="button">{hero.primaryLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a>
-      <a href="/auteur/" class="hero-secondary">{hero.secondaryLabel} <span aria-hidden="true"><Icon name="arrow-right" /></span></a>
-    </div>
-    <div class="hero-caption"><span aria-hidden="true"><Icon name="spark" /></span> {hero.caption}</div>
-    <a class="scroll-cue" href="#romans" aria-label={hero.scrollAccessibleLabel}>{hero.scrollLabel} <span aria-hidden="true"><Icon name="arrow-down" /></span></a>
+<Layout title={data.title} description={data.description} universe="portal">
+  <section class="portal-intro container" aria-labelledby="portal-title">
+    <p class="eyebrow"><span></span>{data.eyebrow}<span></span></p>
+    <h1 id="portal-title"><EditorialHeading {...data.heading} /></h1>
+    <p class="portal-lead">{data.lead}</p>
+    <span class="portal-spark" aria-hidden="true"><Icon name="spark" /></span>
   </section>
-  <section class="section container" id="romans">
-    <div class="section-heading"><div><p class="eyebrow">{library.eyebrow}</p><h2><EditorialHeading {...library.heading} /></h2></div><a class="text-link" href="/catalogue/">{library.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
-    <div class="books-grid">{books.map(book => <BookCard book={book} />)}</div>
-    {!books.length && <p class="empty-state">{library.empty}</p>}
+  <section class="universe-doors container" id="univers" aria-label="Choisissez votre univers">
+    <article class="universe-door door-author">
+      <a class="door-image" href="/romans/" aria-label={data.author.linkLabel}>
+        <Image src={forest} alt="Un chemin dans une forêt elfique mène vers une arche lumineuse." width={900} height={650} format="webp" loading="eager" fetchpriority="high" />
+        <span class="door-number" aria-hidden="true">01 — L’UNIVERS ELFIQUE</span>
+        <div class="door-image-title"><Logo /><span>Les murmures<br /><em>de l’imaginaire</em></span></div>
+        <span class="door-round" aria-hidden="true"><Icon name="arrow-up" /></span>
+      </a>
+      <div class="door-copy"><p class="eyebrow">LITTÉRATURE & CARNET DE LECTURE</p><h2>{data.author.title}</h2><p>{data.author.description}</p><a class="text-link" href="/romans/">{data.author.linkLabel}<Icon name="arrow-right" /></a></div>
+      <div class="door-links"><a href="/catalogue/">Les romans</a><span aria-hidden="true">·</span><a href="/auteur/">L’autrice</a><span aria-hidden="true">·</span><a href="/blog/">Le blog</a></div>
+    </article>
+    <article class="universe-door door-atelier">
+      <a class="door-image" href="/atelier/" aria-label={data.atelier.linkLabel}>
+        <Image src={atelierImage} alt="Une robe de conte en tulle et broderies florales dans un atelier baigné de lumière." width={900} height={650} format="webp" loading="eager" />
+        <span class="door-number" aria-hidden="true">02 — L’UNIVERS FÉÉRIQUE</span>
+        <div class="door-image-title"><img src="/images/atelier-logo.svg" alt="" width="80" height="80" /><span>{atelier.name}</span></div>
+        <span class="door-round" aria-hidden="true"><Icon name="arrow-up" /></span>
+      </a>
+      <div class="door-copy"><p class="eyebrow">COUTURE, SUR MESURE & ILLUSTRATION</p><h2>{data.atelier.title}</h2><p>{data.atelier.description}</p><a class="text-link" href="/atelier/">{data.atelier.linkLabel}<Icon name="arrow-right" /></a></div>
+      <div class="door-links"><a href="/atelier/couture/">La couture</a><span aria-hidden="true">·</span><a href="/atelier/dessins/">Les dessins</a><span aria-hidden="true">·</span><a href="/atelier/contact/">Votre projet</a></div>
+    </article>
   </section>
-  <section class="author-band"><div class="container author-band-inner"><div class="ornament" aria-hidden="true"><Logo /></div><div><p class="eyebrow">{author.eyebrow}</p><h2><EditorialHeading {...author.heading} /></h2><Content /><a href="/auteur/" class="text-link">{author.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div></div></section>
-  <section class="section container">
-    <div class="section-heading"><div><p class="eyebrow">{journal.eyebrow}</p><h2><EditorialHeading {...journal.heading} /></h2><p>{journal.description}</p></div><a href="/blog/" class="text-link">{journal.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
-    <div class="journal-grid">{posts.map((post,index) => <article class="journal-card"><div class={`journal-symbol symbol-${index}`} aria-hidden="true"><Icon name={index === 0 ? 'moon' : 'spark'} /></div><div><div class="book-meta">{post.data.category} · {formatDate(post.data.date)}</div><h3><a href={`/blog/${post.id}/`}>{post.data.title}</a></h3><p>{post.data.description}</p><a class="text-link" href={`/blog/${post.id}/`}>{journal.readLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a>{post.data.demo && <p class="demo-label">{journal.demoLabel}</p>}</div></article>)}</div>
-    {!posts.length && <p class="empty-state">{journal.empty}</p>}
+  <section class="portal-closing container" id="rencontre">
+    <div class="closing-ornament" aria-hidden="true"><span></span><Icon name="spark" /><span></span></div>
+    <p class="eyebrow">{data.closing.eyebrow}</p><h2><EditorialHeading {...data.closing.heading} /></h2><p>{data.closing.description}</p>
+    <a class="text-link" href="#univers">À vous d’ouvrir une porte <Icon name="arrow-up" /></a>
   </section>
-  <section class="contact-strip container"><span aria-hidden="true"><Icon name="spark" /></span><div><h2>{contact.heading}</h2><p>{contact.description}</p></div><a href="/contact/" class="button button-outline">{contact.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></section>
 </Layout>

@@ -14,13 +14,15 @@ const files = await walk(root);
 const htmlFiles = files.filter(file => file.endsWith('.html'));
 const exists = async path => { try { return (await stat(path)).isFile(); } catch { return false; } };
 
-test('every page displays the configured footer tagline below the author name', async () => {
+test('every universe displays its configured identity and footer tagline', async () => {
   const { footerTagline } = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+  const atelier = parse(await readFile('src/content/settings/atelier.yaml', 'utf8'));
   for (const file of htmlFiles) {
     const $ = load(await readFile(file, 'utf8'));
     const tagline = $('.site-footer .brand > span > small');
     assert.equal(tagline.length, 1, file);
-    assert.equal(tagline.text(), footerTagline.trim(), file);
+    const universe = $('body').attr('data-universe');
+    assert.equal(tagline.text(), universe === 'atelier' ? atelier.tagline : universe === 'portal' ? 'DEUX UNIVERS, UNE MÊME MAGIE' : footerTagline.trim(), file);
     const author = tagline.parent().clone();
     author.find('small').remove();
     assert.equal(author.text(), $('meta[property="og:site_name"]').attr('content'), file);
@@ -92,19 +94,21 @@ test('demo book metadata includes a raster image for social sharing', async () =
   }
 });
 
-test('author logo is used in the header, footer, homepage and favicon', async () => {
+test('each universe uses its own logo in the header, footer and favicon', async () => {
   for (const file of htmlFiles) {
     const $ = load(await readFile(file, 'utf8'));
+    const isAtelier = $('body').attr('data-universe') === 'atelier';
+    const expectedLogo = isAtelier ? '/images/atelier-logo.svg' : '/images/logo.png';
     for (const container of ['.site-header', '.site-footer']) {
       const logo = $(`${container} .brand img`);
-      assert.equal(logo.attr('src'), '/images/logo.png', file);
+      assert.equal(logo.attr('src'), expectedLogo, file);
       assert.equal(logo.attr('alt'), '', file);
       assert.equal(logo.attr('width'), logo.attr('height'), file);
     }
-    assert.equal($('link[rel="icon"]').attr('href'), '/images/logo.png', file);
-    assert.equal($('link[rel="icon"]').attr('type'), 'image/png', file);
+    assert.equal($('link[rel="icon"]').attr('href'), expectedLogo, file);
+    assert.equal($('link[rel="icon"]').attr('type'), isAtelier ? 'image/svg+xml' : 'image/png', file);
   }
-  const $ = load(await readFile(join(root, 'index.html'), 'utf8'));
+  const $ = load(await readFile(join(root, 'romans/index.html'), 'utf8'));
   assert.equal($('.ornament img').attr('src'), '/images/logo.png');
   assert.deepEqual(await readFile(join(root, 'images/logo.png')), await readFile('public/images/logo.png'));
 });
@@ -138,7 +142,7 @@ test('minimal book renders only supplied fields and retains accessible covers an
   assert.equal('genre' in schema, false);
   assert.equal('hasPart' in schema, false);
   assert.equal($('.book-followed-by, .book-second-story').length, 0);
-  for (const path of ['catalogue/index.html', 'index.html']) {
+  for (const path of ['catalogue/index.html', 'romans/index.html']) {
     const page = load(await readFile(join(root, path), 'utf8'));
     const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === 'La Dernière Braise');
     // The homepage deliberately shows at most three books.
@@ -152,7 +156,7 @@ test('minimal book renders only supplied fields and retains accessible covers an
 
 test('complete book renders optional fields on the homepage, catalogue and detail page', { skip: !htmlFiles.includes(join(root, 'livres/le-chant-des-sylves/index.html')) }, async () => {
   const description = 'Au cœur d’une forêt qui perd sa mémoire, une jeune cartographe entend un chant que personne ne devrait plus connaître.';
-  for (const path of ['index.html', 'catalogue/index.html']) {
+  for (const path of ['romans/index.html', 'catalogue/index.html']) {
     const $ = load(await readFile(join(root, path), 'utf8'));
     const card = $('[data-book]').filter((_, el) => $(el).find('h3').text() === 'Le Chant des Sylves');
     assert.equal(card.length, 1);
@@ -224,9 +228,9 @@ test('optional metadata never leaves empty elements, separators or cover alterna
 // Editorial pages must use their content files for visible text and sharing metadata.
 test('editable pages supply their titles, descriptions and headings to the generated HTML', async () => {
   const { readPageContent } = await import('../scripts/lib/page-content.mjs');
-  for (const id of ['index', 'auteur', 'catalogue', 'blog', 'contact', 'mentions-legales', 'confidentialite', '404']) {
+  for (const id of ['index', 'portail', 'auteur', 'catalogue', 'blog', 'contact', 'mentions-legales', 'confidentialite', '404']) {
     const { data } = await readPageContent(`src/content/pages/${id}.md`);
-    const output = id === 'index' ? 'index.html' : id === '404' ? '404.html' : `${id}/index.html`;
+    const output = id === 'index' ? 'romans/index.html' : id === 'portail' ? 'index.html' : id === '404' ? '404.html' : `${id}/index.html`;
     const $ = load(await readFile(join(root, output), 'utf8'));
     assert.ok($('title').text().startsWith(data.title + ' — '), id);
     assert.equal($('meta[name="description"]').attr('content'), data.description, id);
@@ -246,7 +250,7 @@ test('author biography uses its editorial data and both presentation areas are r
   assert.ok(source.body.trim());
   assert.ok($('.author-presentation').text().trim());
   assert.doesNotMatch($('main').text(), /Une rencontre à venir|Texte de démonstration|biographie.*ajoutés/);
-  const home = load(await readFile(join(root, 'index.html'), 'utf8'));
+  const home = load(await readFile(join(root, 'romans/index.html'), 'utf8'));
   const { body } = await readPageContent('src/content/pages/index.md');
   assert.ok(body.trim());
   assert.ok(home('.author-band p:not(.eyebrow)').text().trim());

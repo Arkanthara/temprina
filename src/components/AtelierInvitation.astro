@@ -1,0 +1,12 @@
+---
+import Icon from './Icon.astro';
+interface Props { project?: 'couture' | 'dessin' }
+const { project = 'couture' } = Astro.props;
+---
+<section class="atelier-invitation container">
+  <span class="invitation-star" aria-hidden="true"><Icon name="spark" /></span>
+  <p class="eyebrow">ET SI TOUT COMMENÇAIT PAR UNE IDÉE ?</p>
+  <h2>{project === 'dessin' ? <>Une image en tête,<br /><em>une histoire à dessiner.</em></> : <>Votre rêve a peut-être<br /><em>déjà son premier fil.</em></>}</h2>
+  <p>{project === 'dessin' ? 'Un portrait, un univers, une attention à offrir… Racontez à la créatrice ce que vous imaginez.' : 'Une occasion, une silhouette, une envie d’ailleurs… Prenons le temps d’imaginer votre création ensemble.'}</p>
+  <a class="button" href={`/atelier/contact/?projet=${project}`}>Parlons de votre projet <Icon name="arrow-up" /></a>
+</section>

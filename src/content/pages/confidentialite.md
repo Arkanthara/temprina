@@ -62,7 +62,7 @@ informationSections:
 ---
 ## Navigation et données techniques
 
-Le site sert des pages publiques pour présenter les livres et les articles. La fourniture des pages et leur sécurisation nécessitent le traitement de données techniques par l’hébergeur : notamment l’adresse IP, les données relatives à la connexion et les requêtes adressées au site. Les adresses des pages consultées peuvent comporter des paramètres de lien. Les données, les durées et les pays de traitement dépendent des services réellement activés et sont à préciser dans les informations ci-dessus.
+Le site sert des pages publiques pour présenter les livres, les articles, les créations couture et les dessins. La fourniture des pages et leur sécurisation nécessitent le traitement de données techniques par l’hébergeur : notamment l’adresse IP, les données relatives à la connexion et les requêtes adressées au site. Les adresses des pages consultées peuvent comporter des paramètres de lien. Les données, les durées et les pays de traitement dépendent des services réellement activés et sont à préciser dans les informations ci-dessus.
 
 Les polices, les images et les ressources du site sont servies avec ses pages. Le code du site ne charge pas de fournisseur externe de polices ni de lecteur social intégré.
 
@@ -73,6 +73,8 @@ Les fonctions actuelles du site ne déposent pas de cookies, n’utilisent pas d
 ## Correspondance par e-mail
 
 Lorsque l’adresse de contact est configurée, le formulaire prépare un message dans votre application de messagerie. Le site n’envoie pas ce message automatiquement et ne l’enregistre pas dans une base de données. Vous choisissez de l’envoyer depuis votre messagerie.
+
+Le contact de l’atelier permet aussi de préparer une demande de couture ou de dessin et de la copier. Les champs saisis restent dans la page ; le bouton de copie les place dans votre presse-papiers, uniquement à votre demande. L’adresse de l’atelier est indépendante de celle de l’autrice. Aucun envoi au serveur du site n’est effectué par ces formulaires.
 
 Si vous envoyez cet e-mail, l’éditeur et les prestataires de messagerie concernés traitent votre adresse, votre nom si vous le communiquez, le contenu du message et ses éventuelles pièces jointes, afin de répondre à votre demande. Les destinataires et la durée de conservation des échanges sont indiqués ci-dessus. Évitez d’inclure des informations personnelles sans rapport avec votre demande.
 

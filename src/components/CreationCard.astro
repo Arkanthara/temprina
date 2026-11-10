@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+interface Props { creation: CollectionEntry<'creations'> }
+const { creation } = Astro.props;
+const { data } = creation;
+const href = `/atelier/creations/${creation.id}/`;
+---
+<article class:list={['creation-card', { 'drawing-card': data.category === 'dessin' }]}>
+  <a class="creation-image" href={href} aria-label={`Découvrir ${data.title}`}>
+    <Image src={data.image} alt={data.imageAlt} width={650} height={850} fit="cover" position={data.imagePosition} format={data.image.format === 'svg' ? 'svg' : 'webp'} loading="lazy" />
+    <span class="creation-open" aria-hidden="true"><Icon name="arrow-up" /></span>
+    {data.demo && <span class="creation-demo">Inspiration de démonstration</span>}
+  </a>
+  <p class="eyebrow">{data.medium}</p>
+  <h3><a href={href}>{data.title}</a></h3>
+  <p>{data.description}</p>
+</article>

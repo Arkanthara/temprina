@@ -1,5 +1,11 @@
 # Architecture
 
+## Deux univers
+
+L’accueil `/` charge le contenu `portail.md`. L’ancien accueil de l’autrice, toujours alimenté par `index.md`, est à `/romans/`. Les autres routes de l’autrice sont conservées. `Layout.astro` accepte `universe: author | atelier | portal` et applique l’identité, la navigation, le favicon et les métadonnées correspondantes. `universes.css` ajoute les palettes du portail et de l’atelier sans modifier les styles elfique et or d’origine.
+
+La collection `atelier` lit `src/content/settings/atelier.yaml`. La collection `creations` valide les réalisations couture et dessin, leurs images, leur ordre et leurs indicateurs `demo` / `draft`. Les fiches sont générées statiquement avec les mêmes règles de visibilité que les livres. Le contact de l’atelier utilise uniquement `PUBLIC_ATELIER_EMAIL` ; son message peut être copié ou préparé dans une messagerie. Voir [le guide de l’atelier](ATELIER.md), notamment la spécification de la page de mesures reportée à une étape ultérieure.
+
 Le site utilise Astro en génération statique et TypeScript strict. Chaque route produit du HTML dans `dist/`, compatible avec Cloudflare Pages. Aucun serveur applicatif, base de données, compte visiteur ou paiement dans cette version.
 
 - `src/content/pages/` : textes des huit pages éditoriales, en-têtes YAML et corps Markdown ; schéma par modèle dans `src/lib/page-schema.ts`, chargement typé avec `src/lib/pages.ts`.

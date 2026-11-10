@@ -3,9 +3,10 @@ import { readdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 
 const bookCount = readdirSync('dist/livres', { withFileTypes: true }).filter(entry => entry.isDirectory()).length;
-const routes = ['/', '/catalogue/', '/livres/le-chant-des-sylves/', '/livres/la-derniere-braise/', '/livres/les-prisonniers-du-tram/', '/auteur/', '/blog/', '/blog/quand-la-foret-devient-personnage/', '/contact/', '/mentions-legales/', '/confidentialite/', '/404/'];
+const routes = ['/', '/romans/', '/atelier/', '/atelier/couture/', '/atelier/dessins/', '/atelier/contact/', '/atelier/creations/aurore/', '/atelier/creations/herbier-des-songes/', '/atelier/mentions-legales/', '/atelier/confidentialite/', '/catalogue/', '/livres/le-chant-des-sylves/', '/livres/la-derniere-braise/', '/livres/les-prisonniers-du-tram/', '/auteur/', '/blog/', '/blog/quand-la-foret-devient-personnage/', '/contact/', '/mentions-legales/', '/confidentialite/', '/404/'];
 
 test('pages render without horizontal overflow, missing images or accessibility violations', async ({ page }) => {
+  test.setTimeout(180000);
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   for (const route of routes) {
@@ -15,7 +16,7 @@ test('pages render without horizontal overflow, missing images or accessibility 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),route).toBe(true);
     // Off-screen covers are lazy-loaded: bring each into view before checking it.
     for (const image of await page.locator('img').all()) {
-      await image.scrollIntoViewIfNeeded();
+      if (await image.isVisible()) await image.scrollIntoViewIfNeeded();
       await expect.poll(() => image.evaluate(img => (img as HTMLImageElement).naturalWidth), { message: route }).toBeGreaterThan(0);
     }
     const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
@@ -58,7 +59,7 @@ test('book contact preserves title and explicitly states contact is not configur
 });
 
 test('navigation remains keyboard accessible and mobile menu closes with Escape', async ({ page, isMobile }) => {
-  await page.goto('/');
+  await page.goto('/romans/');
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link',{name:'Aller au contenu'})).toBeFocused();
   if (isMobile) {
@@ -135,7 +136,7 @@ test('both stories in one book remain readable without JavaScript at 320 pixels'
 });
 
 test('author biography and full presentation are readable from the homepage', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/romans/');
   await expect(page.locator('.hero h1')).toBeVisible();
   await expect(page.locator('.author-band p:not(.eyebrow)').first()).toBeVisible();
   await page.locator('.author-band a').click();

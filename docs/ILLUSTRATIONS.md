@@ -1,5 +1,11 @@
 # Illustrations et typographies
 
+## Univers couture et dessin
+
+`src/assets/atelier/aurore.png`, `cape.png` et `floraison.png` ont été générés avec Imagegen pour présenter l’ambiance féérique de l’atelier : une robe de tulle et fleurs brodées dans un atelier lumineux, une cape de velours lilas et un corsage à broderies botaniques. Ce sont des inspirations fictives, pas des photographies de réalisations de la créatrice. Astro produit leurs versions WebP. `public/images/atelier-social.jpg` est une version 1200 × 630 de l’image Aurore.
+
+Les dessins `herbier.svg`, `lunaire.svg` et `ailes.svg` sont des illustrations vectorielles originales créées pour la démonstration de la galerie, sans attribution à la créatrice. Le papillon de `public/images/atelier-logo.svg` est un logo provisoire à remplacer par son propre logo. Le logo de l’autrice est conservé.
+
 ## Logo de l’auteur
 
 `public/images/logo.png` est le logo fourni par l’auteur. Il remplace l’emblème vectoriel de démonstration dans l’en-tête, le pied de page et le bandeau auteur de l’accueil, ainsi que l’ancien favicon. Le composant `src/components/Logo.astro` conserve son fond transparent et ses proportions carrées. Son alternative est vide lorsqu’il accompagne le nom de l’auteur ou sert de décoration.

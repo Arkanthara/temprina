@@ -1,4 +1,6 @@
-# Temprina · Site d’auteur
+# Temprina · Livres, couture et illustration
+
+Le site réunit désormais deux univers derrière un accueil commun : **l’autrice** à `/romans/` (identité elfique existante conservée) et **L’Atelier des fées** à `/atelier/` (identité de démonstration ivoire et lilas, couture et dessins). Le catalogue, les livres, la biographie et le blog conservent leurs URL. Voir [le guide de l’atelier](docs/ATELIER.md) pour remplacer son logo, éditer ses créations et préparer la future page de mesures, qui n’est pas implémentée.
 
 Site français de romans, avec un univers féérique et elfique. **Astro + TypeScript**, génération statique pour **Cloudflare Pages**, dépôt GitHub et DevContainer.
 

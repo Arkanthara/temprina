@@ -1,0 +1,6 @@
+---
+import LegalPage from '../../components/LegalPage.astro';
+import { getPage } from '../../lib/pages';
+const page = await getPage('confidentialite', 'legal');
+---
+<LegalPage page={page} universe="atelier" />

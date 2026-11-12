@@ -1,10 +1,11 @@
 ---
 import Icon from '../../components/Icon.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPosts } from '../../lib/collections';
 import Layout from '../../layouts/Layout.astro';
 import Share from '../../components/Share.astro';
-import { isVisible, formatDate, site, settings, fillText } from '../../lib/site';
-export async function getStaticPaths() { return (await getCollection('blog', isVisible)).map(post => ({ params: { id: post.id }, props: { post } })); }
+import { formatDate, site, settings, fillText } from '../../lib/site';
+export async function getStaticPaths() { return (await getPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
 const { post } = Astro.props;
 const { Content } = await render(post);
 const schema = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.data.title, description: post.data.description, datePublished: post.data.date.toISOString(), author: { '@type': 'Person', name: site.author, url: new URL('/auteur/', Astro.site).href }, mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href, image: new URL(settings.images.social, Astro.site).href, inLanguage: 'fr' };

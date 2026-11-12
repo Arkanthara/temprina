@@ -1,8 +1,26 @@
 # Temprina · Site d’auteur
 
-Site français de romans, avec un univers féérique et elfique. **Astro + TypeScript**, génération statique pour **Cloudflare Pages**, dépôt GitHub et DevContainer.
+Site statique en français construit avec Astro et TypeScript. Il conserve l’accueil, le catalogue, les fiches livres, la présentation de l’auteur, le blog, le contact, les pages légales et la page 404. Les textes, images et fonctions existants sont conservés.
 
-La présentation et la biographie de l’autrice sont intégrées depuis `docs/Site Temprina.docx`, avec un accueil autour de « J’ai choisi la lumière ». Le nom public de l’autrice reste à renseigner. Les romans de démonstration, leurs couvertures et deux articles sont des exemples fictifs clairement signalés. Aucune vente directe. La méthode de déploiement recommandée est la connexion GitHub à Cloudflare Pages : chaque mise à jour de `master` publie le site. Le propriétaire confirme un déploiement Cloudflare Pages gratuit à [donnet.pages.dev](https://donnet.pages.dev). Aucun déploiement n’a été réalisé depuis cet environnement.
+## Modifier le site
+
+L’auteur travaille dans **`src/content/`**. Aucun fichier Astro n’est nécessaire pour modifier les textes.
+
+| Je veux… | Fichier ou dossier |
+| --- | --- |
+| Changer les textes d’une page | `src/content/pages/nom-de-la-page.md` |
+| Ajouter, modifier ou retirer un livre | `src/content/books/` |
+| Ajouter, modifier ou retirer un article | `src/content/blog/` |
+| Changer le nom, l’e-mail, les menus, le pied de page ou les libellés | `src/content/site.yaml` |
+| Compléter les informations légales et les crédits | Rubrique `legal` du même fichier |
+| Ajouter une couverture ou une photo | `src/assets/` |
+| Remplacer le logo ou l’image de partage | `public/images/` et rubrique `images` de `site.yaml` |
+
+Commencer par le [guide d’édition](docs/CONTENUS.md), puis le [guide Markdown](docs/MARKDOWN.md). Des [modèles prêts à copier](docs/modeles/) permettent d’ajouter un livre ou un article.
+
+## Lancer et vérifier
+
+Prérequis : Node.js compatible avec `package.json` (22.22 ou plus récent dans la branche 22, ou 24 et plus).
 
 ```sh
 npm ci
@@ -10,38 +28,24 @@ cp .env.example .env
 npm run dev
 ```
 
-Le site est disponible à `http://localhost:4321`.
-
-Les textes des pages se modifient dans **`src/content/pages/*.md`**, sans modifier les gabarits Astro : titres, introductions, boutons, présentation, biographie, contact et pages légales. Voir [le guide d’édition](docs/CONTENUS.md#modifier-une-page-sans-toucher-au-code) pour modifier un fichier depuis GitHub ou en local. Les champs sont validés au build.
-
-Les textes communs de tout le site se personnalisent dans **`src/content/settings/site.yaml`** : `footerMessage` pour « Pour celles et ceux qui croient encore à la magie des histoires », `footerTagline` pour la phrase sous le nom, mais aussi navigation, nom, e-mail, logo, fiches livres et partage. Voir [le guide des réglages](docs/CONTENUS.md#configuration-globale).
-
-La petite photo de l’auteur et sa légende se configurent dans **`src/content/pages/auteur.md`**, bloc `portrait`. Ajouter la photo dans `src/assets/` et renseigner `portrait.image` ; un médaillon provisoire s’affiche en attendant. Voir [le guide du portrait](docs/CONTENUS.md#ajouter-la-petite-photo-et-sa-légende).
-
-Pages : accueil, catalogue de romans, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
+Ouvrir `http://localhost:4321`. Pour vérifier l’ensemble du site :
 
 ```sh
-npm run check
-npm run build
-npm test
-npm run test:editing
 npx playwright install --with-deps chromium
-npm run test:e2e
+npm run verify
 ```
 
-- [Architecture et évolutions prévues](docs/ARCHITECTURE.md)
-- [Ajouter et modifier les contenus](docs/CONTENUS.md)
-- [Compléter les pages légales et ajouter le développeur](docs/INFORMATIONS-LEGALES.md)
-- [Déployer simplement sur Cloudflare avec GitHub (interface en anglais)](docs/DEPLOIEMENT.md)
-- [Crédits des illustrations](docs/ILLUSTRATIONS.md)
-- [Vérifications et aperçus](docs/VERIFICATION.md)
+`verify` enchaîne les types, le build, les tests de contenus et de liens, les tests d’édition dans une copie temporaire et les tests navigateur sur ordinateur et mobile.
 
-Pour la connexion Git native, les variables de build se renseignent dans Cloudflare Pages ; aucun jeton API à gérer dans GitHub. Les variables publiques sont documentées dans `.env.example`. Le mode démo désactive l’indexation. Sans adresse configurée, le contact affiche son indisponibilité ; une fois l’adresse renseignée, il prépare un e-mail dans la messagerie du visiteur.
+## Publier et maintenir
 
-Pour un livre, seuls `title`, `publicationDate` et `cover` sont obligatoires. Le rendu s’adapte aux champs renseignés ; la démo inclut un livre minimal et un livre complet (voir [la gestion des contenus](docs/CONTENUS.md)).
+Le déploiement habituel utilise le dépôt GitHub connecté à Cloudflare Pages, avec `npm run build` et le dossier `dist`. Voir le [guide de déploiement](docs/DEPLOIEMENT.md).
 
-Le catalogue affiche tous les romans publiés, du plus récent au plus ancien, avec ou sans JavaScript. Les filtres et la recherche textuelle sont des évolutions possibles ; les champs genre, série et date de publication sont conservés dans les contenus pour permettre leur ajout ultérieur.
+- [Édition des pages, livres, articles et images](docs/CONTENUS.md)
+- [Écrire en Markdown et comprendre le YAML](docs/MARKDOWN.md)
+- [Informations légales et crédits](docs/INFORMATIONS-LEGALES.md)
+- [Architecture simplifiée](docs/ARCHITECTURE.md)
+- [Tests et vérifications](docs/VERIFICATION.md)
+- [Crédits des illustrations et polices](docs/ILLUSTRATIONS.md)
 
-Le logo de l’auteur (`public/images/logo.png`) est utilisé dans l’en-tête, le pied de page, l’accueil et comme favicon.
-
-Les intégrations newsletter, bibliothèque et achat ne sont pas implémentées dans cette version.
+Le contact prépare un e-mail dans la messagerie du lecteur. Les contenus marqués comme démonstrations sont masqués hors mode démo. Le site actuel ne gère ni commande, ni paiement, ni compte lecteur, ni newsletter.

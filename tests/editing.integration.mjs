@@ -1,202 +1,151 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { cp, mkdtemp, readFile, readdir, rm, symlink } from 'node:fs/promises';
+import { join, resolve, extname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { parse, stringify } from 'yaml';
 import { load } from 'cheerio';
+import sharp from 'sharp';
 import { readPageContent } from '../scripts/lib/page-content.mjs';
+import { readSettings, writeYaml, writeMarkdown } from './helpers/content.mjs';
 
-// Work in a disposable copy: no source edit, secret or build artifact in the checkout is touched.
-test('editing Markdown/YAML changes rendered pages and invalid content fails the build', { timeout: 180000 }, async () => {
+test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses contenus', { timeout: 120000 }, async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'temprina-editing-'));
-  const build = () => spawnSync(process.execPath, [resolve('node_modules/astro/bin/astro.mjs'), 'build'], {
-    cwd: fixture, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024,
-    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1', PUBLIC_DEMO_MODE: 'true' },
-  });
-  const save = (id, page) => writeFile(join(fixture, 'src/content/pages', `${id}.md`), `---\n${stringify(page.data)}---\n${page.body}\n`);
-  const html = async path => load(await readFile(join(fixture, 'dist', path), 'utf8'));
+  const file = path => join(fixture, path);
+  const html = async path => load(await readFile(file(`dist/${path}`), 'utf8'));
+  const build = (success = true) => {
+    const result = spawnSync(process.execPath, [resolve('node_modules/astro/bin/astro.mjs'), 'build'], {
+      cwd: fixture, encoding: 'utf8', timeout: 45000, maxBuffer: 4 * 1024 * 1024,
+      env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1', PUBLIC_DEMO_MODE: 'true' },
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.signal, null);
+    if (success) assert.equal(result.status, 0, result.stdout + result.stderr);
+    else assert.notEqual(result.status, 0, 'Un contenu obligatoire invalide doit arrêter le build.');
+    return result.stdout + result.stderr;
+  };
   try {
-    for (const name of ['src', 'public', 'package.json', 'astro.config.mjs', 'tsconfig.json']) await cp(name, join(fixture, name), { recursive: true });
-    await symlink(resolve('node_modules'), join(fixture, 'node_modules'), 'dir');
-    const settingsPath = join(fixture, 'src/content/settings/site.yaml');
-    const settings = parse(await readFile(settingsPath, 'utf8'));
-    settings.footerTagline = '  Des histoires & des <em>passages</em> : à partager.  ';
-    settings.footerMessage = '  D’autres <em>mots</em> & récits.\nUne nouvelle ligne.  ';
-    settings.headerSubtitle = 'UN AUTRE UNIVERS';
+    for (const path of ['src', 'public', 'package.json', 'astro.config.mjs', 'tsconfig.json']) await cp(path, file(path), { recursive: true });
+    await symlink(resolve('node_modules'), file('node_modules'), 'dir');
+    const settings = await readSettings();
+    const logoSource = settings.images.logo.src;
+    const socialSource = settings.images.social;
+    await sharp({ create: { width: 20, height: 30, channels: 3, background: '#123456' } }).png().toFile(file('src/assets/test-image.png'));
     settings.identity.authorName = 'Autrice <Plume> & {date} $&';
     settings.identity.contactEmail = 'plume@example.org';
+    settings.footerTagline = 'Des histoires <em>à partager</em>.';
+    settings.footerMessage = 'Des mots & des récits.\nUne deuxième ligne.';
+    settings.headerSubtitle = 'UN AUTRE UNIVERS';
     settings.navigation.author = 'Mon parcours';
     settings.books.contact.heading = 'Envie de lire ?';
     settings.books.coverAlt = 'Illustration de {title}';
-    settings.share.copied = 'Adresse copiée <sans balises>.';
-    settings.blog.readingLabel = 'À lire en {minutes} minutes';
-    settings.images.logo.src = '/images/autre-logo.png';
-    settings.images.social = '/images/autre-partage.jpg';
-    await cp(join(fixture, 'public/images/logo.png'), join(fixture, 'public/images/autre-logo.png'));
-    await cp(join(fixture, 'public/images/social.jpg'), join(fixture, 'public/images/autre-partage.jpg'));
-    await writeFile(settingsPath, stringify(settings));
-    const home = await readPageContent(join(fixture, 'src/content/pages/index.md'));
-    home.data.title = 'Un accueil modifié';
-    home.data.description = 'Une nouvelle description à partager.';
-    home.data.hero.heading = { lines: ['Une histoire & un espoir'], accent: '<lumière>' };
-    home.data.hero.primaryLabel = 'Parcourir mes livres';
-    home.body = 'Un extrait **personnalisé** depuis Markdown.';
-    await save('index', home);
-    const author = await readPageContent(join(fixture, 'src/content/pages/auteur.md'));
-    author.data.biography = ['Une biographie modifiée.'];
-    // A local test image stands in for the owner's future portrait; never published.
-    author.data.portrait.image = '../../assets/foret-enchantee.png';
-    author.data.portrait.alt = 'Un portrait de test';
-    author.data.portrait.caption = 'Une légende <em>personnelle</em>.\nCrédit photo & lumière.';
-    author.data.portrait.position = 'top';
-    author.body = '## Un autre regard\n\nUne présentation **modifiée**.';
-    await save('auteur', author);
-    const contact = await readPageContent(join(fixture, 'src/content/pages/contact.md'));
-    contact.data.form.selectedBook = 'Votre lecture : {book}';
-    await save('contact', contact);
-    const legalPath = join(fixture, 'src/content/legal/site.yaml');
-    const legal = parse(await readFile(legalPath, 'utf8'));
-    legal.publisher.name = 'Éditrice <fiction> & plume';
-    legal.publisher.email = 'editor@example.org';
-    legal.developer = { name: 'Studio <création> & associés', role: 'Développement du site', url: 'https://example.org/studio/', showInFooter: true };
-    await writeFile(legalPath, stringify(legal));
-    const mentions = await readPageContent(join(fixture, 'src/content/pages/mentions-legales.md'));
-    mentions.body = '## Crédits personnalisés\n\nUn texte **légal modifié**.';
-    await save('mentions-legales', mentions);
-    const privacy = await readPageContent(join(fixture, 'src/content/pages/confidentialite.md'));
-    privacy.body = '## Une politique personnalisée\n\nUn texte **confidentiel modifié**.';
-    await save('confidentialite', privacy);
-    const bookPath = join(fixture, 'src/content/books/les-prisonniers-du-tram.md');
-    const book = await readPageContent(bookPath);
-    const saveBook = () => writeFile(bookPath, `---\n${stringify(book.data)}---\n${book.body}\n`);
-    book.data.featured = true;
-    book.data.publicationDate = '2099-01-01';
-    book.data.subtitle = 'Un sous-titre conservé';
-    book.data.followedBy = {
-      title: '  Une menace <em>nouvelle</em> & lumière  ',
-      description: '  Une accroche <script>littérale</script>.  ',
-      summary: '  Premier paragraphe <strong>littéral</strong>.\n\nDeuxième paragraphe & conclusion.  ',
+    settings.share.copied = 'Adresse copiée.';
+    settings.images.logo.src = `/images/autre-logo${extname(logoSource)}`;
+    settings.images.social = `/images/autre-partage${extname(socialSource)}`;
+    settings.legal.publisher.name = 'Éditrice <fiction>';
+    settings.legal.publisher.email = 'editor@example.org';
+    settings.legal.developer = { name: 'Studio <création>', role: 'Développement', url: 'https://example.org/studio/', showInFooter: true };
+    await cp(file(`public${logoSource}`), file(`public${settings.images.logo.src}`));
+    await cp(file(`public${socialSource}`), file(`public${settings.images.social}`));
+    const settingsPath = file('src/content/site.yaml');
+    await writeYaml(settingsPath, settings);
+
+    const edited = new Map();
+    for (const name of await readdir(file('src/content/pages'))) {
+      const path = file(`src/content/pages/${name}`);
+      const page = await readPageContent(path);
+      const id = name.slice(0, -3);
+      page.data.title = `Titre modifié : ${id}`;
+      page.body = `## Présentation ${id}\n\nDu **gras**, de l’*italique* et un [lien](/catalogue/).\n\n- Une idée\n- Une autre\n\n> Une citation.`;
+      if (id === 'index') {
+        page.data.hero.heading = { lines: ['Une histoire & un espoir'], accent: '<lumière>' };
+        page.data.hero.primaryLabel = 'Parcourir mes livres';
+      }
+      if (id === 'auteur') {
+        page.data.biography = ['Une biographie personnelle.'];
+        page.data.portrait.image = '../../assets/test-image.png';
+        page.data.portrait.caption = 'Une légende <em>personnelle</em>.';
+      }
+      await writeMarkdown(path, page);
+      edited.set(id, page);
+    }
+    const book = {
+      data: { title: 'Nouveau roman $& <lumière>', publicationDate: '2099-01-01', cover: '../../assets/test-image.png', featured: true,
+        followedBy: { title: 'Une suite <em>lumineuse</em>', summary: 'Un paragraphe.\n\nUn autre <strong>littéral</strong>.' } },
+      body: 'Le résumé **personnalisé**.',
     };
-    await saveBook();
-    const result = build();
-    assert.equal(result.status, 0, result.stdout + result.stderr);
-    const outputs = await readdir(join(fixture, 'dist'), { recursive: true });
-    for (const output of outputs.filter(path => path.endsWith('.html'))) {
-      const page = await html(output);
-      assert.equal(page('.site-footer .brand small').text(), settings.footerTagline.trim(), output);
-      assert.equal(page('.site-footer .brand small em').length, 0, 'Tagline must remain literal text');
-      assert.equal(page('.footer-message').text(), settings.footerMessage.trim(), output);
-      assert.equal(page('.footer-message em').length, 0, 'Footer message must remain literal text');
-      assert.equal(page('.site-header .brand small').text(), settings.headerSubtitle, output);
-      assert.equal(page('.site-header .brand img').attr('src'), settings.images.logo.src, output);
-      assert.equal(page('link[rel="icon"]').attr('href'), settings.images.logo.src, output);
-      assert.equal(page('nav a[href="/auteur/"]').text(), settings.navigation.author, output);
-      assert.equal(page('meta[property="og:site_name"]').attr('content'), settings.identity.authorName, output);
+    const bookPath = file('src/content/books/nouveau-roman.md');
+    const articlePath = file('src/content/blog/nouvel-article.md');
+    await writeMarkdown(bookPath, book);
+    await writeMarkdown(file('src/content/books/livre-a-retirer.md'), { data: { title: 'Livre à retirer', publicationDate: '2026-01-01', cover: '../../assets/test-image.png' }, body: '' });
+    await writeMarkdown(articlePath, { data: { title: 'Un nouvel article $& <texte>', description: 'Une introduction.', date: '2099-01-01', category: 'Lectures', readingMinutes: 2 }, body: 'Un texte **nouveau**.' });
+    build();
+
+    for (const [id, page] of edited) {
+      const $ = await html(id === 'index' ? 'index.html' : id === '404' ? '404.html' : `${id}/index.html`);
+      assert.ok($('title').text().startsWith(page.data.title + ' — '), id);
+      assert.ok($('main strong').toArray().some(el => $(el).text() === 'gras'), `Le corps Markdown doit apparaître sur ${id}`);
+      assert.ok($('main em').toArray().some(el => $(el).text() === 'italique'), id);
+      assert.equal($('main blockquote').length, 1, id);
+      assert.equal($('.site-footer .brand small').text(), settings.footerTagline, id);
+      assert.equal($('.site-footer .brand small em').length, 0, id);
+      assert.equal($('.footer-message').text(), settings.footerMessage, id);
+      assert.equal($('nav a[href="/auteur/"]').text(), settings.navigation.author, id);
+      assert.equal($('link[rel="icon"]').attr('href'), settings.images.logo.src, id);
+      assert.equal($('.developer-credit a').text(), settings.legal.developer.name, id);
+      assert.equal($('.developer-credit a').attr('href'), settings.legal.developer.url, id);
+      assert.equal($('meta[property="og:site_name"]').attr('content'), settings.identity.authorName, id);
     }
-    const $ = await html('index.html');
-    for (const output of ['index.html', 'catalogue/index.html']) {
-      const page = await html(output);
-      const card = page('[data-book]').filter((_, el) => page(el).find('h3').text() === book.data.title);
-      assert.equal(card.length, 1, output);
-      assert.equal(card.find('.book-followed-by span').text(), book.data.followedBy.title.trim());
-      assert.equal(card.find('.book-subtitle').text(), book.data.subtitle);
-      assert.equal(card.find('.book-followed-by span em').length, 0);
-      assert.ok(!card.text().includes('Deuxième paragraphe'));
-    }
-    const story = await html('livres/les-prisonniers-du-tram/index.html');
+    const home = await html('index.html');
+    assert.equal(home('h1 em').text(), '<lumière>');
+    assert.equal(home('h1 lumière').length, 0);
+    assert.equal(home('[data-book] h3').first().text(), book.data.title);
+    const author = await html('auteur/index.html');
+    assert.equal(author('.author-page .prose > p:not(.eyebrow)').text(), 'Une biographie personnelle.');
+    assert.equal(author('.author-portrait img').attr('width'), '240');
+    assert.match(author('.author-portrait img').attr('src'), /\.webp$/);
+    assert.equal(author('.author-portrait figcaption').text(), edited.get('auteur').data.portrait.caption);
+    const story = await html('livres/nouveau-roman/index.html');
+    assert.equal(story('.demo-label').length, 0, 'Un livre sans champ demo ne doit pas être présenté comme une démonstration.');
+    assert.equal(story('.book-info > .prose strong').text(), 'personnalisé');
+    assert.equal(story('.book-followed-by span').text(), book.data.followedBy.title);
+    assert.equal(story('.book-second-story strong, .book-second-story em').length, 0);
+    assert.equal(story('.book-second-story .prose p').length, 2);
     assert.equal(story('.purchase-note h2').text(), settings.books.contact.heading);
     assert.equal(story('.share-status').attr('data-copied'), settings.share.copied);
-    assert.equal(story('.byline').text(), `Un livre de ${settings.identity.authorName}`);
-    const minimal = await html('livres/la-derniere-braise/index.html');
-    assert.equal(minimal('.detail-cover img').attr('alt'), 'Illustration de La Dernière Braise');
-    assert.ok(minimal('meta[name="description"]').attr('content').includes(settings.identity.authorName), 'Replacement values with braces and dollars must stay literal');
-    assert.equal(story('.book-second-story h2').text(), book.data.followedBy.title.trim());
-    assert.equal(story('.book-second-story .book-description').text(), book.data.followedBy.description.trim());
-    assert.deepEqual(story('.book-second-story .prose p').toArray().map(el => story(el).text()), book.data.followedBy.summary.trim().split('\n\n'));
-    assert.equal(story('.book-second-story em, .book-second-story script, .book-second-story strong').length, 0);
-    assert.ok(story('meta[property="og:title"]').attr('content').includes(`suivi de ${book.data.followedBy.title.trim()}`));
-    const bookSchema = JSON.parse(story('script[type="application/ld+json"]').text());
-    assert.equal(bookSchema.hasPart.name, book.data.followedBy.title.trim());
-    assert.equal(bookSchema.hasPart.description, book.data.followedBy.description.trim());
-    assert.equal(bookSchema.hasPart.abstract, book.data.followedBy.summary.trim());
-    assert.ok($('title').text().startsWith('Un accueil modifié — '));
-    assert.equal($('meta[property="og:description"]').attr('content'), home.data.description);
-    assert.equal($('h1 em').text(), '<lumière>');
-    assert.equal($('h1 lumière').length, 0, 'YAML strings must be escaped, not injected as HTML');
-    assert.equal($('.hero .button').text().trim(), 'Parcourir mes livres');
-    assert.equal($('.author-band strong').text(), 'personnalisé');
-    const bio = await html('auteur/index.html');
-    assert.equal(bio('.author-page .prose > p:not(.eyebrow)').text(), 'Une biographie modifiée.');
-    assert.equal(bio('.author-presentation h2').text(), 'Un autre regard');
-    assert.equal(bio('.author-presentation strong').text(), 'modifiée');
-    assert.equal(bio('.author-portrait img').attr('alt'), author.data.portrait.alt);
-    assert.equal(bio('.author-portrait img').attr('width'), '240');
-    assert.equal(bio('.author-portrait img').attr('height'), '240');
-    assert.match(bio('.author-portrait img').attr('src'), /\.webp$/);
-    assert.equal(bio('.author-portrait figcaption').text(), author.data.portrait.caption);
-    assert.equal(bio('.author-portrait figcaption em, .author-portrait-placeholder').length, 0);
-    const article = await html('blog/quand-la-foret-devient-personnage/index.html');
-    assert.ok(article('.byline').text().includes('À lire en 3 minutes'));
-    assert.ok(article('meta[property="og:image"]').attr('content').endsWith(settings.images.social));
-    assert.ok(JSON.parse(article('script[type="application/ld+json"]').text()).image.endsWith(settings.images.social));
-    const email = await html('contact/index.html');
-    assert.equal(email('[data-selected-book]').attr('data-template'), 'Votre lecture : {book}');
-    assert.equal(email('[data-contact]').attr('data-email'), settings.identity.contactEmail);
-    const legalPage = await html('mentions-legales/index.html');
-    assert.ok(legalPage('.legal-facts').text().includes(legal.developer.name));
-    assert.equal(legalPage('.legal-facts création, .legal-facts fiction').length, 0);
-    assert.equal(legalPage('.prose strong').text(), 'légal modifié');
-    assert.equal(legalPage('.legal-updated time').attr('datetime'), legal.updatedOn);
-    const privacyPage = await html('confidentialite/index.html');
-    assert.ok(privacyPage('.legal-facts').text().includes(legal.publisher.name), 'Controller defaults to publisher');
-    assert.equal(privacyPage('.legal-facts a[href="mailto:editor@example.org"]').length, 1);
-    assert.equal(privacyPage('.prose strong').text(), 'confidentiel modifié');
-    for (const page of [$, legalPage, privacyPage, email, bio]) {
-      assert.equal(page('.developer-credit a').text(), legal.developer.name);
-      assert.equal(page('.developer-credit a').attr('href'), legal.developer.url);
-      assert.equal(page('.developer-credit création').length, 0);
-    }
-    delete home.data.hero.primaryLabel;
-    await save('index', home);
-    const invalid = build();
-    assert.notEqual(invalid.status, 0, 'Missing required editorial content must stop publication');
-    assert.equal(invalid.signal, null, 'The invalid build must exit normally with a validation failure');
-    assert.equal(invalid.error, undefined);
-    assert.match(invalid.stdout + invalid.stderr, /primaryLabel/);
-    home.data.hero.primaryLabel = 'Parcourir mes livres';
-    await save('index', home);
-    for (const invalidSettings of [{}, { footerTagline: '   ' }]) {
-      await writeFile(settingsPath, stringify(invalidSettings));
-      const invalidTagline = build();
-      assert.notEqual(invalidTagline.status, 0, 'Missing or blank tagline must fail the build');
-      assert.equal(invalidTagline.signal, null);
-      assert.equal(invalidTagline.error, undefined);
-      assert.match(invalidTagline.stdout + invalidTagline.stderr, /footerTagline/);
-    }
-    await writeFile(settingsPath, stringify(settings));
-    author.data.portrait.enabled = false;
-    await save('auteur', author);
-    book.data.followedBy = { title: '  Un second récit  ', description: '   ', summary: '   ' };
-    await saveBook();
-    const titleOnly = build();
-    assert.equal(titleOnly.status, 0, titleOnly.stdout + titleOnly.stderr);
-    assert.equal((await html('auteur/index.html'))('.author-portrait').length, 0, 'Disabled portrait must leave no empty frame');
-    const minimalStory = await html('livres/les-prisonniers-du-tram/index.html');
-    assert.equal(minimalStory('.book-followed-by span').text(), 'Un second récit');
-    assert.equal(minimalStory('.book-second-story').length, 0);
-    assert.deepEqual(JSON.parse(minimalStory('script[type="application/ld+json"]').text()).hasPart, { '@type': 'CreativeWork', name: 'Un second récit' });
-    for (const followedBy of [{}, { title: '   ' }, { title: 'Un récit', description: 'a'.repeat(301) }]) {
-      book.data.followedBy = followedBy;
-      await saveBook();
-      const invalidBook = build();
-      assert.notEqual(invalidBook.status, 0, 'A missing/blank title or overlong description must fail the build');
-      assert.equal(invalidBook.signal, null);
-      assert.equal(invalidBook.error, undefined);
-      assert.match(invalidBook.stdout + invalidBook.stderr, /followedBy/);
-    }
-  } finally {
-    await rm(fixture, { recursive: true, force: true });
-  }
+    assert.ok(story('meta[name="description"]').attr('content').includes(settings.identity.authorName));
+    assert.equal(JSON.parse(story('script[type="application/ld+json"]').text()).hasPart.abstract, book.data.followedBy.summary);
+    assert.equal((await html('contact/index.html'))('[data-contact]').attr('data-email'), settings.identity.contactEmail);
+    const article = await html('blog/nouvel-article/index.html');
+    assert.equal(article('.prose strong').text(), 'nouveau');
+    assert.equal(article('.notice').length, 0, 'Un article sans champ demo ne doit pas être présenté comme une démonstration.');
+    const blogLabels = edited.get('blog').data;
+    assert.equal((await html('blog/index.html'))('.journal-row').first().find('.round-link').attr('aria-label'), blogLabels.readLabel.replaceAll('{title}', () => 'Un nouvel article $& <texte>'));
+    assert.ok((await html('confidentialite/index.html'))('.legal-facts').text().includes(settings.legal.publisher.name));
+
+    // Une seconde compilation couvre le retrait, les brouillons et les options sans cadre vide.
+    const authorPage = edited.get('auteur');
+    authorPage.data.portrait.enabled = false;
+    await writeMarkdown(file('src/content/pages/auteur.md'), authorPage);
+    book.data.followedBy = { title: 'Seulement un titre', summary: ' ' };
+    await writeMarkdown(bookPath, book);
+    const draft = structuredClone(book);
+    draft.data.title = 'Brouillon invisible';
+    draft.data.draft = true;
+    await writeMarkdown(file('src/content/books/brouillon.md'), draft);
+    await rm(articlePath);
+    await rm(file('src/content/books/livre-a-retirer.md'));
+    build();
+    assert.equal((await html('auteur/index.html'))('.author-portrait').length, 0);
+    assert.equal((await html('livres/nouveau-roman/index.html'))('.book-second-story').length, 0);
+    const outputs = await readdir(file('dist'), { recursive: true });
+    for (const absent of ['livres/brouillon/index.html', 'blog/nouvel-article/index.html', 'livres/livre-a-retirer/index.html']) assert.ok(!outputs.includes(absent), absent);
+    const catalogue = await html('catalogue/index.html');
+    assert.ok(!catalogue('main').text().includes('Brouillon invisible'));
+    assert.equal(catalogue('[data-book] h3').first().text(), book.data.title);
+
+    delete edited.get('index').data.hero.primaryLabel;
+    await writeMarkdown(file('src/content/pages/index.md'), edited.get('index'));
+    assert.match(build(false), /primaryLabel/);
+  } finally { await rm(fixture, { recursive: true, force: true }); }
 });

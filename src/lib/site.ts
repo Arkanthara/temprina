@@ -1,13 +1,12 @@
 import { parse } from 'yaml';
-import settingsSource from '../content/settings/site.yaml?raw';
-import { settingsSchema } from './settings-schema.mjs';
+import settingsSource from '../content/site.yaml?raw';
+import { siteSchema, resolveIdentity } from './site-schema.mjs';
 
 // A direct dependency keeps these shared values fresh during Astro dev updates.
-export const settings = settingsSchema.parse(parse(settingsSource));
+export const settings = siteSchema.parse(parse(settingsSource));
 
 export const site = {
-  author: settings.identity.authorName || import.meta.env.PUBLIC_AUTHOR_NAME || settings.identity.authorFallback,
-  email: settings.identity.contactEmail || import.meta.env.PUBLIC_CONTACT_EMAIL || '',
+  ...resolveIdentity(settings, import.meta.env),
   demo: import.meta.env.PUBLIC_DEMO_MODE !== 'false',
   description: settings.identity.description,
 };

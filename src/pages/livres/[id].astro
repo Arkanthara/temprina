@@ -1,12 +1,13 @@
 ---
 import Icon from '../../components/Icon.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getBooks } from '../../lib/collections';
 import { Image, getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Share from '../../components/Share.astro';
 import BookFollowUp from '../../components/BookFollowUp.astro';
-import { isVisible, formatDate, site, settings, fillText } from '../../lib/site';
-export async function getStaticPaths() { return (await getCollection('books', isVisible)).map(book => ({ params: { id: book.id }, props: { book } })); }
+import { formatDate, site, settings, fillText } from '../../lib/site';
+export async function getStaticPaths() { return (await getBooks()).map(book => ({ params: { id: book.id }, props: { book } })); }
 const { book } = Astro.props;
 const { Content } = await render(book);
 const cover = await getImage({ src: book.data.cover, width: 600, format: 'jpg' });

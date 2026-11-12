@@ -1,17 +1,21 @@
 ---
-import { getCollection } from 'astro:content';
+import { render } from 'astro:content';
+import { getBooks } from '../lib/collections';
+import { fillText } from '../lib/site';
 import Layout from '../layouts/Layout.astro';
 import BookCard from '../components/BookCard.astro';
 import PageHeading from '../components/PageHeading.astro';
-import { isVisible } from '../lib/site';
 import { getPage } from '../lib/pages';
-const { data } = await getPage('catalogue', 'catalogue');
-const books = (await getCollection('books', isVisible)).sort((a,b) => b.data.publicationDate.valueOf()-a.data.publicationDate.valueOf());
+const page = await getPage('catalogue', 'catalogue');
+const { data } = page;
+const { Content } = await render(page);
+const books = await getBooks();
 ---
 <Layout title={data.title} description={data.description}>
   <PageHeading {...data} />
   <section class="container catalogue-section" aria-label={data.listLabel}>
-    <p class="result-count">{(books.length > 1 ? data.countPlural : data.countSingular).replaceAll('{count}', String(books.length))}</p>
+    {page.body?.trim() && <div class="prose"><Content /></div>}
+    <p class="result-count">{fillText(books.length > 1 ? data.countPlural : data.countSingular, { count: books.length })}</p>
     <div class="books-grid">{books.map(book => <BookCard book={book} />)}</div>
     {!books.length && <div class="empty-state"><h2>{data.emptyTitle}</h2><p>{data.empty}</p></div>}
   </section>

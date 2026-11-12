@@ -2,20 +2,18 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { parse } from 'yaml';
-import { legalSchema, missingLegalFields } from '../src/lib/legal-schema.mjs';
-import { settingsSchema } from '../src/lib/settings-schema.mjs';
+import { siteSchema, missingLegalFields, resolveIdentity } from '../src/lib/site-schema.mjs';
 import { readPageContent } from './lib/page-content.mjs';
 
-export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages', legalPath = 'src/content/legal/site.yaml', settingsPath = 'src/content/settings/site.yaml' } = {}) {
+export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages', settingsPath = 'src/content/site.yaml' } = {}) {
   const issues = [];
-  let identity = {};
+  let settings;
   try {
-    const result = settingsSchema.safeParse(parse(await readFile(settingsPath, 'utf8')));
-    if (result.success) identity = result.data.identity;
+    const result = siteSchema.safeParse(parse(await readFile(settingsPath, 'utf8')));
+    if (result.success) settings = result.data;
     else issues.push(`Corriger ${settingsPath} : ${result.error.issues.map(issue => `${issue.path.join('.')} : ${issue.message}`).join('; ')}.`);
   } catch { issues.push(`Le fichier ${settingsPath} est manquant ou illisible.`); }
-  const authorName = identity.authorName || env.PUBLIC_AUTHOR_NAME;
-  const contactEmail = identity.contactEmail || env.PUBLIC_CONTACT_EMAIL;
+  const { author: authorName, email: contactEmail } = resolveIdentity(settings || { identity: {} }, env);
   try {
     const url = new URL(env.PUBLIC_SITE_URL || '');
     if (url.protocol !== 'https:' || /(^|\.)(example\.(com|org|net)|localhost)$/.test(url.hostname) || url.pathname !== '/' || url.search || url.hash || url.username || url.password) issues.push('PUBLIC_SITE_URL doit être une origine HTTPS réelle, sans chemin ni identifiants.');
@@ -42,16 +40,9 @@ export async function validateProduction({ env = process.env, contentRoot = 'src
       issues.push(`Le contenu src/content/pages/${id}.md est manquant ou illisible.`);
     }
   }
-  try {
-    const result = legalSchema.safeParse(parse(await readFile(legalPath, 'utf8')));
-    if (!result.success) {
-      issues.push(`Corriger ${legalPath} : ${result.error.issues.map(issue => `${issue.path.join('.')} : ${issue.message}`).join('; ')}`);
-    } else {
-      const missing = missingLegalFields(result.data, contactEmail);
-      if (missing.length) issues.push(`Compléter ${legalPath} : ${missing.join(', ')}.`);
-    }
-  } catch {
-    issues.push(`Le fichier ${legalPath} est manquant ou illisible.`);
+  if (settings) {
+    const missing = missingLegalFields(settings.legal, contactEmail);
+    if (missing.length) issues.push(`Compléter ${settingsPath}, rubrique legal : ${missing.join(', ')}.`);
   }
   return issues;
 }

@@ -9,8 +9,7 @@ import '@fontsource/manrope/latin-600.css';
 import '../styles/global.css';
 import Logo from '../components/Logo.astro';
 import { site, settings, fillText } from '../lib/site';
-import { getLegalInformation } from '../lib/legal';
-const { developer } = await getLegalInformation();
+const { developer } = settings.legal;
 const { footerTagline, navigation, images } = settings;
 interface Props { title: string; description?: string; image?: string; type?: 'website' | 'article' | 'book'; schema?: Record<string, unknown>; noindex?: boolean }
 const { title, description = site.description, image = images.social, type = 'website', schema, noindex = false } = Astro.props;

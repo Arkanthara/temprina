@@ -6,7 +6,6 @@ import Layout from '../layouts/Layout.astro';
 import BookCard from '../components/BookCard.astro';
 import Logo from '../components/Logo.astro';
 import EditorialHeading from '../components/EditorialHeading.astro';
-import forest from '../assets/foret-enchantee.png';
 import { isVisible, formatDate } from '../lib/site';
 import { getPage } from '../lib/pages';
 const page = await getPage('index', 'home');
@@ -17,7 +16,7 @@ const posts = (await getCollection('blog', isVisible)).sort((a,b) => b.data.date
 ---
 <Layout title={page.data.title} description={page.data.description}>
   <section class="hero" aria-labelledby="hero-title">
-    <Image src={forest} alt="" widths={[640, 1024, 1536]} sizes="100vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" class="hero-image" />
+    <Image src={hero.image} alt="" widths={[640, 1024, 1536]} sizes="100vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" class="hero-image" />
     <div class="hero-content">
       <p class="eyebrow"><span class="rule"></span> {hero.eyebrow}</p>
       <h1 id="hero-title"><EditorialHeading {...hero.heading} /></h1>

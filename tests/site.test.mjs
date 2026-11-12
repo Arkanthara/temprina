@@ -14,13 +14,16 @@ const files = await walk(root);
 const htmlFiles = files.filter(file => file.endsWith('.html'));
 const exists = async path => { try { return (await stat(path)).isFile(); } catch { return false; } };
 
-test('every page displays the configured footer tagline below the author name', async () => {
-  const { footerTagline } = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+test('every page displays the configured footer phrases and navigation', async () => {
+  const { footerTagline, footerMessage, navigation, headerSubtitle } = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
   for (const file of htmlFiles) {
     const $ = load(await readFile(file, 'utf8'));
     const tagline = $('.site-footer .brand > span > small');
     assert.equal(tagline.length, 1, file);
     assert.equal(tagline.text(), footerTagline.trim(), file);
+    assert.equal($('.footer-message').text(), footerMessage.trim(), file);
+    assert.equal($('.site-header .brand small').text(), headerSubtitle, file);
+    assert.equal($('nav a[href="/auteur/"]').text(), navigation.author, file);
     const author = tagline.parent().clone();
     author.find('small').remove();
     assert.equal(author.text(), $('meta[property="og:site_name"]').attr('content'), file);
@@ -245,6 +248,14 @@ test('author biography uses its editorial data and both presentation areas are r
   assert.deepEqual($('.author-page .prose > p:not(.eyebrow)').toArray().map(el => $(el).text()), source.data.biography);
   assert.ok(source.body.trim());
   assert.ok($('.author-presentation').text().trim());
+  assert.equal($('.author-portrait').length, source.data.portrait.enabled ? 1 : 0);
+  if (source.data.portrait.enabled) {
+    assert.equal($('.author-portrait figcaption').text(), source.data.portrait.caption);
+    if (!source.data.portrait.image) {
+      assert.equal($('.author-portrait img').length, 0, 'An empty portrait must never produce a broken image');
+      assert.equal($('.author-portrait-placeholder span').text(), source.data.portrait.placeholder);
+    }
+  }
   assert.doesNotMatch($('main').text(), /Une rencontre à venir|Texte de démonstration|biographie.*ajoutés/);
   const home = load(await readFile(join(root, 'index.html'), 'utf8'));
   const { body } = await readPageContent('src/content/pages/index.md');

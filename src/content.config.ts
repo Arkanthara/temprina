@@ -4,6 +4,7 @@ import { glob, file } from 'astro/loaders';
 import { parse } from 'yaml';
 import { pageSchema } from './lib/page-schema';
 import { legalSchema } from './lib/legal-schema.mjs';
+import { settingsSchema } from './lib/settings-schema.mjs';
 
 const books = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './src/content/books' }),
@@ -54,6 +55,6 @@ const legal = defineCollection({
 });
 const settings = defineCollection({
   loader: file('./src/content/settings/site.yaml', { parser: source => ({ site: parse(source) }) }),
-  schema: z.object({ footerTagline: z.string().trim().min(1) }),
+  schema: settingsSchema,
 });
 export const collections = { books, blog, pages, legal, settings };

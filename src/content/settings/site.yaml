@@ -1,2 +1,85 @@
-# Phrase affichée sous le nom de l’auteur dans le pied de page de toutes les pages.
+# Textes communs à toutes les pages. Guide : docs/CONTENUS.md
+# Laisser authorName/contactEmail vides pour conserver les variables PUBLIC_* existantes.
+identity:
+  authorName: ""
+  authorFallback: "Nom de l’auteur à venir"
+  contactEmail: ""
+  description: "Des romans lumineux, des amitiés généreuses et des histoires pour retrouver espoir et courage. Découvrez l’univers de l’autrice."
+  jobTitle: "Auteur de romans"
+
+# Fichiers à déposer dans public/images/. Le logo sert aussi de favicon.
+images:
+  logo:
+    src: /images/logo.png
+    width: 1254
+    height: 1254
+    type: image/png
+  social: /images/social.jpg
+
+headerSubtitle: "ROMANS & IMAGINAIRES"
 footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
+# |− conserve les retours à la ligne, sans ajouter de ligne vide à la fin.
+footerMessage: |-
+  Pour celles et ceux qui croient
+  encore à la magie des histoires.
+footerCredit: "Imaginé entre les pages"
+
+navigation:
+  home: "Accueil"
+  catalogue: "Les romans"
+  author: "L’auteur"
+  blog: "Au coin du feu"
+  contact: "Écrivons-nous"
+  legal: "Mentions légales"
+  privacy: "Confidentialité"
+  menu: "Menu"
+  label: "Navigation principale"
+  homeAccessibleLabel: "{author} — Accueil"
+skipContent: "Aller au contenu"
+demo:
+  heading: "Un univers en préparation"
+  description: "Site de démonstration · Certains livres et articles sont fictifs"
+
+# Conserver les variables entre accolades : elles sont remplacées automatiquement.
+books:
+  backLabel: "Tous les romans"
+  openLabel: "Ouvrir le livre"
+  discoverLabel: "Découvrir {title}"
+  coverAlt: "Couverture de {title}"
+  volumeLabel: "Tome {volume}"
+  followedBy: "suivi de"
+  novelByline: "Un roman de {author}"
+  collectionByline: "Un livre de {author}"
+  novelDescription: "Découvrez {title}, un roman de {author}, publié le {date}."
+  collectionDescription: "Découvrez {title}, un livre de {author}, publié le {date}."
+  demoLabel: "Roman de démonstration"
+  demoCover: "Couverture et roman de démonstration"
+  demoPurchase: "Exemple fictif · Ce livre n’est pas disponible à l’achat."
+  facts:
+    publication: "Publication"
+    genre: "Genre"
+    series: "Série"
+    volume: "Tome"
+  contact:
+    heading: "Cette histoire vous appelle ?"
+    description: "Contactez directement l’auteur pour connaître les disponibilités et vous procurer ce livre."
+    linkLabel: "Contacter l’auteur pour ce livre"
+
+blog:
+  backLabel: "Au coin du feu"
+  readingLabel: "{minutes} min de lecture"
+  readingShortLabel: "{minutes} min"
+  demoNotice: "Article de démonstration : ce texte illustre le futur carnet de lecture et n’est pas attribué à l’auteur."
+
+share:
+  heading: "Une histoire à partager"
+  shareLabel: "Partager"
+  copyLabel: "Copier le lien"
+  facebookLabel: "Facebook"
+  facebookAccessibleLabel: "Partager sur Facebook (nouvel onglet)"
+  emailLabel: "Par e-mail"
+  addressLabel: "Adresse de cette page"
+  urlLabel: "Lien de partage"
+  copied: "Le lien a été copié."
+  copyError: "Copiez l’adresse dans « Adresse de cette page » ci-dessous."
+  shareError: "Vous pouvez copier le lien ou le partager par e-mail."

@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
+import { settingsSchema } from '../src/lib/settings-schema.mjs';
 import { validateProduction } from '../scripts/validate-production.mjs';
 import { readPageContent } from '../scripts/lib/page-content.mjs';
 import { completeLegalInformation } from './fixtures/legal.mjs';
@@ -61,4 +62,46 @@ test('frontmatter reader preserves multiline text and rejects missing YAML heade
   assert.match(page.data.form.bookMessage, /Bonjour,\n\n/);
   assert.match(page.body, /^## Le début d’un échange/);
   await assert.rejects(() => readPageContent('README.md'), /En-tête YAML manquant/);
+});
+
+test('global editorial settings reject blank text, missing variables and invalid image paths', async () => {
+  const settings = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+  for (const [path, value] of [
+    ['footerMessage', '  '], ['footerTagline', undefined], ['books.coverAlt', 'Une couverture'],
+    ['blog.readingLabel', 'Durée de lecture'], ['identity.contactEmail', 'pas-un-email'],
+    ['images.logo.src', 'https://example.org/logo.png'], ['images.social', '/images/../ailleurs.jpg'],
+  ]) {
+    const invalid = structuredClone(settings);
+    const keys = path.split('.');
+    const field = keys.pop();
+    const parent = keys.reduce((object, key) => object[key], invalid);
+    parent[field] = value;
+    const result = settingsSchema.safeParse(invalid);
+    assert.equal(result.success, false, path);
+    assert.ok(result.error.issues.some(issue => issue.path.join('.') === path), path);
+  }
+});
+
+test('production validation uses the identity configured in content before environment fallbacks', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'temprina-identity-'));
+  try {
+    const settings = parse(await readFile('src/content/settings/site.yaml', 'utf8'));
+    settings.identity.authorName = 'Une autrice';
+    settings.identity.contactEmail = 'bonjour@temprina.ch';
+    const settingsPath = join(root, 'settings.yaml');
+    const legalPath = join(root, 'legal.yaml');
+    await writeFile(settingsPath, stringify(settings));
+    await writeFile(legalPath, stringify(completeLegalInformation()));
+    await writePage(root, 'auteur', { template: 'author', biography: ['Un parcours réel.'] });
+    for (const id of ['mentions-legales', 'confidentialite']) await writePage(root, id, { template: 'legal', approved: true });
+    const legacyEnv = { ...env, PUBLIC_AUTHOR_NAME: 'Nom à venir', PUBLIC_CONTACT_EMAIL: '' };
+    assert.deepEqual(await validateProduction({ env: legacyEnv, contentRoot: root, legalPath, settingsPath }), []);
+    settings.identity.authorName = '';
+    settings.identity.contactEmail = '';
+    await writeFile(settingsPath, stringify(settings));
+    assert.deepEqual(await validateProduction({ env, contentRoot: root, legalPath, settingsPath }), []);
+    const issues = await validateProduction({ env: legacyEnv, contentRoot: root, legalPath, settingsPath });
+    assert.ok(issues.some(issue => issue.includes('authorName')));
+    assert.ok(issues.some(issue => issue.includes('contactEmail')));
+  } finally { await rm(root, { recursive: true, force: true }); }
 });

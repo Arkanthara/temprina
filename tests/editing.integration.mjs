@@ -23,6 +23,19 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     const settingsPath = join(fixture, 'src/content/settings/site.yaml');
     const settings = parse(await readFile(settingsPath, 'utf8'));
     settings.footerTagline = '  Des histoires & des <em>passages</em> : à partager.  ';
+    settings.footerMessage = '  D’autres <em>mots</em> & récits.\nUne nouvelle ligne.  ';
+    settings.headerSubtitle = 'UN AUTRE UNIVERS';
+    settings.identity.authorName = 'Autrice <Plume> & {date} $&';
+    settings.identity.contactEmail = 'plume@example.org';
+    settings.navigation.author = 'Mon parcours';
+    settings.books.contact.heading = 'Envie de lire ?';
+    settings.books.coverAlt = 'Illustration de {title}';
+    settings.share.copied = 'Adresse copiée <sans balises>.';
+    settings.blog.readingLabel = 'À lire en {minutes} minutes';
+    settings.images.logo.src = '/images/autre-logo.png';
+    settings.images.social = '/images/autre-partage.jpg';
+    await cp(join(fixture, 'public/images/logo.png'), join(fixture, 'public/images/autre-logo.png'));
+    await cp(join(fixture, 'public/images/social.jpg'), join(fixture, 'public/images/autre-partage.jpg'));
     await writeFile(settingsPath, stringify(settings));
     const home = await readPageContent(join(fixture, 'src/content/pages/index.md'));
     home.data.title = 'Un accueil modifié';
@@ -33,6 +46,11 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     await save('index', home);
     const author = await readPageContent(join(fixture, 'src/content/pages/auteur.md'));
     author.data.biography = ['Une biographie modifiée.'];
+    // A local test image stands in for the owner's future portrait; never published.
+    author.data.portrait.image = '../../assets/foret-enchantee.png';
+    author.data.portrait.alt = 'Un portrait de test';
+    author.data.portrait.caption = 'Une légende <em>personnelle</em>.\nCrédit photo & lumière.';
+    author.data.portrait.position = 'top';
     author.body = '## Un autre regard\n\nUne présentation **modifiée**.';
     await save('auteur', author);
     const contact = await readPageContent(join(fixture, 'src/content/pages/contact.md'));
@@ -69,6 +87,13 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
       const page = await html(output);
       assert.equal(page('.site-footer .brand small').text(), settings.footerTagline.trim(), output);
       assert.equal(page('.site-footer .brand small em').length, 0, 'Tagline must remain literal text');
+      assert.equal(page('.footer-message').text(), settings.footerMessage.trim(), output);
+      assert.equal(page('.footer-message em').length, 0, 'Footer message must remain literal text');
+      assert.equal(page('.site-header .brand small').text(), settings.headerSubtitle, output);
+      assert.equal(page('.site-header .brand img').attr('src'), settings.images.logo.src, output);
+      assert.equal(page('link[rel="icon"]').attr('href'), settings.images.logo.src, output);
+      assert.equal(page('nav a[href="/auteur/"]').text(), settings.navigation.author, output);
+      assert.equal(page('meta[property="og:site_name"]').attr('content'), settings.identity.authorName, output);
     }
     const $ = await html('index.html');
     for (const output of ['index.html', 'catalogue/index.html']) {
@@ -81,6 +106,12 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
       assert.ok(!card.text().includes('Deuxième paragraphe'));
     }
     const story = await html('livres/les-prisonniers-du-tram/index.html');
+    assert.equal(story('.purchase-note h2').text(), settings.books.contact.heading);
+    assert.equal(story('.share-status').attr('data-copied'), settings.share.copied);
+    assert.equal(story('.byline').text(), `Un livre de ${settings.identity.authorName}`);
+    const minimal = await html('livres/la-derniere-braise/index.html');
+    assert.equal(minimal('.detail-cover img').attr('alt'), 'Illustration de La Dernière Braise');
+    assert.ok(minimal('meta[name="description"]').attr('content').includes(settings.identity.authorName), 'Replacement values with braces and dollars must stay literal');
     assert.equal(story('.book-second-story h2').text(), book.data.followedBy.title.trim());
     assert.equal(story('.book-second-story .book-description').text(), book.data.followedBy.description.trim());
     assert.deepEqual(story('.book-second-story .prose p').toArray().map(el => story(el).text()), book.data.followedBy.summary.trim().split('\n\n'));
@@ -100,8 +131,19 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
     assert.equal(bio('.author-page .prose > p:not(.eyebrow)').text(), 'Une biographie modifiée.');
     assert.equal(bio('.author-presentation h2').text(), 'Un autre regard');
     assert.equal(bio('.author-presentation strong').text(), 'modifiée');
+    assert.equal(bio('.author-portrait img').attr('alt'), author.data.portrait.alt);
+    assert.equal(bio('.author-portrait img').attr('width'), '240');
+    assert.equal(bio('.author-portrait img').attr('height'), '240');
+    assert.match(bio('.author-portrait img').attr('src'), /\.webp$/);
+    assert.equal(bio('.author-portrait figcaption').text(), author.data.portrait.caption);
+    assert.equal(bio('.author-portrait figcaption em, .author-portrait-placeholder').length, 0);
+    const article = await html('blog/quand-la-foret-devient-personnage/index.html');
+    assert.ok(article('.byline').text().includes('À lire en 3 minutes'));
+    assert.ok(article('meta[property="og:image"]').attr('content').endsWith(settings.images.social));
+    assert.ok(JSON.parse(article('script[type="application/ld+json"]').text()).image.endsWith(settings.images.social));
     const email = await html('contact/index.html');
     assert.equal(email('[data-selected-book]').attr('data-template'), 'Votre lecture : {book}');
+    assert.equal(email('[data-contact]').attr('data-email'), settings.identity.contactEmail);
     const legalPage = await html('mentions-legales/index.html');
     assert.ok(legalPage('.legal-facts').text().includes(legal.developer.name));
     assert.equal(legalPage('.legal-facts création, .legal-facts fiction').length, 0);
@@ -134,10 +176,13 @@ test('editing Markdown/YAML changes rendered pages and invalid content fails the
       assert.match(invalidTagline.stdout + invalidTagline.stderr, /footerTagline/);
     }
     await writeFile(settingsPath, stringify(settings));
+    author.data.portrait.enabled = false;
+    await save('auteur', author);
     book.data.followedBy = { title: '  Un second récit  ', description: '   ', summary: '   ' };
     await saveBook();
     const titleOnly = build();
     assert.equal(titleOnly.status, 0, titleOnly.stdout + titleOnly.stderr);
+    assert.equal((await html('auteur/index.html'))('.author-portrait').length, 0, 'Disabled portrait must leave no empty frame');
     const minimalStory = await html('livres/les-prisonniers-du-tram/index.html');
     assert.equal(minimalStory('.book-followed-by span').text(), 'Un second récit');
     assert.equal(minimalStory('.book-second-story').length, 0);

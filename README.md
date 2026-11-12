@@ -14,7 +14,9 @@ Le site est disponible à `http://localhost:4321`.
 
 Les textes des pages se modifient dans **`src/content/pages/*.md`**, sans modifier les gabarits Astro : titres, introductions, boutons, présentation, biographie, contact et pages légales. Voir [le guide d’édition](docs/CONTENUS.md#modifier-une-page-sans-toucher-au-code) pour modifier un fichier depuis GitHub ou en local. Les champs sont validés au build.
 
-La phrase « CHAQUE LIVRE EST UN PASSAGE. » sous le nom de l’auteur dans le pied de page se personnalise avec `footerTagline` dans **`src/content/settings/site.yaml`**. Voir [l’exemple d’édition](docs/CONTENUS.md#modifier-la-phrase-sous-le-nom-de-lauteur).
+Les textes communs de tout le site se personnalisent dans **`src/content/settings/site.yaml`** : `footerMessage` pour « Pour celles et ceux qui croient encore à la magie des histoires », `footerTagline` pour la phrase sous le nom, mais aussi navigation, nom, e-mail, logo, fiches livres et partage. Voir [le guide des réglages](docs/CONTENUS.md#configuration-globale).
+
+La petite photo de l’auteur et sa légende se configurent dans **`src/content/pages/auteur.md`**, bloc `portrait`. Ajouter la photo dans `src/assets/` et renseigner `portrait.image` ; un médaillon provisoire s’affiche en attendant. Voir [le guide du portrait](docs/CONTENUS.md#ajouter-la-petite-photo-et-sa-légende).
 
 Pages : accueil, catalogue de romans, fiches livres avec partage, auteur, blog « Au coin du feu », articles, contact, mentions légales, confidentialité et 404.
 

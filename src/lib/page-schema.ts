@@ -1,4 +1,5 @@
 import { z } from 'astro/zod';
+import type { SchemaContext } from 'astro:content';
 import { legalFieldNames } from './legal-schema.mjs';
 
 const text = z.string().trim().min(1);
@@ -9,17 +10,25 @@ const section = z.object({ eyebrow: text, heading, linkLabel: text });
 const withToken = (token: string) => text.refine(value => value.includes(token), `Le texte doit contenir ${token}.`);
 
 // Every template validates the fields it actually renders. A missing label fails the build.
-export const pageSchema = z.discriminatedUnion('template', [
+export const pageSchema = ({ image }: SchemaContext) => z.discriminatedUnion('template', [
   z.object({
     ...metadata, template: z.literal('home'),
-    hero: z.object({ eyebrow: text, heading, description: text, primaryLabel: text, secondaryLabel: text, caption: text, scrollLabel: text, scrollAccessibleLabel: text }),
+    hero: z.object({ image: image(), eyebrow: text, heading, description: text, primaryLabel: text, secondaryLabel: text, caption: text, scrollLabel: text, scrollAccessibleLabel: text }),
     books: section.extend({ empty: text }),
     author: section,
     journal: section.extend({ description: text, readLabel: text, demoLabel: text, empty: text }),
     contact: z.object({ heading: text, description: text, linkLabel: text }),
   }),
   z.object({
-    ...page, template: z.literal('author'), imageAlt: text, imageCaption: text,
+    ...page, template: z.literal('author'), image: image(), imageAlt: text, imageCaption: text,
+    portrait: z.object({
+      enabled: z.boolean(),
+      image: z.preprocess(value => typeof value === 'string' && !value.trim() ? undefined : value, image().optional()),
+      alt: text,
+      caption: z.string().trim(),
+      placeholder: text,
+      position: z.enum(['center', 'top', 'bottom']).default('center'),
+    }),
     biographyTitle: text, biography: z.array(text).min(1), linkLabel: text,
   }),
   z.object({

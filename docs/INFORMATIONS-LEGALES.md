@@ -54,7 +54,7 @@ Le développeur n’est pas automatiquement l’éditeur, le responsable de la p
 | Pays et transferts | Pays de traitement et garanties des transferts effectifs | `privacy.processingCountries`, `transferSafeguards` |
 | Cadre applicable | Règles applicables, justification des traitements et autorité compétente | `privacy.applicableLaw`, `processingBasis`, `authorityName`, `authorityUrl` |
 
-`privacy.controllerName` reprend `publisher.name` s’il est vide. `publisher.email` reprend `PUBLIC_CONTACT_EMAIL` s’il est vide. `privacy.contactEmail` reprend ensuite ce contact éditeur si aucune adresse dédiée n’est renseignée. Il n’y a pas de reprise automatique du pseudonyme d’auteur comme identité légale.
+`privacy.controllerName` reprend `publisher.name` s’il est vide. `publisher.email` reprend l’adresse publique (`identity.contactEmail` dans `src/content/settings/site.yaml`, ou `PUBLIC_CONTACT_EMAIL` en secours) s’il est vide. `privacy.contactEmail` reprend ensuite ce contact éditeur si aucune adresse dédiée n’est renseignée. Il n’y a pas de reprise automatique du pseudonyme d’auteur comme identité légale.
 
 Le pays de l’éditeur et le public visé doivent être confirmés avant de choisir le cadre applicable. Les références suisses ci-dessous sont utiles si la LPD suisse s’applique ; elles ne constituent pas une confirmation de la juridiction de ce site.
 

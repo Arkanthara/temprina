@@ -153,6 +153,12 @@ test('author editorial content remains available without JavaScript at 320 pixel
     await page.goto('http://127.0.0.1:4321/auteur/');
     await expect(page.locator('.author-page .prose > p:not(.eyebrow)').first()).toBeVisible();
     await expect(page.locator('.author-presentation p').last()).toBeVisible();
+    const portrait = page.locator('.author-portrait');
+    await expect(portrait).toBeVisible();
+    await expect(portrait.locator('figcaption')).toBeVisible();
+    const thumbnail = await portrait.locator('.author-portrait-photo, .author-portrait-placeholder').boundingBox();
+    expect(thumbnail?.width).toBeLessThanOrEqual(96);
+    expect(thumbnail?.height).toBeLessThanOrEqual(96);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.locator('.author-page a[href="/catalogue/"]').click();
     await expect(page).toHaveURL(/\/catalogue\/$/);

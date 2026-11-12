@@ -9,6 +9,20 @@
 @media(max-width:600px){.journal-symbol .icon{width:48px;height:60px}.contact-strip>.icon{width:32px;height:32px}}
 
 .editorial-lines{white-space:pre-line}
+.author-visuals{min-width:0}
+.author-illustration{margin:0}
+.author-illustration figcaption{font-size:10px;letter-spacing:.06em;color:var(--gold);margin-top:14px;overflow-wrap:anywhere}
+.author-portrait{display:flex;align-items:center;gap:22px;margin:28px 0 0;padding:22px;border:1px solid var(--line);background:linear-gradient(135deg,#24392c80,#14251e);box-shadow:0 12px 28px #06100c24}
+.author-portrait-photo,.author-portrait-placeholder{width:96px;height:96px;flex-shrink:0;border-radius:50%;border:1px solid #c7b07566;background:var(--surface)}
+.author-portrait-photo{object-fit:cover}
+.author-portrait-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);padding:8px;text-align:center}
+.author-portrait-placeholder svg{width:43px;height:43px;flex-shrink:0}
+.author-portrait-placeholder span{font-size:8px;line-height:1.4}
+.author-portrait figcaption{font-family:var(--serif);font-size:22px;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.footer-message{max-width:350px;overflow-wrap:anywhere}
+.site-header .brand,.footer-top .brand{min-width:0}
+.brand>span{overflow-wrap:anywhere}
+@media(max-width:600px){.author-portrait{padding:18px;gap:18px;margin-top:22px}.author-portrait-photo,.author-portrait-placeholder{width:80px;height:80px}.author-portrait figcaption{font-size:21px}}
 .author-presentation{max-width:830px;padding-bottom:90px;overflow-wrap:anywhere}
 .author-presentation h2:first-child{margin-top:0}
 @media(max-width:600px){.author-presentation{padding-bottom:55px}}

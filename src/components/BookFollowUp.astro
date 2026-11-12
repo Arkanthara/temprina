@@ -1,5 +1,6 @@
 ---
 interface Props { title: string }
+import { settings } from '../lib/site';
 const { title } = Astro.props;
 ---
-<p class="book-followed-by"><em>suivi de</em> <span>{title}</span></p>
+<p class="book-followed-by"><em>{settings.books.followedBy}</em> <span>{title}</span></p>

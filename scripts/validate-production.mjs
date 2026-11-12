@@ -3,16 +3,25 @@ import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { parse } from 'yaml';
 import { legalSchema, missingLegalFields } from '../src/lib/legal-schema.mjs';
+import { settingsSchema } from '../src/lib/settings-schema.mjs';
 import { readPageContent } from './lib/page-content.mjs';
 
-export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages', legalPath = 'src/content/legal/site.yaml' } = {}) {
+export async function validateProduction({ env = process.env, contentRoot = 'src/content/pages', legalPath = 'src/content/legal/site.yaml', settingsPath = 'src/content/settings/site.yaml' } = {}) {
   const issues = [];
+  let identity = {};
+  try {
+    const result = settingsSchema.safeParse(parse(await readFile(settingsPath, 'utf8')));
+    if (result.success) identity = result.data.identity;
+    else issues.push(`Corriger ${settingsPath} : ${result.error.issues.map(issue => `${issue.path.join('.')} : ${issue.message}`).join('; ')}.`);
+  } catch { issues.push(`Le fichier ${settingsPath} est manquant ou illisible.`); }
+  const authorName = identity.authorName || env.PUBLIC_AUTHOR_NAME;
+  const contactEmail = identity.contactEmail || env.PUBLIC_CONTACT_EMAIL;
   try {
     const url = new URL(env.PUBLIC_SITE_URL || '');
     if (url.protocol !== 'https:' || /(^|\.)(example\.(com|org|net)|localhost)$/.test(url.hostname) || url.pathname !== '/' || url.search || url.hash || url.username || url.password) issues.push('PUBLIC_SITE_URL doit être une origine HTTPS réelle, sans chemin ni identifiants.');
   } catch { issues.push('PUBLIC_SITE_URL doit être renseignée.'); }
-  if (!env.PUBLIC_AUTHOR_NAME || /à venir|démonstration/i.test(env.PUBLIC_AUTHOR_NAME)) issues.push('PUBLIC_AUTHOR_NAME doit être le nom définitif.');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.PUBLIC_CONTACT_EMAIL || '') || /@example\.(com|org|net)$/.test(env.PUBLIC_CONTACT_EMAIL || '')) issues.push('PUBLIC_CONTACT_EMAIL doit être une adresse réelle.');
+  if (!authorName || /à venir|démonstration/i.test(authorName)) issues.push('identity.authorName dans site.yaml ou PUBLIC_AUTHOR_NAME doit être le nom définitif.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail || '') || /@example\.(com|org|net)$/.test(contactEmail || '')) issues.push('identity.contactEmail dans site.yaml ou PUBLIC_CONTACT_EMAIL doit être une adresse réelle.');
   if (env.PUBLIC_DEMO_MODE !== 'false') issues.push('PUBLIC_DEMO_MODE doit valoir false.');
   if (env.PUBLIC_CONTENT_APPROVED !== 'true') issues.push('PUBLIC_CONTENT_APPROVED doit valoir true après validation des contenus et informations légales.');
   try {
@@ -38,7 +47,7 @@ export async function validateProduction({ env = process.env, contentRoot = 'src
     if (!result.success) {
       issues.push(`Corriger ${legalPath} : ${result.error.issues.map(issue => `${issue.path.join('.')} : ${issue.message}`).join('; ')}`);
     } else {
-      const missing = missingLegalFields(result.data, env.PUBLIC_CONTACT_EMAIL);
+      const missing = missingLegalFields(result.data, contactEmail);
       if (missing.length) issues.push(`Compléter ${legalPath} : ${missing.join(', ')}.`);
     }
   } catch {

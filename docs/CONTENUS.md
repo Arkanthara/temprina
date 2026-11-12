@@ -2,23 +2,49 @@
 
 ## Configuration globale
 
-Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PUBLIC_AUTHOR_NAME`, l’adresse dans `PUBLIC_CONTACT_EMAIL` et l’origine canonique dans `PUBLIC_SITE_URL`. Les variables `PUBLIC_*` deviennent publiques dans le site statique : elles ne doivent jamais contenir de secrets. Reconstruire après chaque changement.
+Les contenus se modifient dans **`src/content/`**, sans ouvrir les fichiers `.astro`. Ouvrir le fichier voulu sur GitHub, cliquer sur le crayon, modifier puis enregistrer sur la branche de travail. Avec la connexion GitHub → Cloudflare Pages configurée, la fusion dans `master` reconstruit et publie le site. En local, `npm run dev` affiche les changements pendant la rédaction.
 
-Le logo de l’auteur est fourni dans `public/images/logo.png`. Pour le changer, remplacer ce fichier en conservant une image carrée et transparente ; adapter les dimensions intrinsèques de `src/components/Logo.astro` si nécessaire. Ce composant est utilisé dans l’en-tête, le pied de page et l’accueil ; le même fichier sert de favicon.
+| Ce que vous souhaitez changer | Fichier |
+| --- | --- |
+| Phrase sur la magie des histoires, sous-titres, navigation et pied de page | `src/content/settings/site.yaml` |
+| Nom public, adresse de contact, logo et image de partage | `src/content/settings/site.yaml` |
+| Libellés des livres, articles, boutons de partage et messages de copie | `src/content/settings/site.yaml` |
+| Photo de l’auteur, légende, illustration et biographie | `src/content/pages/auteur.md` |
+| Titres, textes, boutons et image de l’accueil | `src/content/pages/index.md` |
+| Autres pages | `src/content/pages/`, voir le tableau ci-dessous |
+| Romans et couvertures | `src/content/books/` |
+| Articles | `src/content/blog/` |
+| Informations légales communes et développeur | `src/content/legal/site.yaml` |
+
+Dans `site.yaml`, remplir `identity.authorName` et `identity.contactEmail` pour modifier le nom et l’e-mail depuis les contenus. S’ils restent vides, les anciennes variables `PUBLIC_AUTHOR_NAME` et `PUBLIC_CONTACT_EMAIL` continuent à être utilisées. Les valeurs YAML renseignées sont prioritaires, y compris pour le formulaire de contact, les métadonnées et les vérifications de production. Ces informations sont publiques.
+
+L’origine canonique et les modes de publication restent des réglages techniques : `PUBLIC_SITE_URL`, `PUBLIC_DEMO_MODE` et `PUBLIC_CONTENT_APPROVED`. Copier `.env.example` en `.env` pour le développement. Ne jamais placer de secret dans les contenus ou dans les variables `PUBLIC_*`. Reconstruire après chaque changement pour mettre à jour le site publié.
+
+Le logo se choisit avec `images.logo.src` dans `site.yaml` : déposer le fichier dans `public/images/` et écrire `/images/mon-logo.png`. Renseigner ses dimensions réelles avec `width` et `height`, et son type (`image/png`, par exemple). Préférer un logo carré et transparent. Il sert dans l’en-tête, le pied de page, l’accueil et comme favicon. `images.social` choisit l’image des aperçus de partage (sauf les fiches livres, qui utilisent leur couverture).
+
+## Modifier la phrase sur la magie des histoires
+
+Ouvrir **`src/content/settings/site.yaml`**, chercher **`footerMessage`**, puis modifier les deux lignes indentées :
+
+```yaml
+footerMessage: |-
+  Pour celles et ceux qui croient
+  encore à la magie des histoires.
+```
+
+Vous pouvez écrire une autre phrase sur une ou plusieurs lignes. Conserver les deux espaces au début de chaque ligne : les retours à la ligne sont conservés à l’affichage. Le changement s’applique au **pied de page de toutes les pages**, y compris les livres, articles et la page 404.
 
 ## Modifier la phrase sous le nom de l’auteur
 
-Ouvrir **`src/content/settings/site.yaml`** dans un éditeur ou sur GitHub (icône crayon), puis remplacer uniquement le texte entre guillemets :
+Dans le même fichier, remplacer le texte entre guillemets :
 
 ```yaml
 footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
 ```
 
-Par exemple : `footerTagline: "Des histoires pour ouvrir d’autres mondes."`. Ce réglage remplace la phrase sous le nom de l’auteur dans le **pied de page de toutes les pages**, y compris les livres, les articles et la page 404. Le nom reste configuré avec `PUBLIC_AUTHOR_NAME` ; la mention « ROMANS & IMAGINAIRES » de l’en-tête reste dans le gabarit.
+`footerTagline` est la petite phrase sous le nom dans le pied de page ; `headerSubtitle` est celle de l’en-tête (« ROMANS & IMAGINAIRES ») ; `footerCredit` est la mention « Imaginé entre les pages ». Le bloc `navigation` contient les libellés des liens et du menu mobile. Les destinations des liens internes restent liées aux pages du site.
 
-Conserver le nom du champ `footerTagline` et une chaîne non vide : un champ absent, vide ou composé uniquement d’espaces fait échouer le build. Les espaces au début et à la fin sont retirés. Le contenu est du texte brut : HTML et Markdown ne sont pas interprétés. Garder les guillemets, notamment pour les caractères `: ` ou `#`, et privilégier une phrase courte.
-
-Enregistrer le fichier puis vérifier avec `npm run check`, `npm run build`, `npm test` et `npm run test:editing`. En local, `npm run dev` permet de relire le résultat. Avec la connexion GitHub → Cloudflare Pages configurée, la fusion dans `master` reconstruit et publie le site ; aucune nouvelle variable Cloudflare n’est nécessaire.
+Les blocs `books`, `blog`, `share` et `demo` contiennent les autres textes communs, y compris les messages affichés par JavaScript et les textes accessibles. Conserver les variables entre accolades (`{title}`, `{author}`, `{date}`, `{volume}`, `{minutes}`) : elles sont remplacées par les informations du contenu concerné. Les champs obligatoires ne peuvent pas être vides. Le contenu est du texte brut : HTML et Markdown ne sont pas interprétés. Garder les guillemets, notamment pour les caractères `: ` ou `#`.
 
 ## Modifier une page sans toucher au code
 
@@ -26,8 +52,8 @@ Les textes des pages sont dans **`src/content/pages/`**. Ils peuvent être modif
 
 | Page | Fichier à modifier | Contenu |
 | --- | --- | --- |
-| Accueil `/` | `src/content/pages/index.md` | Introduction, titres de sections, boutons, états vides et extrait de présentation |
-| Auteur `/auteur/` | `src/content/pages/auteur.md` | Biographie, légende de l’image et présentation intégrale |
+| Accueil `/` | `src/content/pages/index.md` | Image et introduction, titres de sections, boutons, états vides et extrait de présentation |
+| Auteur `/auteur/` | `src/content/pages/auteur.md` | Portrait, légende, illustration, biographie et présentation intégrale |
 | Catalogue | `src/content/pages/catalogue.md` | En-tête, compteur, libellés et état vide |
 | Blog | `src/content/pages/blog.md` | En-tête, libellés et état vide du carnet |
 | Contact | `src/content/pages/contact.md` | Présentation, coordonnées indisponibles, formulaire, messages et e-mail prérempli |
@@ -70,13 +96,36 @@ biography:
 
 La présentation intégrale suit dans le corps Markdown. La présentation et les deux paragraphes de biographie actuels viennent du document **Site Temprina.docx** : le texte a été conservé, avec un extrait repris sur l’accueil autour de « J’ai choisi la lumière ». Le document Word reste une source de référence ; le modifier ne met pas le site à jour automatiquement. Les contenus auteur restent visibles dans les deux modes, démonstration et production.
 
-Les champs de compteur du catalogue conservent **`{count}`**. Le lien de lecture du blog conserve **`{title}`**. Dans Contact, `selectedBook`, `bookSubject` et `bookMessage` conservent **`{book}`**, remplacé par le titre du livre sélectionné. Les labels accessibles et les textes sans JavaScript font partie des réglages. L’adresse e-mail se configure toujours avec `PUBLIC_CONTACT_EMAIL`, pas dans ce fichier.
+Les champs de compteur du catalogue conservent **`{count}`**. Le lien de lecture du blog conserve **`{title}`**. Dans Contact, `selectedBook`, `bookSubject` et `bookMessage` conservent **`{book}`**, remplacé par le titre du livre sélectionné. Les labels accessibles et les textes sans JavaScript font partie des réglages. L’adresse e-mail se configure dans `identity.contactEmail` de `src/content/settings/site.yaml`, ou avec `PUBLIC_CONTACT_EMAIL` si ce champ reste vide.
 
-Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. La structure de l’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro` ; la phrase du pied de page vient de `src/content/settings/site.yaml`. Les styles sont dans `src/styles/global.css`, les images dans `src/assets/`.
+Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. Les textes de l’en-tête, de la navigation, du pied de page, des fiches livres, des articles et du partage viennent de `src/content/settings/site.yaml`. Les gabarits conservent la structure et les interactions ; changer la mise en page ou les couleurs demande toujours de modifier le code ou `src/styles/global.css`. Les images éditoriales sont dans `src/assets/`, celles du logo et du partage dans `public/images/`.
 
 Les informations communes des deux pages légales (éditeur, développeur, hébergeur, conservation et destinataires) se modifient dans **`src/content/legal/site.yaml`**. Renseigner `developer.name`, son éventuel `url`, puis `showInFooter: true` pour afficher aussi les crédits sur toutes les pages. Les textes et libellés restent dans les deux fichiers Markdown ; les champs vides sont signalés au rendu. Voir [le guide des informations légales](INFORMATIONS-LEGALES.md) pour les exemples et les informations Cloudflare à réunir.
 
 Les deux pages légales restent préparatoires. Après relecture de leurs textes définitifs, retirer le champ `notice` et passer `approved: true` dans chacune. `npm run validate:production` vérifie aussi le schéma et les champs de complétude de `src/content/legal/site.yaml`, puis ces fichiers, la présence de la présentation et de la biographie ainsi que les variables de production. `PUBLIC_CONTENT_APPROVED=true` reste nécessaire. Ces indicateurs enregistrent une validation humaine ; ils ne constituent pas une validation juridique automatisée.
+
+## Ajouter la petite photo et sa légende
+
+1. Ajouter la vraie photo dans **`src/assets/`**, par exemple `portrait-auteur.jpg` (sur GitHub : *Add file → Upload files*). Préférer une photo d’au moins 480 × 480 pixels.
+2. Ouvrir **`src/content/pages/auteur.md`** et modifier le bloc `portrait` :
+
+```yaml
+portrait:
+  enabled: true
+  image: ../../assets/portrait-auteur.jpg
+  alt: "Portrait de Prénom Nom"
+  caption: |-
+    Prénom Nom
+    Autrice de romans · Photo : crédit du photographe
+  placeholder: "Portrait à venir"
+  position: center
+```
+
+Le portrait apparaît en petit dans un cadre sous l’illustration, avec une photo ronde et la légende à côté. Astro optimise la photo et prépare une image WebP de 240 × 240 pixels pour un affichage net sur les écrans haute résolution. `position: top` permet de recentrer le cadrage sur le haut du portrait ; `center` et `bottom` sont aussi possibles. Le cadre s’adapte au mobile et fonctionne sans JavaScript.
+
+Tant que `image: ""` reste vide, une silhouette décorative et le texte `placeholder` s’affichent, sans fausse photo ni image cassée. `enabled: false` masque l’encadré ; `caption: ""` retire seulement la légende. `alt` décrit la photo pour les lecteurs d’écran ; la légende peut inclure un crédit et plusieurs lignes. Le texte reste du texte brut, sans balises HTML.
+
+Le champ `image` à la racine d’`auteur.md` remplace la grande illustration ; `imageAlt` et `imageCaption` règlent sa description et sa légende. Dans `index.md`, `hero.image` choisit l’image de fond de l’accueil, décorative. Ces chemins sont relatifs au fichier Markdown, comme les couvertures des livres. Un fichier image inexistant empêche la compilation et doit être corrigé avant publication.
 
 ## Ajouter un roman
 

@@ -95,8 +95,8 @@ Pour un premier déploiement de la maquette actuelle :
 | `NODE_VERSION` | `24` |
 | `PUBLIC_SITE_URL` | `https://temprina.pages.dev`, à adapter au **Project name** choisi |
 | `PUBLIC_DEMO_MODE` | `true` |
-| `PUBLIC_AUTHOR_NAME` | Nom de l’auteur, s’il est prêt ; sinon omettre pour garder le texte actuel |
-| `PUBLIC_CONTACT_EMAIL` | Adresse publique de contact, si elle est prête ; sinon omettre |
+| `PUBLIC_AUTHOR_NAME` | Nom de secours si `identity.authorName` est vide dans `src/content/settings/site.yaml` |
+| `PUBLIC_CONTACT_EMAIL` | E-mail de secours si `identity.contactEmail` est vide dans `src/content/settings/site.yaml` |
 
 `NODE_VERSION=24` respecte la version requise par le projet. `PUBLIC_SITE_URL` sert aux liens canoniques et au sitemap ; cette variable ne réserve pas de domaine. Le mode démo conserve les romans et articles d’exemple et demande aux moteurs de recherche de ne pas indexer le site. L’URL reste publique.
 
@@ -142,7 +142,7 @@ if [ "$CF_PAGES_BRANCH" = "master" ]; then npm run validate:production; fi && np
 - Vérifier le domaine, la messagerie sur un appareil réel et les aperçus sociaux.
 - Exécuter la validation et les tests ; examiner la révision avant de la fusionner vers `master`.
 
-Pour vérifier localement le contact configuré : renseigner une adresse dans `.env`, construire avec `PUBLIC_DEMO_MODE=false`, puis lancer `PUBLIC_DEMO_MODE=false PUBLIC_CONTACT_EMAIL=adresse-configuree npx playwright test tests/browser/production.spec.ts`. Les tests complets de démonstration supposent, eux, `PUBLIC_DEMO_MODE=true` et une adresse vide.
+Le nom et l’adresse peuvent être renseignés directement dans `identity` de `src/content/settings/site.yaml` ; ces valeurs sont prioritaires sur les variables Cloudflare. Pour vérifier localement le contact configuré : renseigner une adresse dans ce fichier ou dans `.env`, construire avec `PUBLIC_DEMO_MODE=false`, puis lancer `PUBLIC_DEMO_MODE=false PUBLIC_CONTACT_EMAIL=adresse-configuree npx playwright test tests/browser/production.spec.ts`. Les tests complets de démonstration supposent, eux, `PUBLIC_DEMO_MODE=true` et une adresse vide.
 
 ## Retour arrière
 

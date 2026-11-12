@@ -1,5 +1,24 @@
 # Vérifications du site
 
+## Portrait et édition de tous les textes — 12 novembre 2026
+
+Vérifications sur Node.js 22.23.1, avec un build local en mode démonstration :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `npm run check` | Aucun diagnostic Astro/TypeScript |
+| `npm run build` | 23 pages générées |
+| `npm test` | 22 contrôles réussis : rendu des contenus, liens, images, métadonnées, validation des réglages et priorité de l’identité YAML sur les variables d’environnement |
+| `npm run test:editing` | Réussi dans une copie temporaire : phrases du pied de page, navigation, identité, e-mail, logo, image de partage, libellés des livres/articles, messages de copie et portrait local avec légende ; HTML conservé comme texte ; cadre masqué avec `enabled: false` ; refus des champs obligatoires invalides |
+| `npm run test:e2e` | 24 scénarios réussis sur ordinateur/mobile ; 2 scénarios de production ignorés dans le build de démonstration |
+| Audit navigateur | Aucune violation axe sur les 12 routes auditées, aucun débordement, lecture sans JavaScript à 320 px ; dimensions du petit portrait et visibilité de sa légende contrôlées |
+
+Le portrait réel n’a pas été fourni : le contenu livré garde `portrait.image: ""` et affiche un médaillon provisoire. Le test d’édition utilise une image existante uniquement dans sa copie temporaire pour contrôler le WebP 240 × 240, l’alternative et la légende. Le guide `CONTENUS.md` explique comment ajouter la vraie photo.
+
+L’article « Mon autobiographie de lectrice » bloquait la génération faute de durée de lecture : `readingMinutes: 9` a été renseigné, les balises italiques mal fermées ont été converties en Markdown et les sous-titres du menu de lecture ramenés au niveau 3 pour conserver un seul titre principal. Le texte de l’article est conservé.
+
+Le contrôle de publication respecte désormais l’identité définie dans les contenus. Les coordonnées, l’approbation légale, la messagerie réelle et un déploiement de production n’ont pas été validés pour cette évolution. Aucun push ni déploiement n’a été effectué. Les captures historiques ci-dessous restent datées de leurs vérifications respectives.
+
 ## Deux histoires dans un livre — 7 novembre 2026
 
 La fiche **Les Prisonniers du Tram** utilise désormais `followedBy` pour présenter **Menace Ombre et Lumière**, avec la mention « suivi de » sur les cartes et la fiche, et un résumé séparé. Vérifications réalisées sur Node.js 22.23.1 :

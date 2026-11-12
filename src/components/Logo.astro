@@ -1,5 +1,7 @@
 ---
 interface Props { class?: string }
+import { settings } from '../lib/site';
 const { class: className } = Astro.props;
+const { logo } = settings.images;
 ---
-<img class={className} src="/images/logo.png" width="1254" height="1254" alt="" aria-hidden="true" />
+<img class={className} src={logo.src} width={logo.width} height={logo.height} alt="" aria-hidden="true" />

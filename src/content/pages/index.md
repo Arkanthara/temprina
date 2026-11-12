@@ -3,6 +3,7 @@ template: home
 title: L'émerveillement est la porte de l'aventure.
 description: Toute chose ordinaire peut devenir extraordinaire. Il suffit de regarder avec de nouveaux yeux.
 hero:
+  image: ../../assets/foret-enchantee.png
   eyebrow: ROMANS & IMAGINAIRES
   heading:
     lines:

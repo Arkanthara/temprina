@@ -9,8 +9,19 @@ heading:
     - Tout ici-bas est ombre et lumière.
     - J’ai choisi
   accent: la lumière.
+image: ../../assets/foret-enchantee.png
 imageAlt: Une forêt imaginaire s’ouvre sur un passage lumineux.
 imageCaption: Un passage vers d’autres mondes
+# Ajouter la photo dans src/assets/, puis renseigner son chemin ci-dessous.
+# Laisser image vide affiche un médaillon discret en attendant la vraie photo.
+# enabled: false masque entièrement l’encadré. position: top pour un cadrage plus haut.
+portrait:
+  enabled: true
+  image: ""
+  alt: "Portrait de l’autrice"
+  caption: "Un visage derrière les mots."
+  placeholder: "Portrait à venir"
+  position: center
 biographyTitle: Écrire est ma deuxième langue maternelle.
 biography:
   - Écrire est ma deuxième langue maternelle. Depuis toute petite, je suis fascinée par

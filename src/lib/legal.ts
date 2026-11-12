@@ -1,12 +1,9 @@
-import { getEntry } from 'astro:content';
-import { site } from './site';
+import { site, settings } from './site';
 
 type Field = { value: string; href?: string };
 
-export async function getLegalInformation(siteUrl = '') {
-  const entry = await getEntry('legal', 'site');
-  if (!entry) throw new Error('Renseigner src/content/legal/site.yaml.');
-  const { data } = entry;
+export function getLegalInformation(siteUrl = '') {
+  const data = settings.legal;
   const publisherEmail = data.publisher.email || site.email;
   const privacyEmail = data.privacy.contactEmail || publisherEmail;
   const groups = {

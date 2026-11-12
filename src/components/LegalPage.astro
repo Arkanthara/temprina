@@ -8,7 +8,7 @@ interface Props { page: CollectionEntry<'pages'> }
 const { page } = Astro.props;
 if (page.data.template !== 'legal') throw new Error('Un modèle legal est requis.');
 const { data } = page;
-const legal = await getLegalInformation(Astro.site?.href);
+const legal = getLegalInformation(Astro.site?.href);
 const sections = data.informationSections
   .filter(section => !section.showWhen || legal.fields[section.showWhen]?.value)
   .map(section => ({ ...section, items: section.items.filter(item => !item.optional || legal.fields[item.field]?.value) }))

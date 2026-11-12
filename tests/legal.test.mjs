@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { stringify } from 'yaml';
-import { legalSchema, missingLegalFields } from '../src/lib/legal-schema.mjs';
+import { productionSettings, writeYaml } from './helpers/content.mjs';
+import { legalSchema, missingLegalFields } from '../src/lib/site-schema.mjs';
 import { validateProduction } from '../scripts/validate-production.mjs';
 import { completeLegalInformation } from './fixtures/legal.mjs';
 
@@ -39,22 +39,23 @@ test('completeness checks retain the email fallback and reject missing facts and
 
 test('approved legal pages do not bypass incomplete, invalid or missing common information', async () => {
   const root = await mkdtemp(join(tmpdir(), 'temprina-legal-'));
-  const legalPath = join(root, 'legal.yaml');
+  const settingsPath = join(root, 'site.yaml');
   const env = { PUBLIC_SITE_URL: 'https://temprina.ch', PUBLIC_AUTHOR_NAME: 'Éditrice de test', PUBLIC_CONTACT_EMAIL: 'contact@temprina.ch', PUBLIC_DEMO_MODE: 'false', PUBLIC_CONTENT_APPROVED: 'true' };
   try {
     await writeFile(join(root, 'auteur.md'), '---\ntemplate: author\nbiography: [Un parcours.]\n---\nPrésentation.');
     for (const id of ['mentions-legales', 'confidentialite']) await writeFile(join(root, `${id}.md`), '---\ntemplate: legal\napproved: true\n---\nTexte relu.');
-    const data = completeLegalInformation();
-    await writeFile(legalPath, stringify(data));
-    assert.deepEqual(await validateProduction({ env, contentRoot: root, legalPath }), []);
+    const settings = await productionSettings();
+    const data = settings.legal;
+    await writeYaml(settingsPath, settings);
+    assert.deepEqual(await validateProduction({ env, contentRoot: root, settingsPath }), []);
     data.privacy.hostingCookies = '';
-    await writeFile(legalPath, stringify(data));
-    assert.match((await validateProduction({ env, contentRoot: root, legalPath })).join('\n'), /privacy.hostingCookies/);
+    await writeYaml(settingsPath, settings);
+    assert.match((await validateProduction({ env, contentRoot: root, settingsPath })).join('\n'), /privacy.hostingCookies/);
     data.developer.name = 'Studio';
     data.developer.url = 'javascript:alert(1)';
-    await writeFile(legalPath, stringify(data));
-    assert.match((await validateProduction({ env, contentRoot: root, legalPath })).join('\n'), /developer.url/);
-    await rm(legalPath);
-    assert.match((await validateProduction({ env, contentRoot: root, legalPath })).join('\n'), /manquant ou illisible/);
+    await writeYaml(settingsPath, settings);
+    assert.match((await validateProduction({ env, contentRoot: root, settingsPath })).join('\n'), /developer.url/);
+    await rm(settingsPath);
+    assert.match((await validateProduction({ env, contentRoot: root, settingsPath })).join('\n'), /manquant ou illisible/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

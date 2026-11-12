@@ -1,53 +1,54 @@
-# Architecture
+# Architecture simplifiée
 
-Le site utilise Astro en génération statique et TypeScript strict. Chaque route produit du HTML dans `dist/`, compatible avec Cloudflare Pages. Aucun serveur applicatif, base de données, compte visiteur ou paiement dans cette version.
+## Principe
 
-- `src/content/pages/` : textes des huit pages éditoriales, en-têtes YAML et corps Markdown ; schéma par modèle dans `src/lib/page-schema.ts`, chargement typé avec `src/lib/pages.ts`.
-- `src/content/settings/site.yaml` : phrase `footerTagline` sous le nom de l’auteur dans le pied de page ; collection `settings`, chaîne obligatoire non vide validée dans `src/content.config.ts`, consommée par le layout commun sur toutes les routes.
-- `src/content/legal/site.yaml` : informations communes aux deux pages légales et crédit développeur facultatif ; collection `legal`, schéma partagé avec la validation de publication dans `src/lib/legal-schema.mjs`, résolution des contacts dans `src/lib/legal.ts`.
-- `src/content/books/` et `src/content/blog/` : fichiers Markdown, validés par les schémas de `src/content.config.ts`.
-- `src/pages/` : gabarits et routes consommant les contenus éditoriaux, fiches livres et articles générés avec `getStaticPaths()`.
-- `src/layouts/Layout.astro` : navigation, pied de page, métadonnées, canonical, JSON-LD.
-- `src/components/` : couvertures, logo, partage, titres éditoriaux et gabarit des pages légales réutilisables.
-- `src/styles/global.css` : palette forêt/or, typographie et adaptations mobiles.
-- `src/lib/site.ts` : configuration publique et règles de visibilité.
-- `src/assets/` : sources des images traitées par Astro ; `public/` : logo fourni (`images/logo.png`, également utilisé comme favicon), image sociale et en-têtes Cloudflare.
-- `scripts/lib/page-content.mjs` : lecture YAML/Markdown pour les contrôles de publication et les tests ; `scripts/validate-production.mjs` vérifie les contenus éditoriaux réels plutôt que les gabarits.
-- `tests/` : intégrité du build, liens, métadonnées, validation de publication, édition dans une copie temporaire et scénarios navigateur.
+Les contenus sont séparés de la présentation. Astro génère des fichiers HTML, CSS, JavaScript et images dans `dist/`. L’hébergement sert ces fichiers ; aucune base de données ni interface d’administration n’est nécessaire.
 
-JavaScript limité au menu mobile, au partage et à la préparation des e-mails. Les liens, articles et livres restent lisibles sans JavaScript. Le catalogue est généré en HTML statique et affiche tous les romans visibles par date de publication décroissante, sans filtres ni script dédié. Les paramètres d’URL ne modifient pas cette liste. Un état vide est affiché si aucun livre n’est publié. Le contact repose sur la messagerie du visiteur : aucun faux envoi, aucune collecte côté site. Sans adresse configurée, le formulaire n’est pas affiché.
+```text
+src/content/site.yaml       → réglages communs et informations légales
+src/content/pages/*.md      → textes des huit pages fixes
+src/content/books/*.md      → livres et résumés
+src/content/blog/*.md       → articles
+src/assets/                → images optimisées par Astro
+public/                    → fichiers copiés tels quels
+src/pages/                 → routes et gabarits
+src/components/            → éléments de présentation partagés
+src/layouts/Layout.astro   → document HTML, navigation, pied de page, métadonnées
+src/styles/global.css      → présentation et adaptations aux écrans
+src/lib/                   → validation et accès aux contenus
+```
 
-Illustrations et couvertures optimisées par Astro en WebP ; le logo fourni est servi directement depuis `public/images/logo.png`. Images avec dimensions explicites, chargement différé hors illustration principale. Polices Cormorant Garamond et Manrope auto-hébergées via Fontsource. Sitemap généré automatiquement. Un mode démonstration applique `noindex, nofollow` et `Disallow: /` ; il ne protège pas l’accès aux pages.
+## Où modifier le code
 
-## Contenus des pages
+| Besoin | Emplacement |
+| --- | --- |
+| Structure de l’accueil, du catalogue ou d’une page fixe | Fichier correspondant dans `src/pages/` |
+| Structure des fiches livres ou articles | `src/pages/livres/[id].astro`, `src/pages/blog/[id].astro` |
+| Cartes, partage, titres, seconde histoire, logo | `src/components/` |
+| Présentation des deux pages légales | `src/components/LegalPage.astro` |
+| Couleurs, tailles, espacements et responsive | `src/styles/global.css` |
+| Champs acceptés dans les pages, livres et articles | `src/lib/content-schema.ts` |
+| Configuration commune et données légales | `src/lib/site-schema.mjs` |
+| Ordre des livres/articles et sélection des contenus visibles | `src/lib/collections.ts`, avec `isVisible` dans `site.ts` |
+| Métadonnées communes, variables de texte, dates et mode démo | `src/lib/site.ts` |
+| Contrôle des informations avant publication | `scripts/validate-production.mjs` |
 
-La collection `pages` utilise une union discriminée par `template` : `home`, `author`, `catalogue`, `blog`, `contact`, `legal`, `error`. Les champs requis et les jetons `{count}`, `{title}`, `{book}` sont vérifiés au build. `getPage` vérifie aussi que chaque route reçoit le modèle attendu. Les chaînes YAML sont échappées au rendu ; le Markdown des fichiers du dépôt est rendu par Astro. Aucun éditeur public ni stockage navigateur n’est ajouté : l’édition est persistée dans les fichiers versionnés.
+## Flux des contenus
 
-La page auteur présente la biographie à côté de l’illustration existante, puis la présentation complète dans une colonne de lecture. Le texte est issu du document fourni ; l’accueil en reprend un extrait. Ces contenus restent visibles hors mode démo. Les livres et articles conservent leurs règles `demo`/`draft`. La bannière de démonstration précise que certains livres et articles sont fictifs.
+`src/content.config.ts` déclare seulement trois collections : `pages`, `books` et `blog`. Leurs schémas sont aussi utilisés par les tests. `getPage` vérifie que la page demandée utilise le bon gabarit. `getBooks` et `getPosts` appliquent une sélection commune aux listes et aux fiches, puis trient les contenus par date ; l’accueil peut privilégier les livres mis en avant.
 
-Les pages légales portent un indicateur `approved`, faux par défaut, et une notice facultative. Le contrôle de production exige `approved: true`, aucun avis provisoire et un corps non vide, en plus des variables publiques déjà requises. Il contrôle aussi une présentation et une biographie non vides. La validation de ces indicateurs reste humaine. Le contrôle vérifie aussi le schéma et la complétude de `src/content/legal/site.yaml`. Les liens de prestataires/développeur doivent utiliser HTTP(S). Le responsable reprend l’éditeur si non précisé, les contacts reprennent l’adresse publique configurée. Les pages affichent les faits avec des listes de définitions, une date de mise à jour et des champs à compléter. Le crédit développeur est masqué sans nom et peut être affiché sur toutes les pages via `developer.showInFooter`. Les titres et libellés des groupes restent éditables dans les fichiers Markdown.
+`site.ts` charge et valide directement l’unique fichier `src/content/site.yaml`. Les informations légales viennent de sa rubrique `legal` ; elles ne passent plus par des collections supplémentaires. `legal.ts` prépare les valeurs et liens affichés, avec les mêmes reprises de nom et d’e-mail qu’auparavant. Le contrôle de publication partage ce schéma et la règle de priorité de l’identité.
 
-Les titres SEO des livres incluent désormais leur sous-titre (ou le tome) lorsqu’il existe, afin de distinguer notamment les trois « Le Signe du Sang » sans changer leurs titres visibles ni leurs URL.
+Le corps Markdown s’affiche sur chacune des huit pages. Les chaînes YAML restent échappées comme du texte. Les variables de libellé sont remplacées en une passe, y compris si les valeurs contiennent des accolades ou des dollars.
 
-Un livre peut contenir une deuxième histoire avec le bloc facultatif `followedBy` : titre non vide obligatoire, accroche `description` (300 caractères maximum) et résumé `summary` facultatifs. `BookFollowUp.astro` partage la mention « suivi de » entre les cartes et la fiche. Le résumé principal reste le corps Markdown ; la deuxième histoire possède sa propre section lorsqu’un texte est renseigné. Ses champs YAML sont échappés comme texte brut, avec les paragraphes du résumé séparés par des lignes vides. Les titres SEO et de partage incluent la mention, et le JSON-LD du livre décrit l’histoire via `hasPart`. Une seule route et un seul contact sont conservés pour le volume.
+## Comportements conservés
 
-## Évolutions préparées, non développées
+Le site conserve les adresses des pages, les contenus, les visuels, les polices locales, les métadonnées et les données structurées. Il garde les livres minimaux/complets, séries, secondes histoires, brouillons, démonstrations, articles, portrait facultatif, partage et contact par messagerie. Lecture et navigation fonctionnent sans JavaScript. Le JavaScript sert au menu mobile, au formulaire de préparation d’e-mail et aux fonctions de copie/partage disponibles dans le navigateur.
 
-Les identifiants de livres correspondent aux noms de fichiers et doivent rester stables. Ils pourront être référencés par une bibliothèque d’exemplaires, des emprunts ou des commandes. Les champs bibliographiques facultatifs existent, mais aucun achat, inscription, compte, emprunt ou newsletter n’est implémenté.
+La simplification réunit les anciens fichiers `src/content/settings/site.yaml` et `src/content/legal/site.yaml` dans `src/content/site.yaml`, avec les données légales sous `legal`. Tous les champs existants sont conservés. Les styles sont remis en forme pour être lisibles ; leurs valeurs et l’ordre des règles sont conservés.
 
-Les filtres et la recherche textuelle sont reportés à une évolution éventuelle. Les champs facultatifs `genre` et `series` et la date obligatoire `publicationDate` des livres sont conservés pour permettre leur ajout sans migration des contenus. Les options de futurs filtres pourront être dérivées des livres visibles ; leur interface, leur logique et leurs tests seront ajoutés lorsque cette évolution sera demandée. Aucun formulaire ou script de filtrage désactivé ni index de recherche n’est conservé dans la version actuelle.
+## Ajouter une nouvelle fonctionnalité
 
-La suite devra définir séparément :
+Modifier le schéma seulement si de nouvelles données sont nécessaires, puis le gabarit qui les affiche. Ajouter un test du comportement réel et mettre à jour le guide d’édition. Pour une page fixe supplémentaire, créer son contenu et sa route ; un nouveau fichier dans `pages/` ne crée pas automatiquement une route.
 
-1. Newsletter : choix du prestataire, consentement, confirmation d’inscription et désinscription.
-2. Bibliothèque : exemplaires physiques, lecteurs, disponibilités, durée d’emprunt et authentification.
-3. Vente : formats, prix, stock, prestataire de paiement, commandes et obligations applicables.
-
-Ces fonctions pourront être ajoutées derrière des services dédiés ou des routes serveur Astro. Elles nécessiteront une décision sur l’adaptateur Cloudflare et le stockage. Les composants de présentation et les collections existantes pourront être conservés. Aucun adaptateur serveur ni schéma de base hypothétique n’est ajouté maintenant.
-
-## Références techniques
-
-- [Collections de contenu Astro](https://docs.astro.build/en/guides/content-collections/)
-- [Déploiement Cloudflare Pages depuis une CI](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)
-
-Le choix confirmé est **Astro avec design sur mesure**, et non le thème WordPress Astra.
+Les fonctions d’achat, filtres, newsletter et comptes lecteurs ne font pas partie du site actuel. Le code ne contient pas de mécanisme désactivé à réactiver pour les obtenir.

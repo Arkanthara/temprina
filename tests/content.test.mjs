@@ -39,6 +39,17 @@ test('un livre minimal suffit, les champs facultatifs et la seconde histoire son
   assert.deepEqual(schema.parse({ ...minimal, followedBy: { title: ' Suite ', summary: ' ' } }).followedBy, { title: 'Suite', summary: '' });
 });
 
+test('la durée de lecture est facultative et reste un entier positif si renseignée', () => {
+  const article = { title: 'Un article', description: 'Un résumé.', date: '2026-01-01', category: 'Lectures' };
+  assert.equal(blogSchema.parse(article).readingMinutes, undefined);
+  assert.equal(blogSchema.parse({ ...article, readingMinutes: 3 }).readingMinutes, 3);
+  for (const readingMinutes of [0, -1, 1.5, '3', null]) {
+    const result = blogSchema.safeParse({ ...article, readingMinutes });
+    assert.equal(result.success, false, JSON.stringify(readingMinutes));
+    assert.ok(result.error.issues.some(issue => issue.path.join('.') === 'readingMinutes'));
+  }
+});
+
 test('livres et articles ne sont pas des démonstrations par défaut', () => {
   for (const [schema, content] of [
     [bookSchema(context), { title: 'Un roman', publicationDate: '2026-01-01', cover: '../../assets/couverture.jpg' }],

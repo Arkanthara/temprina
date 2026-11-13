@@ -135,7 +135,7 @@ Le corps Markdown reste le résumé de la première histoire. La seconde a sa pr
 
 ## Ajouter ou supprimer un article
 
-Copier [le modèle article](modeles/article.md) dans `src/content/blog/mon-article.md`, puis compléter le titre, la description (300 caractères maximum), la date, la catégorie et `readingMinutes` (nombre entier positif). Écrire l’article après le deuxième `---`.
+Copier [le modèle article](modeles/article.md) dans `src/content/blog/mon-article.md`, puis compléter le titre, la description (300 caractères maximum), la date et la catégorie. Le champ `readingMinutes` est facultatif : s’il est renseigné, il doit être un nombre entier positif. Supprimer la ligne pour masquer la durée de lecture dans la liste du blog et sur la fiche de l’article, sans séparateur superflu. Aucune durée n’est calculée automatiquement. Écrire l’article après le deuxième `---`.
 
 La fiche sera à `/blog/mon-article/`. Les articles sont classés par date décroissante ; l’accueil montre les deux premiers. `draft: true` masque un article. Supprimer son fichier le retire du site au prochain build.
 

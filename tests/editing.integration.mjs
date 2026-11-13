@@ -79,6 +79,7 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
     await writeMarkdown(bookPath, book);
     await writeMarkdown(file('src/content/books/livre-a-retirer.md'), { data: { title: 'Livre à retirer', publicationDate: '2026-01-01', cover: '../../assets/test-image.png' }, body: '' });
     await writeMarkdown(articlePath, { data: { title: 'Un nouvel article $& <texte>', description: 'Une introduction.', date: '2099-01-01', category: 'Lectures', readingMinutes: 2 }, body: 'Un texte **nouveau**.' });
+    await writeMarkdown(file('src/content/blog/sans-duree.md'), { data: { title: 'Article sans durée', description: 'Une lecture sans durée affichée.', date: '2098-01-01', category: 'Lectures' }, body: 'Un article sans durée.' });
     build();
 
     for (const [id, page] of edited) {
@@ -119,6 +120,17 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
     const article = await html('blog/nouvel-article/index.html');
     assert.equal(article('.prose strong').text(), 'nouveau');
     assert.equal(article('.notice').length, 0, 'Un article sans champ demo ne doit pas être présenté comme une démonstration.');
+    const withReadingTime = (template, minutes) => template.replaceAll('{minutes}', String(minutes));
+    assert.equal(article('.byline').text(), `${article('.byline time').text()} · ${withReadingTime(settings.blog.readingLabel, 2)}`);
+    const withoutReadingTime = await html('blog/sans-duree/index.html');
+    assert.equal(withoutReadingTime('.byline').text(), withoutReadingTime('.byline time').text());
+    const blog = await html('blog/index.html');
+    for (const [id, minutes] of [['nouvel-article', 2], ['sans-duree', undefined]]) {
+      const row = blog(`.journal-row:has(h2 a[href="/blog/${id}/"])`);
+      assert.equal(row.length, 1);
+      const duration = minutes === undefined ? '' : ` · ${withReadingTime(settings.blog.readingShortLabel, minutes)}`;
+      assert.equal(row.find('.book-meta').text(), `Lectures · ${row.find('time').text()}${duration}`);
+    }
     const blogLabels = edited.get('blog').data;
     assert.equal((await html('blog/index.html'))('.journal-row').first().find('.round-link').attr('aria-label'), blogLabels.readLabel.replaceAll('{title}', () => 'Un nouvel article $& <texte>'));
     assert.ok((await html('confidentialite/index.html'))('.legal-facts').text().includes(settings.legal.publisher.name));

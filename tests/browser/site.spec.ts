@@ -34,14 +34,14 @@ test('toutes les pages sont lisibles, sans images manquantes ni défauts axe', a
   expect(errors).toEqual([]);
 });
 
-test('le catalogue conserve tous ses livres et leur ordre avec des paramètres de lien', async ({ page }) => {
+test('le catalogue conserve tous ses livres et leur ordre avec des paramètres de lien', async ({ page, baseURL }) => {
   const path = '/catalogue/?genre=Fantasy&series=inconnue&year=2026#contenu';
   await page.goto(path);
   await expect(page.locator('[data-book]:visible')).toHaveCount(bookCount);
   const dates = await page.locator('[data-book] time').evaluateAll(items => items.map(item => item.getAttribute('datetime')));
   expect(dates).toEqual([...dates].sort().reverse());
   await expect(page.locator('.result-count')).toHaveText(catalogue('.result-count').text());
-  await expect(page).toHaveURL(`http://127.0.0.1:4321${path}`);
+  await expect(page).toHaveURL(`${baseURL}${path}`);
 });
 
 test('la navigation clavier et le menu mobile restent utilisables', async ({ page, isMobile }) => {
@@ -79,51 +79,76 @@ test('le contact préremplit un titre littéral et respecte la configuration e-m
   }
 });
 
-test('le partage conserve une adresse canonique et un lien e-mail', async ({ page }) => {
+const shareRoutes = routes.filter(route => route.startsWith('/livres/') || (route.startsWith('/blog/') && route !== '/blog/'));
+
+test('le contact depuis un livre conserve son titre', async ({ page }) => {
   const bookLink = catalogue('[data-book] h3 a').first().attr('href');
   if (!bookLink) return;
   await page.goto(bookLink);
-  await page.getByText(settings.share.addressLabel, { exact: true }).click();
-  await expect(page.getByRole('textbox', { name: settings.share.urlLabel })).toHaveValue(new RegExp(`${bookLink}$`));
-  await expect(page.getByRole('link', { name: settings.share.emailLabel })).toHaveAttribute('href', /^mailto:\?subject=/);
-  await expect(page.locator('.share-actions a[target="_blank"]')).toHaveAttribute('rel', 'noopener noreferrer');
   const title = await page.locator('h1').innerText();
   await page.locator('a[href^="/contact/?livre="]').click();
   await expect(page.locator('[data-selected-book]')).toHaveText(fillBook(contactLabels.selectedBook, title));
 });
 
-test('la copie et le partage natif utilisent les libellés et l’adresse de la page', async ({ page }) => {
-  const bookLink = catalogue('[data-book] h3 a').first().attr('href');
-  if (!bookLink) return;
+test('seul Partager transmet le titre et l’adresse canonique des livres et articles', async ({ page }) => {
   await page.addInitScript(() => {
-    Object.defineProperty(navigator, 'clipboard', { value: {
-      writeText: async (value: string) => { document.documentElement.dataset.copiedUrl = value; },
-    } });
     Object.defineProperty(navigator, 'share', { value: async (data: ShareData) => {
       document.documentElement.dataset.sharedUrl = data.url;
       document.documentElement.dataset.sharedTitle = data.title;
     } });
   });
-  await page.goto(bookLink);
-  const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-  await page.locator('[data-copy]').click();
-  await expect(page.locator('.share-status')).toHaveText(settings.share.copied);
-  await expect(page.locator('html')).toHaveAttribute('data-copied-url', canonical!);
-  await page.locator('[data-share]').click();
-  await expect(page.locator('html')).toHaveAttribute('data-shared-url', canonical!);
-  await expect(page.locator('html')).toHaveAttribute('data-shared-title', await page.locator('[data-share]').getAttribute('data-title') || '');
+  for (const route of shareRoutes) {
+    await page.goto(`${route}?source=test#contenu`);
+    const button = page.getByRole('button', { name: settings.share.shareLabel, exact: true });
+    await expect(button).toBeVisible();
+    await expect(page.locator('.share-block button')).toHaveCount(1);
+    await expect(page.locator('.share-block a, .share-block input, .share-block details, [data-copy]')).toHaveCount(0);
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+    await button.click();
+    await expect(page.locator('html')).toHaveAttribute('data-shared-url', canonical!);
+    await expect(page.locator('html')).toHaveAttribute('data-shared-title', await button.getAttribute('data-title') || '');
+    await expect(page.locator('.share-status')).toBeEmpty();
+  }
 });
 
-test('le site se lit sans JavaScript sur un écran de 320 pixels', async ({ browser }) => {
+test('le partage gère une erreur puis une annulation sans message résiduel', async ({ page }) => {
+  await page.addInitScript(() => {
+    let calls = 0;
+    Object.defineProperty(navigator, 'share', { value: async () => {
+      if (calls++ === 0) throw new DOMException('Échec', 'NotAllowedError');
+      throw new DOMException('Annulation', 'AbortError');
+    } });
+  });
+  for (const route of shareRoutes) {
+    await page.goto(route);
+    await page.locator('[data-share]').click();
+    await expect(page.locator('.share-status')).toHaveText(settings.share.shareError);
+    await page.locator('[data-share]').click();
+    await expect(page.locator('.share-status')).toBeEmpty();
+  }
+});
+
+test('le bouton reste masqué lorsque le partage natif est indisponible', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'share', { value: undefined });
+  });
+  for (const route of shareRoutes) {
+    await page.goto(route);
+    await expect(page.locator('[data-share]')).toBeHidden();
+    await expect(page.locator('.share-block a, [data-copy]')).toHaveCount(0);
+  }
+});
+
+test('le site se lit sans JavaScript sur un écran de 320 pixels', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 720 } });
   try {
     const page = await context.newPage();
     for (const route of routes) {
-      await page.goto(`http://127.0.0.1:4321${route}`);
+      await page.goto(`${baseURL}${route}`);
       await expect(page.locator('h1')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), route).toBe(true);
     }
-    await page.goto('http://127.0.0.1:4321/catalogue/');
+    await page.goto(`${baseURL}/catalogue/`);
     await expect(page.getByRole('navigation').getByRole('link', { name: settings.navigation.catalogue })).toBeVisible();
     await expect(page.locator('[data-book]:visible')).toHaveCount(bookCount);
     if (bookCount) {
@@ -134,7 +159,7 @@ test('le site se lit sans JavaScript sur un écran de 320 pixels', async ({ brow
     await expect(page.locator('.legal-facts').first()).toBeVisible();
     await page.locator('.site-footer a[href="/confidentialite/"]').click();
     await expect(page.locator('.legal-facts').first()).toBeVisible();
-    await page.goto('http://127.0.0.1:4321/contact/');
+    await page.goto(`${baseURL}/contact/`);
     await expect(page.locator('form[data-contact]')).not.toBeVisible();
     if (email) await expect(page.locator('.contact-detail a')).toHaveAttribute('href', `mailto:${email}`);
   } finally { await context.close(); }

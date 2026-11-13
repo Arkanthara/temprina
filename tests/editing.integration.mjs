@@ -39,7 +39,8 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
     settings.navigation.author = 'Mon parcours';
     settings.books.contact.heading = 'Envie de lire ?';
     settings.books.coverAlt = 'Illustration de {title}';
-    settings.share.copied = 'Adresse copiée.';
+    settings.share.shareLabel = 'Partager cette lecture';
+    settings.share.shareError = 'Veuillez réessayer le partage.';
     settings.images.logo.src = `/images/autre-logo${extname(logoSource)}`;
     settings.images.social = `/images/autre-partage${extname(socialSource)}`;
     settings.legal.publisher.name = 'Éditrice <fiction>';
@@ -113,12 +114,15 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
     assert.equal(story('.book-second-story strong, .book-second-story em').length, 0);
     assert.equal(story('.book-second-story .prose p').length, 2);
     assert.equal(story('.purchase-note h2').text(), settings.books.contact.heading);
-    assert.equal(story('.share-status').attr('data-copied'), settings.share.copied);
+    assert.equal(story('[data-share]').text().trim(), settings.share.shareLabel);
+    assert.equal(story('.share-status').attr('data-share-error'), settings.share.shareError);
     assert.ok(story('meta[name="description"]').attr('content').includes(settings.identity.authorName));
     assert.equal(JSON.parse(story('script[type="application/ld+json"]').text()).hasPart.abstract, book.data.followedBy.summary);
     assert.equal((await html('contact/index.html'))('[data-contact]').attr('data-email'), settings.identity.contactEmail);
     const article = await html('blog/nouvel-article/index.html');
     assert.equal(article('.prose strong').text(), 'nouveau');
+    assert.equal(article('[data-share]').text().trim(), settings.share.shareLabel);
+    assert.equal(article('.share-status').attr('data-share-error'), settings.share.shareError);
     assert.equal(article('.notice').length, 0, 'Un article sans champ demo ne doit pas être présenté comme une démonstration.');
     const withReadingTime = (template, minutes) => template.replaceAll('{minutes}', String(minutes));
     assert.equal(article('.byline').text(), `${article('.byline time').text()} · ${withReadingTime(settings.blog.readingLabel, 2)}`);

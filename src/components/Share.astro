@@ -10,27 +10,16 @@ const labels = settings.share;
   <span class="eyebrow">{labels.heading}</span>
   <div class="share-actions">
     <button class="small-button" data-share data-title={title} data-url={url} hidden>{labels.shareLabel} <Icon name="arrow-up" /></button>
-    <button class="small-button" data-copy data-url={url} hidden>{labels.copyLabel}</button>
-    <a class="small-button" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" aria-label={labels.facebookAccessibleLabel}>{labels.facebookLabel} <Icon name="arrow-up" /></a>
-    <a class="small-button" href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`}>{labels.emailLabel} <Icon name="arrow-up" /></a>
   </div>
-  <p class="share-status" role="status" data-copied={labels.copied} data-copy-error={labels.copyError} data-share-error={labels.shareError}></p>
-  <details><summary>{labels.addressLabel}</summary><input class="share-url" aria-label={labels.urlLabel} readonly value={url} /></details>
+  <p class="share-status" role="status" data-share-error={labels.shareError}></p>
 </div>
 <script>
   const status = document.querySelector<HTMLElement>('.share-status');
-  const copy = document.querySelector<HTMLButtonElement>('[data-copy]');
   const share = document.querySelector<HTMLButtonElement>('[data-share]');
-  if (copy && navigator.clipboard) {
-    copy.hidden = false;
-    copy.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(copy.dataset.url!); if (status) status.textContent = status.dataset.copied || ''; }
-      catch { if (status) status.textContent = status.dataset.copyError || ''; }
-    });
-  }
   if (share && navigator.share) {
     share.hidden = false;
     share.addEventListener('click', async () => {
+      if (status) status.textContent = '';
       try { await navigator.share({ title: share.dataset.title, url: share.dataset.url }); }
       catch (error) { if ((error as Error).name !== 'AbortError' && status) status.textContent = status.dataset.shareError || ''; }
     });

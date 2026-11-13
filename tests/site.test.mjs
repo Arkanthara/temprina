@@ -143,7 +143,6 @@ test('les fiches adaptent les champs facultatifs, la seconde histoire, le contac
     assert.equal(schema.isbn, data.isbn);
     assert.equal(schema.publisher?.name, data.publisher);
     assert.equal($('a[href^="/contact/?livre="]').attr('href'), `/contact/?livre=${encodeURIComponent(title)}`);
-    assert.ok($('.share-actions a[href^="mailto:"]').length, path);
     assert.equal($('.book-followed-by').length, schema.hasPart ? 1 : 0, path);
     if (schema.hasPart) {
       assert.equal($('.book-followed-by span').text(), schema.hasPart.name);
@@ -156,6 +155,17 @@ test('les fiches adaptent les champs facultatifs, la seconde histoire, le contac
       assert.ok($(el).text().trim(), path);
       assert.doesNotMatch($(el).text().trim(), /^(?:·|undefined|null)|(?:·|undefined|null)$|·\s*·/, path);
     }
+  }
+});
+
+test('les livres et articles proposent uniquement le bouton de partage natif', () => {
+  const sharePages = [...pages].filter(([path]) => path.startsWith('livres/') || (path.startsWith('blog/') && path !== 'blog/index.html'));
+  for (const [path, $] of sharePages) {
+    assert.equal($('.share-block button').length, 1, path);
+    assert.equal($('.share-block a, .share-block input, .share-block details, [data-copy]').length, 0, path);
+    assert.equal($('[data-share]').text().trim(), settings.share.shareLabel, path);
+    assert.equal($('[data-share]').attr('data-url'), $('link[rel="canonical"]').attr('href'), path);
+    assert.equal($('.share-status').attr('data-share-error'), settings.share.shareError, path);
   }
 });
 

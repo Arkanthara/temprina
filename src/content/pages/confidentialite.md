@@ -78,7 +78,7 @@ Si vous envoyez cet e-mail, l’éditeur et les prestataires de messagerie conce
 
 ## Partage et liens externes
 
-Les fonctions de partage transmettent le titre ou l’adresse de la page au service ou à l’application que vous choisissez. Aucun module Facebook n’est chargé avant votre action. Lorsque vous ouvrez un site externe, celui-ci applique ses propres règles de confidentialité.
+Le bouton « Partager » ouvre le menu de partage du navigateur et lui transmet le titre et l’adresse de la page. Vous choisissez ensuite le service ou l’application destinataire. Lorsque vous ouvrez un site externe, celui-ci applique ses propres règles de confidentialité.
 
 ## Traitements par l’hébergeur et transferts
 

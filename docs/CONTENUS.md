@@ -43,8 +43,10 @@ Pour modifier un bouton, changer son champ `linkLabel`, `primaryLabel` ou `secon
 | `demo` | Texte du bandeau de démonstration |
 | `books` | Textes communs des cartes et fiches : couverture, tome, « suivi de », contact et métadonnées de secours |
 | `blog` | Retour aux articles, durée de lecture, notice de démonstration |
-| `share` | Boutons de partage, adresse et messages de réussite ou d’erreur |
+| `share` | Titre du bloc de partage, libellé du bouton « Partager » et message d’erreur |
 | `legal` | Éditeur, développeur, hébergeur et informations de confidentialité |
+
+Sur les fiches livres et les articles, seul le bouton **Partager** ouvre le menu natif du navigateur, avec le titre et l’adresse canonique de la page. Les choix de copie, d’application ou de messagerie sont proposés par ce menu selon l’appareil. Le bouton reste masqué si le navigateur ne prend pas en charge le partage natif ou si JavaScript est désactivé. Une annulation ferme simplement le menu ; une erreur affiche le texte `shareError`.
 
 Exemple :
 

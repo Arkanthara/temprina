@@ -790,15 +790,6 @@ input,textarea {
   font-size: 11px;
   margin: 10px 0;
 }
-.share-block summary {
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--muted);
-  padding-block: 8px;
-}
-.share-url {
-  font-size: 11px;
-}
 .author-page {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -834,15 +825,9 @@ input,textarea {
   padding: 36px 0;
   border-top: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 70px 1fr 50px;
+  grid-template-columns: 1fr 50px;
   gap: 25px;
   align-items: center;
-}
-.journal-number {
-  font-family: var(--serif);
-  font-style: italic;
-  color: var(--gold);
-  font-size: 42px;
 }
 .journal-row .book-meta {
   margin: 0 0 12px;
@@ -1455,9 +1440,6 @@ input,textarea {
     grid-template-columns: 1fr 38px;
     gap: 15px;
     padding-block: 27px;
-  }
-  .journal-number {
-    display: none;
   }
   .journal-row h2 {
     font-size: 30px;

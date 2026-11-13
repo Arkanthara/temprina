@@ -24,15 +24,21 @@ Les tests HTML et navigateur lisent `dist/` : exécuter le build après un chang
 
 Les attentes utilisent les contenus réels et les pages générées. Il n’est pas nécessaire de modifier les tests pour changer un titre, le nombre de livres ou la navigation. Les livres de démonstration ne sont plus nécessaires aux scénarios navigateur.
 
-Le test d’édition travaille dans une copie temporaire sans `.env`. Il modifie tous les corps Markdown, vérifie notamment le gras et l’italique, ajoute un livre et un article, supprime des contenus et masque un brouillon. Il vérifie les réglages communs, le portrait, les deux histoires sous une couverture et l’affichage littéral des chaînes YAML contenant des caractères HTML. Il effectue trois builds, dont un volontairement invalide ; les variantes invalides des schémas sont testées directement, sans reconstruire le site à chaque fois. Les fichiers et le build de travail restent intacts.
+Le test d’édition travaille dans une copie temporaire sans `.env`. Il modifie tous les corps Markdown, vérifie notamment le gras et l’italique, ajoute un livre et deux articles, supprime des contenus et masque un brouillon. Il vérifie les réglages communs, le portrait, les deux histoires sous une couverture, les articles avec ou sans durée de lecture (liste et fiche, sans séparateur superflu) et l’affichage littéral des chaînes YAML contenant des caractères HTML. Il effectue trois builds, dont un volontairement invalide ; les variantes invalides des schémas sont testées directement, sans reconstruire le site à chaque fois. Les fichiers et le build de travail restent intacts.
 
-La même suite navigateur s’adapte à l’e-mail configuré ou absent et à la présence de contenus de démonstration. Elle parcourt toutes les routes générées sur ordinateur et mobile, puis sans JavaScript à 320 pixels. L’audit axe couvre les règles WCAG A/AA sélectionnées. Il ne remplace pas une relecture manuelle ou un essai avec lecteur d’écran.
+La même suite navigateur s’adapte à l’e-mail configuré ou absent et à la présence de contenus de démonstration. Elle parcourt toutes les routes générées sur ordinateur et mobile, puis sans JavaScript à 320 pixels. Le partage est vérifié sur les livres et les articles : bouton unique, titre et adresse canonique transmis au menu natif, annulation, erreur et navigateur sans prise en charge. L’audit axe couvre les règles WCAG A/AA sélectionnées. Il ne remplace pas une relecture manuelle ou un essai avec lecteur d’écran.
 
 ## Contrôle avant publication
 
 `npm run validate:production` contrôle les variables de publication, l’identité, les informations légales et les marqueurs de relecture. Les pages légales doivent avoir `approved: true`, un texte renseigné et aucune notice provisoire. Ce contrôle utilise le même schéma de configuration que le site.
 
 Pour tester le rendu hors démonstration, définir `PUBLIC_DEMO_MODE=false` et reconstruire, puis relancer les tests. Un e-mail temporaire peut servir à vérifier le formulaire sans envoyer de message. Remettre les variables habituelles et reconstruire après cet essai.
+
+## Partage simplifié — 13 novembre 2026
+
+Les fiches livres et les articles ne proposent plus que « Partager », via le menu natif du navigateur. Les anciens boutons de copie, Facebook et e-mail ainsi que le champ d’adresse sont supprimés.
+
+Contrôles réussis : aucun diagnostic Astro, build de 25 pages, 20 tests de contenus/HTML, test d’édition isolé et 18 tests navigateur sur ordinateur et mobile. Les tests navigateur ont utilisé temporairement le port 44321, le port 4321 étant occupé par un autre projet.
 
 ## État de la simplification — 12 novembre 2026
 

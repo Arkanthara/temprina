@@ -90,7 +90,7 @@ export const blogSchema = z.object({
   description: text.max(300),
   date: z.coerce.date(),
   category: z.string(),
-  readingMinutes: z.number().int().positive(),
+  readingMinutes: z.number().int().positive().optional(),
   draft: z.boolean().default(false),
   demo: z.boolean().default(false),
 });

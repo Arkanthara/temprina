@@ -74,15 +74,7 @@ blog:
 share:
   heading: "Une histoire à partager"
   shareLabel: "Partager"
-  copyLabel: "Copier le lien"
-  facebookLabel: "Facebook"
-  facebookAccessibleLabel: "Partager sur Facebook (nouvel onglet)"
-  emailLabel: "Par e-mail"
-  addressLabel: "Adresse de cette page"
-  urlLabel: "Lien de partage"
-  copied: "Le lien a été copié."
-  copyError: "Copiez l’adresse dans « Adresse de cette page » ci-dessous."
-  shareError: "Vous pouvez copier le lien ou le partager par e-mail."
+  shareError: "Le partage a échoué. Veuillez réessayer."
 
 # Informations communes aux pages légales.
 legal:

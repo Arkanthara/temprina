@@ -3,7 +3,11 @@ title: Mon autobiographie de lectrice
 description: "Une autre façon de me présenter, à travers mon parcours dans le monde des livres."
 date: 2024-03-23
 category: Dis-moi qui tu es...
+<<<<<<< HEAD
 demo: true
+=======
+readingMinutes: 9
+>>>>>>> origin/develop
 ---
 
 ## Premiers pas
@@ -44,27 +48,30 @@ Que dire de plus ? La petite fille d'alors est maintenant une jeune femme pétri
 ## Menu de lecture à la Christine (à combiner selon votre choix).
 
 ### Entrées
- Feuilleté de Bibliothèques Roses
-Salade de contes
-	sauce spécialité suisse
-	sauce épicée à la chinoise
-	sauce chasseur façon amérindienne ou façon eskimau
-	sauce crémeuse scandinave
-	sauce africaine
-	sauce pimentée d'Amérique latine
-Petits fours poétiques
+
+- Feuilleté de Bibliothèques Roses
+- Salade de contes
+	- sauce spécialité suisse
+	- sauce épicée à la chinoise
+	- sauce chasseur façon amérindienne ou façon eskimau
+	- sauce crémeuse scandinave
+	- sauce africaine
+	- sauce pimentée d'Amérique latine
+- Petits fours poétiques
 
 ### Plats de résistance
-Gratin de Rouge et Or Dauphine
-Ailes de séries aux Bibliothèques vertes
-Biographies en croûte
-Romans sur lit d'Histoire
-Pavé philosophique cuit dans ses commentaires
-Pièces de théâtres entières avec leur préface
+
+- Gratin de Rouge et Or Dauphine
+- Ailes de séries aux Bibliothèques vertes
+- Biographies en croûte
+- Romans sur lit d'Histoire
+- Pavé philosophique cuit dans ses commentaires
+- Pièces de théâtres entières avec leur préface
 
 ### Desserts
-Boules de BD (parfum Hergé, Peyo, Derib, R. Leloup, Gos, Morris, Goscinny-Uderzo, E. P. Jacobs)
-Tourte Salamandre
-Pièce montée saveur Chesterton (avec feu d'artifice)
-Douceurs isolées (à picorer au passage)
-Mousse Temprina
+
+- Boules de BD (parfum Hergé, Peyo, Derib, R. Leloup, Gos, Morris, Goscinny-Uderzo, E. P. Jacobs)
+- Tourte Salamandre
+- Pièce montée saveur Chesterton (avec feu d'artifice)
+- Douceurs isolées (à picorer au passage)
+- Mousse Temprina

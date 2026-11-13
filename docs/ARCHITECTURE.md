@@ -43,9 +43,9 @@ Le corps Markdown s’affiche sur chacune des huit pages. Les chaînes YAML rest
 
 ## Comportements conservés
 
-Le site conserve les adresses des pages, les contenus, les visuels, les polices locales, les métadonnées et les données structurées. Il garde les livres minimaux/complets, séries, secondes histoires, brouillons, démonstrations, articles, portrait facultatif, partage et contact par messagerie. Lecture et navigation fonctionnent sans JavaScript. Le JavaScript sert au menu mobile, au formulaire de préparation d’e-mail et aux fonctions de copie/partage disponibles dans le navigateur.
+Le site conserve les adresses des pages, les contenus, les visuels, les polices locales, les métadonnées et les données structurées. Il garde les livres minimaux/complets, séries, secondes histoires, brouillons, démonstrations, articles, portrait facultatif, partage et contact par messagerie. Lecture et navigation fonctionnent sans JavaScript. Le JavaScript sert au menu mobile, au formulaire de préparation d’e-mail et au bouton de partage natif disponible dans le navigateur.
 
-La simplification réunit les anciens fichiers `src/content/settings/site.yaml` et `src/content/legal/site.yaml` dans `src/content/site.yaml`, avec les données légales sous `legal`. Tous les champs existants sont conservés. Les styles sont remis en forme pour être lisibles ; leurs valeurs et l’ordre des règles sont conservés.
+La simplification réunit les anciens fichiers `src/content/settings/site.yaml` et `src/content/legal/site.yaml` dans `src/content/site.yaml`, avec les données légales sous `legal`. Les libellés des anciennes options de partage séparées ont été retirés. Les styles sont remis en forme pour être lisibles ; leurs valeurs et l’ordre des règles sont conservés.
 
 ## Ajouter une nouvelle fonctionnalité
 

@@ -43,8 +43,10 @@ Pour modifier un bouton, changer son champ `linkLabel`, `primaryLabel` ou `secon
 | `demo` | Texte du bandeau de démonstration |
 | `books` | Textes communs des cartes et fiches : couverture, tome, « suivi de », contact et métadonnées de secours |
 | `blog` | Retour aux articles, durée de lecture, notice de démonstration |
-| `share` | Boutons de partage, adresse et messages de réussite ou d’erreur |
+| `share` | Titre du bloc de partage, libellé du bouton « Partager » et message d’erreur |
 | `legal` | Éditeur, développeur, hébergeur et informations de confidentialité |
+
+Sur les fiches livres et les articles, seul le bouton **Partager** ouvre le menu natif du navigateur, avec le titre et l’adresse canonique de la page. Les choix de copie, d’application ou de messagerie sont proposés par ce menu selon l’appareil. Le bouton reste masqué si le navigateur ne prend pas en charge le partage natif ou si JavaScript est désactivé. Une annulation ferme simplement le menu ; une erreur affiche le texte `shareError`.
 
 Exemple :
 
@@ -135,7 +137,7 @@ Le corps Markdown reste le résumé de la première histoire. La seconde a sa pr
 
 ## Ajouter ou supprimer un article
 
-Copier [le modèle article](modeles/article.md) dans `src/content/blog/mon-article.md`, puis compléter le titre, la description (300 caractères maximum), la date, la catégorie et `readingMinutes` (nombre entier positif). Écrire l’article après le deuxième `---`.
+Copier [le modèle article](modeles/article.md) dans `src/content/blog/mon-article.md`, puis compléter le titre, la description (300 caractères maximum), la date et la catégorie. Le champ `readingMinutes` est facultatif : s’il est renseigné, il doit être un nombre entier positif. Supprimer la ligne pour masquer la durée de lecture dans la liste du blog et sur la fiche de l’article, sans séparateur superflu. Aucune durée n’est calculée automatiquement. Écrire l’article après le deuxième `---`.
 
 La fiche sera à `/blog/mon-article/`. Les articles sont classés par date décroissante ; l’accueil montre les deux premiers. `draft: true` masque un article. Supprimer son fichier le retire du site au prochain build.
 

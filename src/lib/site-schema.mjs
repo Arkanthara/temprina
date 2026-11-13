@@ -83,8 +83,7 @@ export const siteSchema = z.object({
   }),
   blog: z.object({ backLabel: text, readingLabel: template('minutes'), readingShortLabel: template('minutes'), demoNotice: text }),
   share: z.object({
-    heading: text, shareLabel: text, copyLabel: text, facebookLabel: text, facebookAccessibleLabel: text, emailLabel: text,
-    addressLabel: text, urlLabel: text, copied: text, copyError: text, shareError: text,
+    heading: text, shareLabel: text, shareError: text,
   }),
 });
 

@@ -17,9 +17,9 @@ imageCaption: Un passage vers d’autres mondes
 # enabled: false masque entièrement l’encadré. position: top pour un cadrage plus haut.
 portrait:
   enabled: true
-  image: ""
-  alt: "Portrait de l’autrice"
-  caption: "Un visage derrière les mots."
+  image: ../../assets/portrait.jpg
+  alt: "Christine Donnet"
+  caption: "Christine Donnet, Valaisanne à la plume d'aigle"
   placeholder: "Portrait à venir"
   position: center
 biographyTitle: Écrire est ma deuxième langue maternelle.
@@ -32,6 +32,8 @@ biography:
   - Après mon Master, je suis rentrée en Valais et j’ai obtenu mon diplôme pédagogique
     pour enseigner ces deux matières au secondaire. Une autre façon de raconter des
     histoires, finalement…
+
+    Quelques dates : Je suis née en 1998. Mon aventure littéraire "sérieuse" a commencé en 2019 avec *Tolmac*, mais il m'a fallu quelques temps avant de me lancer dans l'impression et l'auto-édition. *Le Cygne de Hautdel* est mon premier titre imprimé, en 2021. Maintenant, je suis plus familière avec la procédure qui conduit du manuscrit au livre. Je peux aussi compter sur une équipe formidable, autant pour la relecture que pour la conception et la mise en page de la couverture. Enfin, il y a vous, mes lecteurs avec lesquels je suis heureuse de partager ce qui m'a enchanté. Et savez-vous le meilleur ? L'aventure est loin d'être finie !
 linkLabel: Découvrir les romans
 ---
 ## Le véritable équilibre

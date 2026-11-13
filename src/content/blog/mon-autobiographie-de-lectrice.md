@@ -3,7 +3,6 @@ title: Mon autobiographie de lectrice
 description: "Une autre façon de me présenter, à travers mon parcours dans le monde des livres."
 date: 2024-03-23
 category: Dis-moi qui tu es...
-readingMinutes: 9
 demo: true
 ---
 

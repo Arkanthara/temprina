@@ -1,23 +1,23 @@
 ---
 import Icon from '../components/Icon.astro';
 import { Image } from 'astro:assets';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getBooks, getPosts } from '../lib/collections';
 import Layout from '../layouts/Layout.astro';
 import BookCard from '../components/BookCard.astro';
 import Logo from '../components/Logo.astro';
 import EditorialHeading from '../components/EditorialHeading.astro';
-import forest from '../assets/foret-enchantee.png';
-import { isVisible, formatDate } from '../lib/site';
+import { formatDate } from '../lib/site';
 import { getPage } from '../lib/pages';
 const page = await getPage('index', 'home');
 const { Content } = await render(page);
 const { hero, books: library, author, journal, contact } = page.data;
-const books = (await getCollection('books', isVisible)).sort((a,b) => Number(b.data.featured)-Number(a.data.featured) || b.data.publicationDate.valueOf()-a.data.publicationDate.valueOf()).slice(0,3);
-const posts = (await getCollection('blog', isVisible)).sort((a,b) => b.data.date.valueOf()-a.data.date.valueOf()).slice(0,2);
+const books = await getBooks({ featuredFirst: true, limit: 3 });
+const posts = await getPosts(2);
 ---
 <Layout title={page.data.title} description={page.data.description}>
   <section class="hero" aria-labelledby="hero-title">
-    <Image src={forest} alt="" widths={[640, 1024, 1536]} sizes="100vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" class="hero-image" />
+    <Image src={hero.image} alt="" widths={[640, 1024, 1536]} sizes="100vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" class="hero-image" />
     <div class="hero-content">
       <p class="eyebrow"><span class="rule"></span> {hero.eyebrow}</p>
       <h1 id="hero-title"><EditorialHeading {...hero.heading} /></h1>

@@ -1,217 +1,148 @@
-# Gestion des contenus
+# Modifier le site
 
-## Configuration globale
+## Le parcours habituel
 
-Copier `.env.example` en `.env` pour le développement. Définir le nom dans `PUBLIC_AUTHOR_NAME`, l’adresse dans `PUBLIC_CONTACT_EMAIL` et l’origine canonique dans `PUBLIC_SITE_URL`. Les variables `PUBLIC_*` deviennent publiques dans le site statique : elles ne doivent jamais contenir de secrets. Reconstruire après chaque changement.
+1. Ouvrir le fichier dans GitHub et cliquer sur le crayon, ou l’ouvrir dans son éditeur local.
+2. Modifier le texte, puis enregistrer. Sur GitHub, le bouton **Commit changes** enregistre une version.
+3. Vérifier l’aperçu et les tests. Si Cloudflare est connecté à la branche modifiée, l’enregistrement déclenche aussi une nouvelle publication.
 
-Le logo de l’auteur est fourni dans `public/images/logo.png`. Pour le changer, remplacer ce fichier en conservant une image carrée et transparente ; adapter les dimensions intrinsèques de `src/components/Logo.astro` si nécessaire. Ce composant est utilisé dans l’en-tête, le pied de page et l’accueil ; le même fichier sert de favicon.
+En local, `npm run dev` affiche les changements à `http://localhost:4321`. `npm run verify` contrôle le site complet. L’historique Git conserve les versions précédentes.
 
-## Modifier la phrase sous le nom de l’auteur
+## Trouver le bon fichier
 
-Ouvrir **`src/content/settings/site.yaml`** dans un éditeur ou sur GitHub (icône crayon), puis remplacer uniquement le texte entre guillemets :
+Tous les textes des pages sont dans `src/content/pages/` :
 
-```yaml
-footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
-```
-
-Par exemple : `footerTagline: "Des histoires pour ouvrir d’autres mondes."`. Ce réglage remplace la phrase sous le nom de l’auteur dans le **pied de page de toutes les pages**, y compris les livres, les articles et la page 404. Le nom reste configuré avec `PUBLIC_AUTHOR_NAME` ; la mention « ROMANS & IMAGINAIRES » de l’en-tête reste dans le gabarit.
-
-Conserver le nom du champ `footerTagline` et une chaîne non vide : un champ absent, vide ou composé uniquement d’espaces fait échouer le build. Les espaces au début et à la fin sont retirés. Le contenu est du texte brut : HTML et Markdown ne sont pas interprétés. Garder les guillemets, notamment pour les caractères `: ` ou `#`, et privilégier une phrase courte.
-
-Enregistrer le fichier puis vérifier avec `npm run check`, `npm run build`, `npm test` et `npm run test:editing`. En local, `npm run dev` permet de relire le résultat. Avec la connexion GitHub → Cloudflare Pages configurée, la fusion dans `master` reconstruit et publie le site ; aucune nouvelle variable Cloudflare n’est nécessaire.
-
-## Modifier une page sans toucher au code
-
-Les textes des pages sont dans **`src/content/pages/`**. Ils peuvent être modifiés dans un éditeur de texte, ou directement sur GitHub : ouvrir le fichier, cliquer sur le crayon, modifier et enregistrer sur la branche de travail. Les tests de la pull request vérifient le résultat avant fusion. En local, `npm run dev` affiche les changements pendant la rédaction ; après publication, un nouveau build est nécessaire. Avec la connexion GitHub → Cloudflare Pages configurée, fusionner dans `master` déclenche ce build.
-
-| Page | Fichier à modifier | Contenu |
+| Page | Fichier | Parties modifiables |
 | --- | --- | --- |
-| Accueil `/` | `src/content/pages/index.md` | Introduction, titres de sections, boutons, états vides et extrait de présentation |
-| Auteur `/auteur/` | `src/content/pages/auteur.md` | Biographie, légende de l’image et présentation intégrale |
-| Catalogue | `src/content/pages/catalogue.md` | En-tête, compteur, libellés et état vide |
-| Blog | `src/content/pages/blog.md` | En-tête, libellés et état vide du carnet |
-| Contact | `src/content/pages/contact.md` | Présentation, coordonnées indisponibles, formulaire, messages et e-mail prérempli |
-| Mentions légales | `src/content/pages/mentions-legales.md` | En-tête, notice, texte et validation éditoriale |
-| Confidentialité | `src/content/pages/confidentialite.md` | En-tête, notice, texte et validation éditoriale |
-| Erreur 404 | `src/content/pages/404.md` | Titre, texte et liens de retour |
+| Accueil | `index.md` | Métadonnées, grand visuel, titres, boutons, blocs livres/auteur/blog/contact ; le corps Markdown présente l’auteur |
+| Auteur | `auteur.md` | Titres, illustration, légende, portrait, biographie, bouton ; le corps Markdown contient la présentation longue |
+| Catalogue | `catalogue.md` | Titres, introduction, compteur, messages si vide ; le corps Markdown ajoute une présentation avant les livres |
+| Blog | `blog.md` | Titres, introduction, liens et message si vide ; le corps Markdown ajoute une présentation avant les articles |
+| Contact | `contact.md` | Titres, explications, coordonnées, formulaire, messages ; le corps Markdown contient le texte de présentation |
+| Mentions légales | `mentions-legales.md` | Titres, rubriques, libellés et texte Markdown |
+| Confidentialité | `confidentialite.md` | Titres, rubriques, libellés et texte Markdown |
+| Page introuvable | `404.md` | Titres, explications, boutons et texte Markdown complémentaire |
 
-Chaque fichier comporte deux parties :
+Un fichier `.md` contient deux parties séparées par `---` : les réglages **YAML** en haut, puis le texte **Markdown**. Le [guide Markdown](MARKDOWN.md) explique les deux. Les textes YAML restent du texte brut ; le gras et l’italique Markdown s’utilisent dans le corps du fichier.
 
-1. Entre les deux lignes `---`, les réglages **YAML** : métadonnées, titres et libellés. Garder les noms des champs et l’indentation avec des espaces.
-2. Après la deuxième ligne `---`, le texte **Markdown** : paragraphes, `**gras**`, `*italique*`, liens et intertitres `##`. Le gabarit fournit déjà le titre principal : ne pas ajouter de titre `#`.
+Conserver les noms de clés et `template`. `title` et `description` servent à l’onglet, aux moteurs de recherche et au partage ; `heading` désigne le titre visible. Dans `heading.lines`, chaque élément donne une ligne ; `heading.accent` reçoit automatiquement la couleur et l’italique du site. Les champs `lead` et les textes écrits avec `|-` peuvent contenir plusieurs lignes.
 
-Exemple de modification d’un en-tête (extrait, conserver les autres champs du fichier) :
+Pour modifier un bouton, changer son champ `linkLabel`, `primaryLabel` ou `secondaryLabel`. Les liens de navigation gardent les destinations des pages existantes. Un changement de structure ou de destination se fait dans le gabarit Astro correspondant ; voir [l’architecture](ARCHITECTURE.md).
 
-```yaml
-title: "Les romans — Catalogue"
-description: "Découvrez mes romans et choisissez votre prochaine lecture."
-eyebrow: "MES LIVRES"
-heading:
-  lines:
-    - "À chaque livre,"
-    - "un autre"
-  accent: "monde."
-lead: "Votre prochaine aventure commence ici."
-```
+## Réglages communs : un seul fichier
 
-`title` est utilisé dans l’onglet et le partage ; `description` dans le référencement et le partage (300 caractères maximum). `heading.lines` contient les lignes du titre visible ; `accent`, facultatif, en souligne la fin en italique. Ces champs sont du texte brut, sans HTML ni Markdown. Pour un texte contenant `: ` ou `#`, utiliser des guillemets. Pour un paragraphe YAML long, `>-` joint les lignes ; `|-` conserve les retours à la ligne.
+`src/content/site.yaml` rassemble les informations partagées. Une modification s’applique partout.
 
-Sur l’accueil, `hero`, `books`, `author`, `journal` et `contact` correspondent aux sections affichées. Le corps Markdown devient l’extrait du bandeau auteur. Les livres et articles restent calculés à partir de leurs propres fichiers ; leur ordre ne se modifie pas ici. Les destinations des boutons restent définies dans les gabarits.
-
-Dans `auteur.md`, `biography` est une liste de paragraphes :
-
-```yaml
-biography:
-  - >-
-    Mon premier paragraphe, qui peut être rédigé
-    sur plusieurs lignes dans le fichier.
-  - "Mon deuxième paragraphe."
-```
-
-La présentation intégrale suit dans le corps Markdown. La présentation et les deux paragraphes de biographie actuels viennent du document **Site Temprina.docx** : le texte a été conservé, avec un extrait repris sur l’accueil autour de « J’ai choisi la lumière ». Le document Word reste une source de référence ; le modifier ne met pas le site à jour automatiquement. Les contenus auteur restent visibles dans les deux modes, démonstration et production.
-
-Les champs de compteur du catalogue conservent **`{count}`**. Le lien de lecture du blog conserve **`{title}`**. Dans Contact, `selectedBook`, `bookSubject` et `bookMessage` conservent **`{book}`**, remplacé par le titre du livre sélectionné. Les labels accessibles et les textes sans JavaScript font partie des réglages. L’adresse e-mail se configure toujours avec `PUBLIC_CONTACT_EMAIL`, pas dans ce fichier.
-
-Les contenus sont validés par modèle au build : un champ obligatoire absent, vide ou un jeton manquant fait échouer la compilation avec le nom du champ. Conserver `template` et les noms de fichiers : ils relient chaque contenu à sa route. Les fichiers `.astro` dans `src/pages/` servent à changer la mise en page, les destinations et les interactions ; ils ne sont plus nécessaires pour modifier ces textes. La structure de l’en-tête, la navigation et le pied de page communs restent dans `src/layouts/Layout.astro` ; la phrase du pied de page vient de `src/content/settings/site.yaml`. Les styles sont dans `src/styles/global.css`, les images dans `src/assets/`.
-
-Les informations communes des deux pages légales (éditeur, développeur, hébergeur, conservation et destinataires) se modifient dans **`src/content/legal/site.yaml`**. Renseigner `developer.name`, son éventuel `url`, puis `showInFooter: true` pour afficher aussi les crédits sur toutes les pages. Les textes et libellés restent dans les deux fichiers Markdown ; les champs vides sont signalés au rendu. Voir [le guide des informations légales](INFORMATIONS-LEGALES.md) pour les exemples et les informations Cloudflare à réunir.
-
-Les deux pages légales restent préparatoires. Après relecture de leurs textes définitifs, retirer le champ `notice` et passer `approved: true` dans chacune. `npm run validate:production` vérifie aussi le schéma et les champs de complétude de `src/content/legal/site.yaml`, puis ces fichiers, la présence de la présentation et de la biographie ainsi que les variables de production. `PUBLIC_CONTENT_APPROVED=true` reste nécessaire. Ces indicateurs enregistrent une validation humaine ; ils ne constituent pas une validation juridique automatisée.
-
-## Ajouter un roman
-
-Créer `src/content/books/un-nouveau-roman.md` et placer sa couverture dans `src/assets/`. Préférer une image d’au moins 600 × 900 pixels, ratio 2:3, aux droits vérifiés.
-
-Seuls `title`, `publicationDate` et `cover` sont obligatoires. Exemple minimal (le corps Markdown est lui aussi facultatif) :
-
-```yaml
----
-title: "Un nouveau roman"
-publicationDate: 2026-10-22
-cover: ../../assets/un-nouveau-roman.jpg
----
-```
-
-Exemple enrichi :
-
-```yaml
----
-title: "Un nouveau roman"
-subtitle: "Sous-titre facultatif"
-description: "Un résumé court de 300 caractères maximum."
-genre: "Fantasy"
-series: "Les Chroniques de la forêt"
-volume: 1
-publicationDate: 2026-10-22
-cover: ../../assets/un-nouveau-roman.jpg
-coverAlt: "Couverture de Un nouveau roman : description visuelle concise."
-featured: true
-draft: false
-publisher: "Nom de l’éditeur"
-isbn: "9780000000002"
-formats: ["Broché", "Numérique"]
-purchaseLinks:
-  - label: "Librairie"
-    url: https://example.com/un-nouveau-roman/
----
-Le résumé complet, en **Markdown**, commence ici.
-```
-
-`subtitle`, `description`, `genre`, `series`, `volume` et `coverAlt` sont facultatifs. Les textes sont nettoyés de leurs espaces de début et de fin ; un texte vide est traité comme absent au rendu. `volume`, s’il est fourni, reste un entier strictement positif. Aucune série « Hors série » n’est ajoutée automatiquement : écrire ce libellé explicitement si souhaité.
-
-Les cartes de l’accueil et du catalogue affichent le sous-titre, la série, le tome et la description seulement lorsqu’ils sont renseignés. Le genre précède l’année uniquement lorsqu’il existe. Série et tome peuvent être fournis indépendamment, sans séparateur superflu. La fiche suit la même règle pour son en-tête et ses informations, avec une date de publication toujours visible ; le résumé court et le corps Markdown apparaissent s’ils existent.
-
-Sans `coverAlt` ou avec une valeur vide, le texte alternatif devient « Couverture de [titre] ». Sans description, les métadonnées SEO et de partage utilisent une phrase construite avec le titre, le nom de l’auteur et la date ; le JSON-LD omet la description et le genre absents.
-
-L’exemple minimal hérite de `demo: false`, `draft: false` et `featured: false` : le livre apparaît sans avoir à préciser `demo: false`. Les romans fictifs doivent être marqués explicitement `demo: true`, comme **Le Chant des Sylves** et **La Dernière Braise**. Ce dernier reste un exemple de livre minimal, avec ce seul indicateur ajouté aux trois champs requis.
-
-La fiche apparaît à `/livres/un-nouveau-roman/`. Le catalogue, les données structurées et le sitemap se mettent à jour au build. Sur l’accueil, les romans `featured: true` passent en premier, puis les plus récents, avec un maximum de trois.
-
-Pour une série, indiquer le même libellé `series` sur ses tomes et ajouter `volume: 1`. La date `publicationDate` détermine l’ordre du catalogue, du plus récent au plus ancien. Le nom de fichier sert d’identifiant : le conserver après publication, ou prévoir une redirection Cloudflare en cas de changement.
-
-Champs réservés facultatifs : `publisher`, `isbn`, `formats` (liste) et `purchaseLinks` (liste d’objets `label`, `url`). Ils n’ajoutent pas de bouton d’achat ; `publisher` et `isbn`, lorsqu’ils existent, enrichissent déjà le JSON-LD. Les interfaces correspondantes restent à décider pour la suite.
-
-### Deux histoires dans un même livre (« suivi de »)
-
-Ajouter un bloc facultatif `followedBy` dans le YAML du livre. Il remplace la mention « suivi de » autrefois saisie dans `subtitle` ; un véritable sous-titre peut toujours être conservé en parallèle. Exemple pour `src/content/books/les-prisonniers-du-tram.md` (conserver les autres champs du fichier) :
-
-```yaml
-title: "Les Prisonniers du Tram"
-description: "Deux histoires à donner le frisson, dans un monde qui paraît familier..."
-followedBy:
-  title: "Menace Ombre et Lumière"
-  summary: "Tout comme les fascinants outils numériques qui accompagnent nos vies..."
-```
-
-Le bloc `followedBy` accepte :
-
-| Champ | Usage |
+| Rubrique | Ce qu’elle contient |
 | --- | --- |
-| `title` | Titre obligatoire et non vide de la deuxième histoire. |
-| `description` | Accroche facultative, limitée à 300 caractères. |
-| `summary` | Résumé facultatif, sans limite de 300 caractères ; plusieurs paragraphes sont possibles. |
+| `identity` | `authorName`, `authorFallback`, `contactEmail`, description générale, métier |
+| `images` | Logo utilisé aussi comme favicon, dimensions/type du logo et image de partage |
+| `headerSubtitle` | Phrase sous le nom dans l’en-tête |
+| `footerTagline`, `footerMessage`, `footerCredit` | Les trois textes du pied de page |
+| `navigation`, `skipContent` | Menus, liens du pied de page et libellés accessibles |
+| `demo` | Texte du bandeau de démonstration |
+| `books` | Textes communs des cartes et fiches : couverture, tome, « suivi de », contact et métadonnées de secours |
+| `blog` | Retour aux articles, durée de lecture, notice de démonstration |
+| `share` | Titre du bloc de partage, libellé du bouton « Partager » et message d’erreur |
+| `legal` | Éditeur, développeur, hébergeur et informations de confidentialité |
 
-Pour ajouter une accroche et développer le résumé, utiliser par exemple :
+Sur les fiches livres et les articles, seul le bouton **Partager** ouvre le menu natif du navigateur, avec le titre et l’adresse canonique de la page. Les choix de copie, d’application ou de messagerie sont proposés par ce menu selon l’appareil. Le bouton reste masqué si le navigateur ne prend pas en charge le partage natif ou si JavaScript est désactivé. Une annulation ferme simplement le menu ; une erreur affiche le texte `shareError`.
+
+Exemple :
+
+```yaml
+identity:
+  authorName: "Mon nom de plume"
+  authorFallback: "Nom de l’auteur à venir"
+  contactEmail: "bonjour@mon-domaine.ch"
+  description: "Des romans à découvrir."
+  jobTitle: "Autrice de romans"
+```
+
+Modifier le bloc existant ; ne pas remplacer tout le fichier par cet extrait. Si le nom ou l’e-mail sont vides, les anciennes variables `PUBLIC_AUTHOR_NAME` et `PUBLIC_CONTACT_EMAIL` restent utilisées. Sans e-mail, la page Contact affiche son message d’indisponibilité. Avec un e-mail, le formulaire prépare un message dans la messagerie du visiteur ; sans JavaScript, le lien e-mail reste disponible.
+
+Conserver les variables comme `{title}`, `{author}`, `{date}`, `{volume}`, `{minutes}`, `{count}` et `{book}` dans leurs textes : le site les remplace par les valeurs réelles. Les schémas signalent les variables obligatoires supprimées.
+
+## Modifier les photos et illustrations
+
+Déposer les photos et couvertures dans `src/assets/`. Depuis un fichier de `pages`, `books` ou `blog`, le chemin est de la forme `../../assets/ma-photo.jpg`.
+
+Dans `auteur.md`, `image`, `imageAlt` et `imageCaption` pilotent la grande illustration. Le bloc `portrait` pilote la petite photo :
+
+```yaml
+portrait:
+  enabled: true
+  image: ../../assets/mon-portrait.jpg
+  alt: "Portrait de l’autrice"
+  caption: "Photo : nom du photographe."
+  placeholder: "Portrait à venir"
+  position: center
+```
+
+`image: ""` affiche le médaillon provisoire ; `enabled: false` masque tout l’encadré. `position` accepte `top`, `center` ou `bottom` pour le cadrage. `caption: ""` retire la légende. Le portrait est automatiquement recadré et optimisé.
+
+Le grand visuel de l’accueil se règle dans `index.md`, champ `hero.image`. Pour le logo et l’image de partage, déposer les fichiers dans `public/images/`, puis renseigner leurs chemins `/images/nom.ext` dans `site.yaml`. Adapter les dimensions et le type si le logo change. Conserver les noms de fichiers permet aussi de remplacer une image sans modifier les réglages.
+
+## Ajouter un livre
+
+Copier [le modèle livre](modeles/livre.md) dans `src/content/books/mon-roman.md`, ajouter sa couverture puis compléter :
+
+```markdown
+---
+title: "Mon roman"
+publicationDate: 2026-11-12
+cover: ../../assets/mon-roman.jpg
+---
+Le résumé du livre, avec du **gras** si nécessaire.
+```
+
+Ces **trois champs** suffisent. Le résumé est facultatif. Le nom du fichier devient l’adresse `/livres/mon-roman/` : utiliser des minuscules et des tirets, puis conserver ce nom une fois le livre publié.
+
+| Champ facultatif | Effet |
+| --- | --- |
+| `subtitle` | Sous-titre sous le titre |
+| `description` | Présentation courte, 300 caractères maximum, sur les cartes et la fiche |
+| `genre` | Genre sur les cartes et la fiche |
+| `series`, `volume` | Série et numéro de tome positif |
+| `coverAlt` | Description de la couverture ; sinon « Couverture de [titre] » |
+| `featured: true` | Priorité sur l’accueil, qui affiche trois livres |
+| `draft: true` | Masque le livre partout, y compris sa fiche |
+| `demo: true` | Contenu de démonstration visible seulement en mode démo |
+| `publisher`, `isbn` | Informations ajoutées aux données structurées pour les moteurs |
+| `followedBy` | Seconde histoire dans le même livre, ci-dessous |
+
+Les anciens champs `formats` et `purchaseLinks` restent acceptés pour conserver les contenus existants ; ils ne créent pas d’interface de vente.
+
+Le catalogue affiche tous les livres visibles, du plus récent au plus ancien. L’accueil privilégie les mises en avant, puis les dates. Aucun tri manuel de fichier ni modification de code n’est nécessaire.
+
+### Deux histoires sous la même couverture
+
+Ajouter ce bloc au livre :
 
 ```yaml
 followedBy:
-  title: "Titre de la deuxième histoire"
-  description: "Une courte accroche à rédiger."
+  title: "Titre de la seconde histoire"
+  description: "Une accroche facultative."
   summary: |-
-    Premier paragraphe du résumé de cette deuxième histoire.
+    Premier paragraphe du résumé.
 
-    Deuxième paragraphe du résumé.
+    Deuxième paragraphe.
 ```
 
-Ces textes YAML sont du **texte brut** : ne pas ajouter de balises `<i>` ni de Markdown. Le site met automatiquement « suivi de » en italique ; les lignes vides de `summary` séparent les paragraphes. Les espaces de bord sont retirés ; une accroche ou un résumé vide n’affiche aucun élément.
+Le corps Markdown reste le résumé de la première histoire. La seconde a sa propre section ; les cartes montrent seulement « suivi de [titre] ». Ces champs YAML sont du texte brut : les lignes vides de `summary` séparent les paragraphes. Seul `title` est obligatoire ; si les deux résumés facultatifs sont vides, aucune section vide n’apparaît. Supprimer le bloc pour revenir à une seule histoire.
 
-Les cartes de l’accueil (si le livre y est sélectionné) et du catalogue affichent « suivi de [titre] ». La fiche présente cette mention sous le titre et l’éventuel sous-titre ; le corps Markdown reste le résumé de la **première histoire**, précédé de son titre lorsqu’il existe une seconde histoire. Une section distincte porte le titre de la deuxième histoire et affiche son accroche et/ou son résumé. Si seul `followedBy.title` est renseigné, la mention suffit et aucune section vide n’est créée. La `description` principale reste la présentation globale du livre et alimente ses métadonnées.
+### Masquer ou supprimer un livre
 
-Le titre de l’onglet et du partage inclut « suivi de [titre] ». Le JSON-LD conserve un seul `Book` et décrit la deuxième histoire via `hasPart` ; l’accroche devient `description` et le résumé `abstract` lorsqu’ils existent. Les deux histoires partagent la même couverture, date, URL et lien de contact. Ne pas créer de deuxième fichier livre pour cette histoire. Supprimer tout le bloc `followedBy` pour revenir à un livre à une seule histoire.
+`draft: true` permet de le retirer temporairement. Pour un retrait définitif, supprimer son fichier Markdown : catalogue, accueil, fiche et sitemap se mettent à jour au prochain build. La couverture peut être supprimée lorsqu’aucun autre contenu ne l’utilise. Les anciens liens vers la fiche supprimée arrivent sur la page 404 ; une redirection peut être ajoutée si le livre change simplement d’adresse.
 
-## Catalogue et filtres éventuels
+## Ajouter ou supprimer un article
 
-Le catalogue affiche tous les romans visibles, triés par date de publication décroissante. Il ne propose ni filtres ni recherche textuelle et fonctionne sans JavaScript. Les anciens paramètres d’URL (`genre`, `series`, `year`) sont sans effet sur les livres affichés.
+Copier [le modèle article](modeles/article.md) dans `src/content/blog/mon-article.md`, puis compléter le titre, la description (300 caractères maximum), la date et la catégorie. Le champ `readingMinutes` est facultatif : s’il est renseigné, il doit être un nombre entier positif. Supprimer la ligne pour masquer la durée de lecture dans la liste du blog et sur la fiche de l’article, sans séparateur superflu. Aucune durée n’est calculée automatiquement. Écrire l’article après le deuxième `---`.
 
-Les champs facultatifs `genre` et `series` et la date obligatoire `publicationDate` restent disponibles dans le schéma des livres. Ils servent aux informations affichées et permettront d’ajouter des filtres ultérieurement sans migrer les contenus. Aucun composant de filtrage ni code de filtrage désactivé n’est conservé.
+La fiche sera à `/blog/mon-article/`. Les articles sont classés par date décroissante ; l’accueil montre les deux premiers. `draft: true` masque un article. Supprimer son fichier le retire du site au prochain build.
 
-Si cette évolution est retenue, les options pourront être déduites des romans visibles. Il faudra alors ajouter les contrôles accessibles, la logique de sélection, l’état sans résultat et leurs tests, puis documenter le comportement des URL. Aucun réglage n’est nécessaire aujourd’hui pour l’ajout d’un livre.
+Les livres et les articles prennent **`demo: false` par défaut** : aucun champ `demo` n’est nécessaire pour un contenu réel. Ajouter explicitement `demo: true` uniquement pour un exemple fictif. Les fichiers de démonstration actuels sont explicitement signalés. Une date future ne programme pas une publication : utiliser `draft` jusqu’au jour voulu.
 
-## Ajouter un article
+## Vérifier les changements
 
-Créer `src/content/blog/mon-article.md` :
-
-```yaml
----
-title: "Le titre de l’article"
-description: "Présentation courte, 300 caractères maximum."
-date: 2026-10-22
-category: "Notes de lecture"
-readingMinutes: 4
-draft: false
-demo: false
----
-L’introduction.
-
-## Un premier intertitre
-
-Votre commentaire ou analyse. Identifier précisément l’ouvrage commenté,
-signaler les révélations éventuelles et respecter les droits de citation.
-```
-
-Les articles sont triés du plus récent au plus ancien. La date sert au classement, pas à une publication programmée : utiliser `draft: true` jusqu’au moment voulu. Relever les temps de lecture après rédaction.
-
-## Démonstration et brouillons
-
-- Pour les livres, `demo: false` est la valeur par défaut : aucun champ `demo` n’est nécessaire pour un livre réel. Réserver `demo: true` aux romans fictifs.
-- Pour les articles, `demo: true` reste la valeur par défaut : écrire explicitement `demo: false` pour un article réel.
-- `draft: true` exclut le contenu de toutes les pages et de ses routes.
-- `PUBLIC_DEMO_MODE=true` rend les contenus fictifs visibles et désactive l’indexation.
-- `PUBLIC_DEMO_MODE=false` exclut tous les contenus fictifs, même si les fichiers restent dans le dépôt.
-- Ne pas transformer les exemples en ouvrages réels en changeant simplement leur drapeau. Les remplacer par les vrais textes, dates et couvertures.
-
-## Vérifier
-
-`npm run check && npm run build && npm test` vérifie schémas, types, génération, liens, métadonnées et validation de publication. `npm run test:editing` modifie les contenus dans une copie temporaire isolée, reconstruit le site et contrôle le rendu ainsi que le refus des champs obligatoires manquants. Ce test ne change ni les fichiers ni le build de votre espace de travail ; il est aussi exécuté en CI. `npm run dev` permet de relire les contenus. Les tests du build et du navigateur couvrent les exemples minimal et complet, le texte alternatif de secours et les éléments conditionnels. Le nombre attendu de livres dans le navigateur est déduit du build, pour inclure les ajouts de contenu. Adapter les assertions si les exemples de démonstration sont volontairement modifiés.
-
-Les boutons de partage utilisent l’origine `PUBLIC_SITE_URL`. L’origine par défaut est `https://donnet.pages.dev`, confirmée par le propriétaire. `PUBLIC_SITE_URL` permet de la remplacer. Les aperçus sur les réseaux restent à vérifier sur le déploiement effectivement accessible.
+`npm run verify` contrôle types, génération, liens, métadonnées, édition et navigateur. Les tests utilisent les contenus actuels : ajouter un livre ou changer un titre ne demande pas de réécrire les tests. Le [guide de vérification](VERIFICATION.md) détaille les commandes et les contrôles de publication.

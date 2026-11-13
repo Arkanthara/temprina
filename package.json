@@ -10,8 +10,9 @@
     "check": "astro check",
     "test": "node --test tests/*.test.mjs",
     "test:e2e": "playwright test",
-    "validate:production": "node scripts/validate-production.mjs",
-    "test:editing": "node --test tests/editing.integration.mjs"
+    "validate:production": "node --env-file-if-exists=.env scripts/validate-production.mjs",
+    "test:editing": "node --test tests/editing.integration.mjs",
+    "verify": "npm run check && npm run build && npm test && npm run test:editing && npm run test:e2e"
   },
   "engines": {
     "node": ">=22.22.0 <23 || >=24.0.0"

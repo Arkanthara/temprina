@@ -14,11 +14,11 @@ hero:
     Toute chose ordinaire peut devenir extraordinaire. Il suffit de regarder avec de nouveaux yeux.
   primaryLabel: Explorer les romans
   secondaryLabel: Rencontrer l’auteur
-  caption: L’IMAGINAIRE PERMET DE RECONSIDERER LE REEL.
+  caption: L’IMAGINAIRE PERMET DE RECONSIDÉRER LE RÉEL.
   scrollLabel: DÉFILER
   scrollAccessibleLabel: Découvrir les romans plus bas
 books:
-  eyebrow: DES PORTES A OUVRIR
+  eyebrow: DES PORTES À OUVRIR
   heading:
     lines:
       - Un livre, une

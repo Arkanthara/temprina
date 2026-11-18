@@ -2,6 +2,7 @@
 import Icon from '../components/Icon.astro';
 import { Image } from 'astro:assets';
 import { render } from 'astro:content';
+import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 import Layout from '../layouts/Layout.astro';
 import PageHeading from '../components/PageHeading.astro';
 import { site } from '../lib/site';
@@ -9,6 +10,8 @@ import { getPage } from '../lib/pages';
 const page = await getPage('auteur', 'author');
 const { Content } = await render(page);
 const { data } = page;
+const markdown = await createSatteriMarkdownProcessor();
+const biography = await markdown.render(data.biography);
 ---
 <Layout title={data.title} description={data.description}>
   <PageHeading {...data} />
@@ -22,7 +25,7 @@ const { data } = page;
         {data.portrait.caption && <figcaption class="editorial-lines">{data.portrait.caption}</figcaption>}
       </figure>}
     </div>
-    <div class="prose"><p class="eyebrow">{site.author}</p><h2 id="biographie">{data.biographyTitle}</h2>{data.biography.map(paragraph => <p>{paragraph}</p>)}<a class="text-link" href="/catalogue/">{data.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
+    <div class="prose"><p class="eyebrow">{site.author}</p><h2 id="biographie">{data.biographyTitle}</h2><Fragment set:html={biography.code} /><a class="text-link" href="/catalogue/">{data.linkLabel} <span aria-hidden="true"><Icon name="arrow-up" /></span></a></div>
   </section>
   <section class="container author-presentation prose"><Content /></section>
 </Layout>

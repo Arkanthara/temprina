@@ -63,6 +63,23 @@ Modifier le bloc existant ; ne pas remplacer tout le fichier par cet extrait. Si
 
 Conserver les variables comme `{title}`, `{author}`, `{date}`, `{volume}`, `{minutes}`, `{count}` et `{book}` dans leurs textes : le site les remplace par les valeurs réelles. Les schémas signalent les variables obligatoires supprimées.
 
+## Écrire la biographie en Markdown
+
+Dans `src/content/pages/auteur.md`, `biography` est un bloc Markdown. Garder le `|` et les deux espaces au début de chaque ligne ; séparer les paragraphes par une ligne vide :
+
+```yaml
+biographyTitle: Mon parcours
+biography: |
+  J’écris des **romans lumineux**, dont *Le Cygne de Hautdel*.
+
+  Retrouvez [mes livres](/catalogue/).
+
+  - Mes débuts dans l’écriture
+  - Ma première publication
+```
+
+Le texte après le second `---` reste la présentation longue, affichée sous la biographie et les photos.
+
 ## Modifier les photos et illustrations
 
 Déposer les photos et couvertures dans `src/assets/`. Depuis un fichier de `pages`, `books` ou `blog`, le chemin est de la forme `../../assets/ma-photo.jpg`.

@@ -29,7 +29,7 @@ export const pageSchema = ({ image }: SchemaContext) => z.discriminatedUnion('te
       placeholder: text,
       position: z.enum(['center', 'top', 'bottom']).default('center'),
     }),
-    biographyTitle: text, biography: z.array(text).min(1), linkLabel: text,
+    biographyTitle: text, biography: text, linkLabel: text,
   }),
   z.object({
     ...page, template: z.literal('catalogue'), lead: text, listLabel: text,

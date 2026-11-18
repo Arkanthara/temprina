@@ -3,7 +3,6 @@ title: Le Cygne de Hautdel
 description: "Au détour d'une promenade, Clarisse rencontre les habitants d'un château désuet. Elle se retrouve embarquée dans une aventure dont elle ne saisit pas toute la portée..."
 genre: Nouvelle
 series: ""
-volume: 1
 publicationDate: 2020-07-20
 cover: ../../assets/le-cygne-de-hautdel.png
 coverAlt: ""

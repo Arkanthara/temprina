@@ -4,6 +4,7 @@ description: "Quand la première expérience de lecture ne laisse pas prévoir l
 date: 2026-11-4
 category: Au fil des pages
 ---
+
 Peut-être avez-vous déjà expérimenté ce phénomène : lors de sa découverte, l’histoire (en livre ou en film) vous a plu, mais vous a trop marqué pour être agréable. Il faut un peu de temps et une deuxième confrontation avant de l’apprécier pleinement, et sans arrière-goût. Pour ma part, je l’ai vécu deux fois de manière très flagrante. Trois fois, plutôt. Une fois avec un film, et deux fois avec des livres. Je me contenterai d’un des livres (rassurez-vous, vous entendrez certainement parler de l’autre un jour). Comme le titre de l’article ne vous l’indique pas, il s’agit du Seigneur des Anneaux.
 
 ## Premiers contacts

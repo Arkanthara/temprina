@@ -17,11 +17,11 @@ images:
   social: /images/social.jpg
 
 headerSubtitle: "ROMANS & IMAGINAIRES"
-footerTagline: "CHAQUE LIVRE EST UN PASSAGE."
+footerTagline: "DES MOTS POUR CRÉER DES MONDES"
 # |− conserve les retours à la ligne, sans ajouter de ligne vide à la fin.
 footerMessage: |-
-  Pour celles et ceux qui croient
-  encore à la magie des histoires.
+  Parce qu'une vie sans fantaisie
+  est trop terne...
 footerCredit: "Imaginé entre les pages"
 
 navigation:

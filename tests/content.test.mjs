@@ -107,7 +107,7 @@ test('la publication contrôle les faits communs et les textes effectivement app
   try {
     const settings = await productionSettings();
     await writeYaml(settingsPath, settings);
-    await page('auteur', { template: 'author', biography: ['Un parcours.'] });
+    await page('auteur', { template: 'author', biography: 'Un parcours.' });
     for (const id of ['mentions-legales', 'confidentialite']) await page(id, { template: 'legal', approved: true });
     assert.deepEqual(await validateProduction(options), []);
     const missingEnv = await validateProduction({ ...options, env: {} });
@@ -118,9 +118,9 @@ test('la publication contrôle les faits communs et les textes effectivement app
     assert.deepEqual(await validateProduction({ ...options, env: { ...productionEnv, PUBLIC_AUTHOR_NAME: '', PUBLIC_CONTACT_EMAIL: '' } }), []);
     await page('mentions-legales', { template: 'legal', approved: true, notice: 'À compléter.' });
     await page('confidentialite', { template: 'legal', approved: false });
-    await page('auteur', { template: 'author', biography: [] });
+    await page('auteur', { template: 'author', biography: '   ' });
     assert.equal((await validateProduction(options)).length, 3);
-    await page('auteur', { template: 'author', biography: ['Un parcours.'] }, '');
+    await page('auteur', { template: 'author', biography: 'Un parcours.' }, '');
     assert.ok((await validateProduction(options)).some(issue => issue.includes('biographie')));
     await rm(join(root, 'auteur.md'));
     await writeFile(join(root, 'mentions-legales.md'), '---\napproved: [\n---\n');

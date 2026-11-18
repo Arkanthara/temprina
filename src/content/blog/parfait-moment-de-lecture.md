@@ -3,7 +3,6 @@ title: Le parfait moment de lecture
 description: "Comment aimez-vous lire ? Quels détails vous rendent un moment de lecture parfait ?"
 date: 2026-11-5
 category: Dis-moi qui tu es...
-demo: true
 ---
 
 Cette fois, je ne parlerai pas d’un livre, ni d’une période, ni de rien de ce genre. Je veux juste vous partager comment j’aime lire. Avec un bon livre, pas de questions à se poser : la lecture est agréable quelles que soient les circonstances. Malgré tout, ce qui va autour influence aussi. Et parfois, ça rachète carrément le livre. Ce sont des détails, certes, mais ils peuvent faire la différence entre un bon moment de lecture et un parfait moment de lecture. Passons-les en revue.

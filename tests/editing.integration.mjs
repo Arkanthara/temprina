@@ -63,7 +63,7 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
         page.data.hero.primaryLabel = 'Parcourir mes livres';
       }
       if (id === 'auteur') {
-        page.data.biography = ['Une biographie personnelle.'];
+        page.data.biography = 'Une **biographie** *personnelle*.\n\nUn [livre](/catalogue/).\n\n- Première étape\n- Deuxième étape';
         page.data.portrait.image = '../../assets/test-image.png';
         page.data.portrait.caption = 'Une légende <em>personnelle</em>.';
       }
@@ -103,7 +103,11 @@ test('l’auteur peut éditer chaque page, ajouter, masquer et supprimer ses con
     assert.equal(home('h1 lumière').length, 0);
     assert.equal(home('[data-book] h3').first().text(), book.data.title);
     const author = await html('auteur/index.html');
-    assert.equal(author('.author-page .prose > p:not(.eyebrow)').text(), 'Une biographie personnelle.');
+    assert.equal(author('.author-page .prose > p:not(.eyebrow)').first().text(), 'Une biographie personnelle.');
+    assert.equal(author('.author-page .prose strong').text(), 'biographie');
+    assert.equal(author('.author-page .prose em').text(), 'personnelle');
+    assert.equal(author('.author-page .prose p a').attr('href'), '/catalogue/');
+    assert.deepEqual(author('.author-page .prose li').toArray().map(el => author(el).text()), ['Première étape', 'Deuxième étape']);
     assert.equal(author('.author-portrait img').attr('width'), '240');
     assert.match(author('.author-portrait img').attr('src'), /\.webp$/);
     assert.equal(author('.author-portrait figcaption').text(), edited.get('auteur').data.portrait.caption);

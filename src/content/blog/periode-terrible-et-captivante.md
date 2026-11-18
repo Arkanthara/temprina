@@ -3,7 +3,6 @@ title: Une période terrible et captivante
 description: "Pourquoi les histoires se déroulant pendant la Seconde Guerre Mondiale sont-elles aussi captivantes ?"
 date: 2026-11-12
 category: Réflexion au fil des pages
-demo: true
 ---
 Je veux parler de la 2ème Guerre Mondiale. Il y a un certain nombre d’histoires qui prennent cette période comme décor, et elles ont presque toutes en commun le fait d’être captivantes, qu’elles soient vraies ou fictives. Je pense que cette caractéristique vient du fait que le contexte historique présente des aspects de contes de fées, tout en étant réel. Je m’explique.
 

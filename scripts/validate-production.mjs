@@ -24,7 +24,7 @@ export async function validateProduction({ env = process.env, contentRoot = 'src
   if (env.PUBLIC_CONTENT_APPROVED !== 'true') issues.push('PUBLIC_CONTENT_APPROVED doit valoir true après validation des contenus et informations légales.');
   try {
     const { data, body } = await readPageContent(join(contentRoot, 'auteur.md'));
-    if (data.template !== 'author' || !body || !Array.isArray(data.biography) || !data.biography.length || data.biography.some(text => typeof text !== 'string' || !text.trim())) {
+    if (data.template !== 'author' || !body || typeof data.biography !== 'string' || !data.biography.trim()) {
       issues.push('Renseigner la présentation et la biographie dans src/content/pages/auteur.md.');
     }
   } catch {

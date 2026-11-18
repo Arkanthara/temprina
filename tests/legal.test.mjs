@@ -42,7 +42,7 @@ test('approved legal pages do not bypass incomplete, invalid or missing common i
   const settingsPath = join(root, 'site.yaml');
   const env = { PUBLIC_SITE_URL: 'https://temprina.ch', PUBLIC_AUTHOR_NAME: 'Éditrice de test', PUBLIC_CONTACT_EMAIL: 'contact@temprina.ch', PUBLIC_DEMO_MODE: 'false', PUBLIC_CONTENT_APPROVED: 'true' };
   try {
-    await writeFile(join(root, 'auteur.md'), '---\ntemplate: author\nbiography: [Un parcours.]\n---\nPrésentation.');
+    await writeFile(join(root, 'auteur.md'), '---\ntemplate: author\nbiography: Un parcours.\n---\nPrésentation.');
     for (const id of ['mentions-legales', 'confidentialite']) await writeFile(join(root, `${id}.md`), '---\ntemplate: legal\napproved: true\n---\nTexte relu.');
     const settings = await productionSettings();
     const data = settings.legal;

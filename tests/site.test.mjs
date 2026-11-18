@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { load } from 'cheerio';
+import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 import { z } from 'astro/zod';
 import { bookSchema, blogSchema, pageSchema } from '../src/lib/content-schema.ts';
 import { readSettings } from './helpers/content.mjs';
@@ -173,7 +174,9 @@ test('la biographie, le portrait et les données légales restent éditables', a
   const { data: source } = await readPageContent('src/content/pages/auteur.md');
   const data = pageFields.parse(source);
   const $ = pages.get('auteur/index.html');
-  assert.deepEqual(text($, '.author-page .prose > p:not(.eyebrow)'), data.biography);
+  const markdown = await createSatteriMarkdownProcessor();
+  const biography = load((await markdown.render(data.biography)).code);
+  assert.deepEqual(text($, '.author-page .prose > p:not(.eyebrow)'), text(biography, 'p'));
   assert.ok($('.author-presentation').text().trim());
   assert.equal($('.author-portrait').length, Number(data.portrait.enabled));
   if (data.portrait.enabled) {
